@@ -15,12 +15,14 @@ The plan assumes 2-week sprints and targets the MVP scope.
 
 ## Sprint 0 - Preparation
 
+Status: done
+
 - Confirm MVP scope and success criteria (done)
 - Align domain terms across all docs (done)
 - Repo setup (lint, format, commit conventions) (done)
 - Initialize Laravel + Inertia + React skeleton (done)
 - SQLite migrations and seed data (done)
-- Decide UI direction (kit or custom)
+- Decide UI direction (Shadcn UI) (done)
 
 ---
 
