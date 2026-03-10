@@ -29,8 +29,10 @@ They focus on **business behavior**, not implementation details.
 2. Enters score
 3. App validates score format
 4. Domain layer checks match state and rules
-5. Match result saved → Rankings updated
-6. Notifications sent to affected players
+5. Application service writes to Firestore (if authorized by security rules)
+6. Firestore security rules verify player permissions
+7. Match result saved → Rankings updated → Real-time listeners notify other clients
+8. FCM push notifications sent to affected players
 
 #### 2.1.3 View Rankings
 1. Player navigates to Rankings screen
@@ -57,19 +59,25 @@ They focus on **business behavior**, not implementation details.
 #### 2.2.2 Schedule Matches
 1. Organizer selects a round
 2. Edits matches between players or teams and schedules date and time of play
-3. Matches are saved → Notifications optionally triggered
+3. Application service writes to Firestore (if authorized by security rules)
+4. Firestore listeners update UI for all connected clients in real-time
+5. Notifications optionally triggered via FCM
 
 #### 2.2.3 Enter Match Results
 1. Similar to player flow, but organizer can override disputes
 2. Domain rules validate result
-3. Rankings recalculated
-4. Notifications sent
+3. Write to Firestore (authorization checked by security rules)
+4. Rankings recalculated via domain service
+5. Firestore updated with new rankings
+6. Real-time listeners push updates to all clients
+7. FCM push notifications sent to affected players
 
 #### 2.2.4 Publish News
 1. Organizer creates announcement
-2. Content is saved with timestamp
-3. Players are notified (push/email)
-4. News appears in app for all relevant players
+2. Content is saved to Firestore with timestamp
+3. Firestore real-time listeners notify all clients
+4. FCM push notifications sent to players
+5. News appears in app immediately for all connected clients
 
 ---
 
@@ -77,43 +85,48 @@ They focus on **business behavior**, not implementation details.
 
 ### 3.1 Offline Sync Flow
 1. User performs actions offline (match entry, news read)
-2. Actions are queued in local storage
+2. Actions are queued in Firestore's local offline cache (automatic)
 3. Service worker detects online availability
-4. Queued actions sent to backend
+4. Firestore SDK automatically syncs pending writes to server
 5. Conflicts resolved:
-   - Automatic rules (latest score wins)
-   - Manual review if dispute
+   - Automatic rules (latest timestamp wins for match scores)
+   - Firestore security rules prevent unauthorized overwrites
+   - Manual review if organizer override needed for disputes
 
 ### 3.2 Ranking Update Flow
 1. Match status changes to `finished`
-2. Domain service calculates new rankings for affected players
-3. Updated ranking persisted in repository
-4. Notifications sent to players about changes
+2. Application service calls domain service to calculate new rankings for affected players
+3. Rankings written to Firestore (validated by security rules)
+4. Real-time Firestore listeners push updated rankings to all connected clients
+5. FCM push notifications sent to players with ranking changes
 
 ### 3.3 Notification Flow
 1. Event triggers notification (new match, result, news)
-2. Application layer formats notification
-3. Infrastructure layer sends push/email
-4. Device displays notification to user
+2. Application layer formats notification message
+3. Infrastructure layer (Firebase Admin SDK or client-side) sends FCM push
+4. Device receives push and displays notification to user
+5. Notification click opens relevant app view
 
 ---
 
 ## 4. Flow Diagram (High-Level)
 
-[Player/Organizer] --> [UI] --> [Application Layer] --> [Domain Layer] --> [Infrastructure]
-^ |
-|-------------------------------------------------------------------|
-Offline sync / Notifications / Data persistence
+[Player/Organizer] --> [UI] --> [Application Layer] --> [Domain Layer] --> [Firestore SDK]
+^ |                                                                              |
+|-----> [Firestore Security Rules] --> [Firestore DB]
+        [FCM / Real-time Listeners] <----|
 
 ---
 
 ## 5. Key Notes
 
 - Flows respect domain rules (e.g., no match finished without score)
-- Offline-first flows must handle conflict resolution gracefully
+- Offline-first flows handled automatically by Firestore SDK (no manual queue management)
 - Rankings are updated only after domain validation
-- News and notifications are asynchronous but consistent
+- News and notifications are real-time via Firestore listeners and FCM
 - Teams are optional; flows should work for both individual and team matches
+- Firestore security rules enforce authorization at database level (reduces need for client-side permission checks)
+- Real-time listeners keep all connected clients in sync automatically
 
 ---
 

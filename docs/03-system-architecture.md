@@ -17,7 +17,7 @@ It defines how the system is organized into layers and components, without delvi
 - Separate concerns (UI, domain, persistence)
 - Enable scalability and maintainability
 
-**Primary stack:** React + Inertia.js + Laravel + SQLite
+**Primary stack:** React + Firebase (Firestore) + PWA + Service Workers
 
 ---
 
@@ -42,26 +42,28 @@ It defines how the system is organized into layers and components, without delvi
 - Offline caching via service workers
 
 **Technologies:**
-- React + TypeScript (via Inertia.js)
-- Inertia.js adapters and page routing
+- React 19 + TypeScript
+- React Router for client-side navigation
 - PWA service workers
 - IndexedDB or localForage for offline storage
 
 ---
 
-### 3.2 Application Layer
+### 3.2 Application Layer (Client-Side Services)
 
 **Responsibilities:**
-- Orchestrates use cases and user actions
+- Orchestrates use cases and user actions (fully client-side)
 - Coordinates between UI and domain
 - Implements workflows for automatically creating rounds and matches based on league or tournament rules
 - Implements workflows, e.g., entering match results, updating rankings
 - Validates input before calling domain services
+- Manages Firestore SDK calls and offline queue management
 
 **Components:**
-- **Application Services** – handle commands like `RecordMatchResult`, `CreateRound`
-- **DTOs / Request Models** – transfer data from UI to domain layer
- - **Controllers / Actions** – Laravel controllers returning Inertia responses
+- **Application Services** – TypeScript services handling commands like `RecordMatchResult`, `CreateRound`
+- **DTOs / Models** – transfer data between UI components and domain layer
+- **Firestore Repository Layer** – abstracts Firestore CRUD operations (replaces Laravel Eloquent models)
+- **Firebase Hooks** – React hooks for auth state, data fetching, real-time listeners
 
 ---
 
@@ -88,61 +90,73 @@ It defines how the system is organized into layers and components, without delvi
 
 **Responsibilities:**
 - Provides persistence, notifications, and external integrations
-- Bridges domain layer with databases and external systems
+- Bridges domain layer with Firestore and external systems
 
 **Components:**
-- **Repositories:** CRUD access for entities (e.g., `PlayerRepository`, `MatchRepository`)
-- **Notifications Service:** Laravel notifications (email, push when enabled)
-- **Sync Service:** Handles offline/online data synchronization
+- **Firestore Repositories:** CRUD access via Firebase SDK (e.g., `PlayerRepository`, `MatchRepository`)
+- **Firebase Auth Service:** Manages user authentication and role claims
+- **Notifications Service:** Firebase Cloud Messaging (FCM) + browser push when enabled
+- **Sync Service:** Handles offline/online data synchronization via Firestore listeners and offline cache
+- **Firestore Security Rules:** Enforce authorization and data validation at database layer
 - **External Integrations:** Optional, e.g., Google Calendar export
 
 **Notes:**
 - Infrastructure is swappable; domain does not know implementation details
- - Primary persistence is SQLite via Laravel's database layer
+- Primary persistence is Firestore (NoSQL, real-time, offline-capable)
 
 ---
 
 ## 4. Data Flow
 
-1. **User Interaction:** Player enters match result → UI collects data  
-2. **Application Layer:** Validates input → calls domain services  
-3. **Domain Layer:** Updates entities → enforces rules → produces new state  
-4. **Infrastructure Layer:** Persists state (SQLite via Laravel) → triggers notifications → syncs offline data  
-5. **UI Update:** Inertia response updates the React UI
+1. **User Interaction:** Player enters match result → React component collects data
+2. **Application Layer:** Validates input → calls domain services → updates local state
+3. **Domain Layer:** Updates entities → enforces rules → produces new state
+4. **Infrastructure Layer:** Persists state to Firestore via SDK → offline cache updated → FCM notification queued
+5. **UI Update:** React state updates → component re-renders; Firestore listener pushes real-time updates to other clients
+6. **Offline Queue:** Changes queued locally; service worker syncs to Firestore when online
 
 ---
 
 ## 5. Offline-First Considerations
 
-- Use **IndexedDB/localForage** to cache user data and matches
-- Service worker handles background sync when connectivity is restored
-- Conflict resolution strategy:
-  - Latest update wins for scores
-  - Manual review for disputes
+- **Firestore Offline Persistence:** Built-in via Firestore SDK (no manual IndexedDB needed)
+- **Service Worker:** Handles background sync and push notifications
+- **Offline Queue:** Client-side service tracks pending writes; syncs on reconnect
+- **Conflict Resolution Strategy:**
+  - Latest timestamp wins for match scores
+  - Concurrent organizer edits flagged for manual review
+  - Firestore security rules prevent unauthorized overwrites
 
 ---
 
 ## 6. Component Diagram (High-Level)
 
-[UI Layer: React/PWA] <--> [Application Services] <--> [Domain Layer: Entities/Services] <--> [Infrastructure: DB, Notifications, Sync]
+[React Components] <--> [Application Services] <--> [Domain Layer: Entities/Services] <--> [Firestore SDK] <--> [Firestore Database]
+                                                                                            ↓
+                                                                                     [Local Cache / Offline]
+                                                                                            ↓
+                                                                                     [Service Worker / FCM]
 
 
 ---
 
 ## 7. Key Decisions
 
-- Domain layer remains framework-agnostic for flexibility
+- Domain layer remains framework-agnostic for flexibility; can be tested in isolation
 - Use layered architecture to separate responsibilities
 - PWA offline-first is a primary requirement
 - Domain services handle ranking, disputes, and match validation
-- Infrastructure is abstracted to allow future DB or API changes
+- Firestore chosen for real-time capabilities and offline support out-of-box
+- All business logic runs client-side (Firestore security rules handle authorization)
+- No backend server required; Firebase Cloud Functions used only for future advanced features
 
 ---
 
 ## 8. Open Questions / To Be Defined
 
-- Offline conflict resolution edge cases
-- Exact ranking calculation algorithm
-- Notification strategies for rounds/matches
+- Offline conflict resolution edge cases (how to handle conflicting edits)
+- Exact ranking calculation algorithm and frequency
+- Notification strategies for rounds/matches (Firestore triggers? Client-side only?)
 - Team management across seasons
 - Tournament support alongside leagues
+- Firestore collection structure and sub-collections vs. root-level collections

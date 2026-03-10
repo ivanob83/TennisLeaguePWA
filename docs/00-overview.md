@@ -15,7 +15,7 @@ Tennis League PWA is a Progressive Web App designed for recreational tennis leag
 It enables players and organizers to track match schedules, results, rankings, and receive notifications.  
 The application is offline-capable, allowing access even in environments with limited connectivity (e.g. tennis courts).
 
-**Primary stack:** React + Inertia.js + Laravel + SQLite
+**Primary stack:** React + Firebase (Firestore) + PWA + Service Workers
 
 This document provides a high-level overview of the problem space, stakeholders, and core business concepts.
 
