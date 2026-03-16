@@ -48,7 +48,7 @@ firestore/
   uid: string                    // Firebase Auth UID
   email: string                  // User email
   displayName: string            // User's full name
-  role: 'player' | 'organizer' | 'admin'  // User role (custom claim)
+  role: 'player' | 'editor' | 'superadmin'  // User role (custom claim)
   createdAt: Timestamp           // Account creation date
   updatedAt: Timestamp           // Last profile update
   profilePicture?: string        // URL to profile image (optional)
@@ -273,8 +273,8 @@ service cloud.firestore {
       return request.auth.token.role;
     }
 
-    function isOrganizerOrAdmin() {
-      return userRole() in ['organizer', 'admin'];
+    function isEditorOrSuperadmin() {
+      return userRole() in ['editor', 'superadmin'];
     }
 
     function leagueCreator(leagueId) {
@@ -293,8 +293,8 @@ service cloud.firestore {
     match /leagues/{leagueId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
-      allow update: if leagueCreator(leagueId) || isOrganizerOrAdmin();
-      allow delete: if leagueCreator(leagueId) || isOrganizerOrAdmin();
+      allow update: if leagueCreator(leagueId) || isEditorOrSuperadmin();
+      allow delete: if leagueCreator(leagueId) || isEditorOrSuperadmin();
 
       // Seasons subcollection
       match /seasons/{seasonId} {
@@ -332,7 +332,7 @@ service cloud.firestore {
         // Rankings subcollection
         match /rankings/{rankingId} {
           allow read: if isAuthenticated();
-          allow create, update, delete: if leagueCreator(leagueId) || isOrganizerOrAdmin();
+          allow create, update, delete: if leagueCreator(leagueId) || isEditorOrSuperadmin();
         }
       }
     }
@@ -340,9 +340,9 @@ service cloud.firestore {
     // --- News Collection ---
     match /news/{newsId} {
       allow read: if isAuthenticated();
-      allow create: if isOrganizerOrAdmin();
-      allow update: if isOrganizerOrAdmin() || isUser(resource.data.createdBy);
-      allow delete: if isOrganizerOrAdmin() || isUser(resource.data.createdBy);
+      allow create: if isEditorOrSuperadmin();
+      allow update: if isEditorOrSuperadmin() || isUser(resource.data.createdBy);
+      allow delete: if isEditorOrSuperadmin() || isUser(resource.data.createdBy);
     }
   }
 }
@@ -353,13 +353,13 @@ service cloud.firestore {
 | Collection | Read | Create | Update | Delete |
 |-----------|------|--------|--------|--------|
 | users | Self only | Self | Self | Self |
-| leagues | All authenticated | Authenticated (set creator) | League creator or admin | League creator or admin |
+| leagues | All authenticated | Authenticated (set creator) | League creator or superadmin | League creator or superadmin |
 | seasons | All authenticated | League creator | League creator | League creator |
 | rounds | All authenticated | League creator | League creator | League creator |
 | matches | All authenticated | League creator | League creator **or** match player (if finishing) | League creator |
 | players | All authenticated | League creator | League creator or self | League creator |
-| rankings | All authenticated | League creator or admin | League creator or admin | League creator or admin |
-| news | All authenticated | Organizer or admin | Organizer or author | Organizer or author |
+| rankings | All authenticated | League creator or superadmin | League creator or superadmin | League creator or superadmin |
+| news | All authenticated | Editor or superadmin | Editor or author | Editor or author |
 
 **Notes:**
 - Players can only update a match if they are one of the participants and the match is transitioning to `finished`
@@ -387,7 +387,7 @@ Custom claims are set via Firebase Admin SDK (backend script or Cloud Function):
 
 ```json
 {
-  "role": "player" | "organizer" | "admin",
+  "role": "player" | "editor" | "superadmin",
   "leagueIds": ["league1", "league2"]
 }
 ```
@@ -396,7 +396,7 @@ Custom claims are set via Firebase Admin SDK (backend script or Cloud Function):
 
 ```javascript
 admin.auth().setCustomUserClaims(uid, {
-  role: 'organizer',
+  role: 'editor',
   leagueIds: []
 })
 .then(() => console.log('Custom claims set'))
@@ -499,7 +499,7 @@ firebase.firestore().enablePersistence()
 **Application-level handling:**
 - Before writing match scores, client-side domain logic validates state
 - Firestore security rules prevent unauthorized overwrites
-- For disputes: organizer can override via `organizer_override` field (future enhancement)
+- For disputes: editor can override via `editor_override` field (future enhancement)
 
 ---
 
@@ -550,7 +550,7 @@ gcloud firestore export gs://backup-bucket/backup-name --async
 
 - How to auto-generate rankings? (Cloud Function on match finish, or client-side?)
 - Should match update permissions allow players to correct scores within a time window?
-- How to handle organizer-disputed results? (Add `status: 'disputed'` field?)
+- How to handle editor-disputed results? (Add `status: 'disputed'` field?)
 - Pagination strategy for large match/news lists?
 - Multi-league management: can player join multiple leagues in same season?
 

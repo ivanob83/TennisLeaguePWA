@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         primary: {
           DEFAULT: '#033629',
@@ -29,6 +33,16 @@ export default {
           light: '#fafafa',
           dark: '#033629',
         },
+      },
+      spacing: {
+        section: '4.5rem',
+        'card-x': '1.5rem',
+        'card-y': '1.25rem',
+        'field-x': '0.875rem',
+        'field-y': '0.625rem',
+      },
+      transitionDuration: {
+        280: '280ms',
       },
     },
   },

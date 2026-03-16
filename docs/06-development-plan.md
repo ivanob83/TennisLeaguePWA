@@ -1,8 +1,8 @@
 # Development Plan
 
-Version: 2.1  
-Status: Active  
-Last updated: 2026-02-28
+Version: 2.2
+Status: Active
+Last updated: 2026-03-14
 
 ---
 
@@ -67,7 +67,7 @@ Status: ✅ COMPLETED
 - ✅ Implement userRepository (createUser, getUserById, updateUser, userExists)
 - ✅ Document Firestore security rules deployment process (08-firebase-deployment.md)
 - 📋 Deploy Firestore security rules (manual step - see deployment guide)
-- 📋 Set custom claims (role: player | organizer | admin) - deferred to Sprint 2
+- 📋 Set custom claims (role: player | editor | superadmin) - deferred to Sprint 2
 
 **Domain Layer:**
 - ✅ Implement domain entity types (Player, League, Season, Match, etc.) with JSDoc
@@ -103,7 +103,7 @@ Status: ✅ COMPLETED
 
 ## Sprint 1.5 - Design System & UI Foundation
 
-**Status:** � IN PROGRESS (~60% complete)
+**Status:** IN PROGRESS (checklist-driven execution active)
 
 **Goal:** Create a cohesive design system inspired by Roland Garros visual identity
 
@@ -113,53 +113,71 @@ Status: ✅ COMPLETED
   - ✅ Secondary: `#cc4e00` (Burnt orange - clay court accent)
   - ✅ Text: `#242424`, Background: `#ffffff`, Light BG: `#fafafa`
 - ✅ Tailwind config updated with custom Roland Garros theme (tailwind.config.js)
+- ✅ Tailwind typography + spacing tokens added for UI library
+  - ✅ 2 font families configured (heading + body)
+  - ✅ section/card/form spacing tokens added
 - ✅ All pages updated with custom color system (replaced hardcoded blues)
 - ✅ Hybrid folder structure implemented (features + shared/components/hooks/services)
 - ✅ Layout foundation:
   - ✅ Header component (navigation, user profile, logout)
   - ✅ ProtectedRoute component (authenticated routes)
   - ✅ PublicRoute component (login/register routes)
+- ✅ Dedicated UI showcase route and page created
+  - ✅ `/ui-showcase` route in `app/js/app.jsx`
+  - ✅ `app/js/features/ui/pages/UIShowcasePage.jsx`
 - ✅ Domain types with TypeScript JSDoc support
 - ✅ Role-based access control (RBAC) defined:
-  - ✅ superadmin, admin, player roles
+  - ✅ superadmin, editor, player roles
   - ✅ Role permissions matrix (canManageLeagues, canPlayMatches, etc.)
   - ✅ Helper functions (hasRole, hasPermission)
-  - ✅ Support for multi-role users (admin can be player simultaneously)
+  - ✅ Support for multi-role users (editor/superadmin can be player simultaneously)
 - ✅ Firebase config improvements:
   - ✅ Replaced deprecated `enableIndexedDbPersistence` with `initializeFirestore` + `persistentLocalCache`
   - ✅ Added service worker check before Cloud Messaging
   - ✅ Better error handling and logging
 
-**Remaining Tasks:**
-- 📋 Build reusable UI component library (app/js/components/ui/)
-  - 📋 Button variations (primary, secondary, outline, ghost)
-  - 📋 Card components (match cards, player cards, league cards)
-  - 📋 Form components (text input, select, checkbox, radio)
+**Remaining Tasks (Execution Checklist):**
+- 📋 Tailwind design tokens (keep current color palette as source of truth)
+  - ✅ Add exactly 2 font families (heading + body)
+  - ✅ Add spacing tokens for section/card/form rhythm
+  - 📋 Keep flat style constraints (no card shadows, no rounded corners in reusable UI components)
+- 📋 Build reusable UI component library (`app/js/shared/components/ui/`)
+  - ✅ `SectionTitle`
+  - ✅ Button variations (`primary`, `secondary`, `outline`, `ghost`)
+  - ✅ Form fields (text input, select, checkbox, radio wrappers)
+  - ✅ Card base + `MatchCard`, `TournamentCard`, `NewsCard`, `PlayerCard`
+  - ✅ `Badge/StatusBadge` (state mapping)
+  - ✅ `Alert` primitive
   - 📋 Data table component for rankings/results
-  - 📋 Badge/Trophy components
   - 📋 Toast notification system
-- 📋 Icons and visual elements
-  - 📋 Tennis-specific icons (racket, ball, trophy, court)
-  - 📋 Status indicators
-- 📋 Loading states and animations
-  - 📋 Skeleton loaders
-  - 📋 Loading animations (tennis ball bounce, court draw, etc.)
-- 📋 Create Storybook or component showcase page
-- 📋 Design system documentation (10-design-system.md)
+- 📋 Dedicated UI showcase page (required)
+  - ✅ Create `/ui-showcase` route in `app/js/app.jsx`
+  - ✅ Build `app/js/features/ui/pages/UIShowcasePage.jsx`
+  - ✅ Showcase all required components and states (default/hover/focus/disabled/loading)
+- 📋 Incremental adoption in existing pages
+  - ✅ Refactor `LoginPage` and `RegisterPage`
+  - ✅ Refactor `DashboardPage`, `HomePage`, `ProfilePage`
+
+**Execution Order:**
+1. Tailwind tokens (fonts/spacing/elevation)
+2. Core primitives (`SectionTitle`, `Button`, form fields, `Card` base)
+3. Domain cards (`MatchCard`, `TournamentCard`, `NewsCard`, `PlayerCard`) + badges
+4. Dedicated `/ui-showcase` page and route
+5. Incremental adoption across existing pages
 
 **Design System Reference:**
 - Clay court orange/terracotta color palette
 - Athletic typography (bold headlines, clean body text)
-- Card-based layouts with subtle shadows
+- Card-based layouts with flat surfaces (no rounded corners, no drop shadows)
 - Elegant use of whitespace
 - Tennis-specific iconography
 - Responsive grid system
 - Smooth animations and transitions
 
 **Typography:**
-- 📝 Heading font: Bold, athletic sans-serif (similar to Montserrat/Poppins)
-- 📝 Body font: Clean, readable sans-serif (Inter/Open Sans)
-- 📝 Mono font: Code/timestamps (Fira Code/Roboto Mono)
+- Heading font: Bold, athletic sans-serif (similar to Montserrat/Poppins)
+- Body font: Clean, readable sans-serif (Inter/Open Sans)
+- Constraint: use max 2 font families in Tailwind config for Sprint 1.5
 
 **Study Reference:**
 - [Roland Garros Website](https://www.rolandgarros.com)
@@ -169,36 +187,117 @@ Status: ✅ COMPLETED
 
 ---
 
-## Sprint 2 - League & Season Management
+## Sprint 2 - Players, Season, League & Tournament Setup
 
-**Goal:** Organizers can create and manage leagues and seasons
+**Goal:** Admin can manage players, create seasons, configure leagues/tournaments with draw structure, assign players to groups, and have match slots auto-generated
+
+**Domain Model Recap:**
+- **Season** = top-level yearly container (e.g. "2025", "2026"); all competitions live inside a season
+- **League** = competition spanning most/all of a season; format: `round_robin` | `knockout` | `round_robin_knockout`
+- **Tournament** = shorter self-contained competition within a season; same format options
+- **Group** = sub-division of players ("Group A", "Group B") within RR or hybrid competitions; knockout has no groups, just a seeded player list
+
+**Creation Order (strict prerequisite chain):**
+1. Admin creates **Players** (player profiles must exist in the system before competitions can be set up)
+2. Admin creates a **Season** (must exist before creating any competition)
+3. Admin creates a **League** or **Tournament** (must select an existing season)
+4. Admin assigns players to the competition draw (requires players from step 1)
+
+---
+
+### Part A — Player Management (MVP UC-02)
+
+> Players must exist in the system before they can be assigned to any competition draw.
 
 **Frontend Tasks:**
-- League creation form (name, description, settings)
-- League list view (all leagues user can manage or join)
-- Season creation form (dates, name)
-- Season list within league
-- Player enrollment page (show seasons and enroll players)
+- ✅ Player creation form: name, email, optional avatar upload
+- ✅ Player list page (admin view): name, avatar, linked status
+- ✅ Player list accessible from main navigation
+- ✅ Admin user management (create, edit, role change)
+- ✅ Player ↔ User linking (admin can link/unlink one player per user)
+- ✅ Header avatar + display name sourced from linked player
+- 📋 Player edit form: update name, avatar
+- 📋 Player detail page: stats placeholder, competition history placeholder
 
 **Backend Tasks (Firestore):**
-- Implement LeagueRepository (CRUD operations)
-- Implement SeasonRepository (nested under leagues)
-- Implement PlayerRepository (season-specific enrollment)
-- Add Firestore listeners for real-time league/season updates
+- ✅ Implement `PlayerRepository` (CRUD — top-level `players` collection)
+- ✅ Player documents separate from Firebase Auth user documents
+  - ✅ `authUid` field on player document: null if unlinked, uid if linked
+- ✅ Connection request flow (user requests link → admin approves)
 
 **Domain Layer:**
-- Season validation (non-overlapping dates per league)
-- Player enrollment validation (no duplicate enrollments)
+- Player name required; email must be unique across players
+- Player creation does not require a Firebase Auth account
+
+---
+
+### Part B — Season & Competition Setup
+
+**UX Flow (per competition):**
+1. **Season** — Admin creates a season first (name, start date, end date). A season must exist before any league or tournament can be created.
+2. **Create competition** — Choose season (from existing list), name, format, rules. For `round_robin` or `round_robin_knockout`: also set number of groups and players per group. For `knockout`: only player count needed.
+3. **Tab 1 — Setup**: View/edit competition config after creation.
+4. **Tab 2 — Draw**: Assign players to groups (RR/hybrid: drag or select players per group) or set seeded player order for the bracket (knockout: ordered list of players).
+5. **Tab 3 — Group Matches**: Shows auto-generated round-robin match slots per group. Slots appear automatically once a group reaches `players_per_group` capacity (N players → N*(N-1)/2 match slots). Visible only for `round_robin` and `round_robin_knockout` formats.
+6. **Tab 4 — Knockout**: Shows auto-generated knockout bracket slots from the seeded list (1 vs N, 2 vs N-1, etc.). Visible for `knockout` and `round_robin_knockout` formats.
+7. Match slots from Tab 3 and Tab 4 become the input for Sprint 3's match scheduling and results workflow.
+
+**Frontend Tasks:**
+- Season creation form (name, start date, end date)
+- Season list view
+- League creation form:
+  - Fields: season (dropdown — required, must select existing season), name, format, rules
+  - Conditional fields shown only for `round_robin` / `round_robin_knockout`: `num_groups`, `players_per_group`
+  - System auto-creates empty group slots (`num_groups` × named groups) on save
+- League list view with season filter
+- Tournament creation form (same fields as league + `start_date` / `end_date` constrained within season bounds)
+- Tournament list view with season filter
+- Competition detail page with **4 tabs**:
+  - **Tab 1 — Setup**: view/edit competition config (name, format, rules, dates)
+  - **Tab 2 — Draw**:
+    - `round_robin` / `round_robin_knockout`: assign players to groups (drag or select); shows player count vs `players_per_group` target per group
+    - `knockout`: manage ordered seed list (select players, drag to reorder)
+  - **Tab 3 — Group Matches** *(visible for `round_robin` and `round_robin_knockout` only)*: shows auto-generated match pair slots per group; slots appear when group is full; each slot shows player1 vs player2 with status `pending`
+  - **Tab 4 — Knockout** *(visible for `knockout` and `round_robin_knockout` only)*: shows auto-generated knockout bracket; first-round matchups generated from seed order; bracket tree visualization
+
+**Backend Tasks (Firestore):**
+- Implement `SeasonRepository` (CRUD — top-level `seasons` collection)
+- Implement `LeagueRepository` (CRUD — stores `season_id`, format, `num_groups`, `players_per_group`)
+- Implement `TournamentRepository` (CRUD — stores `season_id`, date range, format config)
+- Implement `GroupRepository` (subcollection under each competition: `leagues/{id}/groups`, `tournaments/{id}/groups`)
+- Implement enrollment subcollection (`leagues/{id}/enrollments`, `tournaments/{id}/enrollments`)
+- **Match slot auto-generation** (triggered server-side when group player list reaches capacity):
+  - RR group of N players → write N*(N-1)/2 match documents with status `pending`
+  - Knockout seeded list → write first-round bracket match documents (1 vs N, 2 vs N-1, etc.)
+- Firestore real-time listeners for league/tournament/group/match-slot updates
+
+**Domain Layer:**
+- Format validation (`round_robin`, `knockout`, `round_robin_knockout` only)
+- `num_groups` + `players_per_group` required for RR/hybrid; forbidden (null) for pure knockout
+- Tournament date validation (within parent season date range)
+- Player uniqueness per group (a player may appear in only one group per competition)
+- Match slot generation: group of N → N*(N-1)/2 slots; correct pair enumeration
+- Knockout bracket generation: ordered seed list → first-round matchups (seed 1 vs seed N, seed 2 vs seed N-1, etc.)
 
 **Testing:**
-- League CRUD (organizer permissions)
-- Season CRUD (validation, date constraints)
-- Player enrollment flow
+- Player CRUD (create, read, update, list)
+- Season CRUD
+- League/Tournament CRUD with format + group config validation
+- Conditional field validation (`num_groups` required for RR, null for knockout)
+- Season prerequisite: cannot create competition without a season
+- Group assignment: duplicate player rejection
+- Match slot auto-generation: correct count and correct player pairs for various N
+- Knockout bracket generation: correct bracket pairings from seed order
 
 **Deliverables:**
-- Organizer can create leagues (stored in Firestore)
-- Organizer can create seasons with date validation
-- Players can join seasons
+- Admin can create and manage player profiles
+- Admin can create a season
+- Admin can create a league or tournament (must select an existing season)
+- Admin can assign players to groups (or seed bracket order for knockout)
+- Group Matches tab shows auto-generated match slots when group is full
+- Knockout tab shows auto-generated bracket from seed list
+- Competition lists filterable by season
+
 
 ---
 
@@ -330,6 +429,9 @@ Status: ✅ COMPLETED
 - **Offline conflict resolution:** How to handle concurrent match score edits from multiple devices?
 
 ### Future Enhancements (Post-MVP)
+- Tennis-specific icons (racket, ball, trophy, court) and status indicators
+- Loading animations (tennis ball bounce, court draw, etc.) and skeleton loaders
+- Design system documentation (`10-design-system.md`)
 - Team-based matches (vs individual players)
 - Tournament brackets (vs league round-robin)
 - Points/rating system

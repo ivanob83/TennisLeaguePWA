@@ -1,4 +1,4 @@
-# Tennis League PWA – MVP Definition
+Opci# Tennis League PWA – MVP Definition
 
 Version: 1.0  
 Status: Draft  
@@ -55,7 +55,7 @@ The MVP consists of the following **five core use-cases**.
 An organizer creates a new season within a league.
 
 ### UC-02: Register Player
-An organizer registers players for a season.
+An admin creates player profiles in the system. Players must exist before they can be assigned to any competition. Player profiles may be admin-created independently of Firebase Auth accounts.
 
 ### UC-03: Create Match
 An organizer creates a match between two players within a season.

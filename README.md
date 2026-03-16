@@ -1,61 +1,109 @@
 # TennisLeaguePWA
 
-Open-source web app for managing recreational tennis leagues.
+Open-source Progressive Web App for managing recreational tennis leagues.
 
 ## Stack
 
-- Laravel 12
-- Inertia.js + React
-- Vite + Tailwind CSS
-- SQLite (default database)
+- React 19
+- React Router
+- Firebase Authentication
+- Firebase Firestore (offline-capable)
+- Vite
+- Tailwind CSS
+
+## Requirements
+
+- Node.js 18+
+- npm 9+
+- Firebase project (Firestore + Authentication enabled)
 
 ## Local Setup
 
-1. Install PHP 8.2+ and Composer
-2. Install Node.js 18+
-3. Copy environment file and generate key
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Create environment file
 
 ```bash
 cp .env.example .env
-php artisan key:generate
 ```
 
 PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
-php artisan key:generate
 ```
 
-4. Create SQLite database and run migrations
+3. Fill Firebase environment variables in `.env`
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- Optional: `VITE_USE_FIREBASE_EMULATOR=true` for local emulator usage
+
+4. Start development server
 
 ```bash
-mkdir -p database
-type NUL > database/database.sqlite
-php artisan migrate
-```
-
-PowerShell:
-
-```powershell
-if (-not (Test-Path database)) { New-Item -ItemType Directory database | Out-Null }
-if (-not (Test-Path database\database.sqlite)) { New-Item -ItemType File database\database.sqlite | Out-Null }
-php artisan migrate
-```
-
-5. Install JS dependencies and run dev server
-
-```bash
-npm install
 npm run dev
 ```
 
-6. Start the Laravel server
+App runs at `http://localhost:5173` by default.
 
-```bash
-php artisan serve
+## Scripts
+
+- `npm run dev` - start Vite dev server
+- `npm run build` - build production bundle
+- `npm run preview` - preview production build locally
+- `npm run format` - check Prettier formatting
+- `npm run format:fix` - auto-fix formatting with Prettier
+
+## Project Structure
+
+```text
+app/
+	css/
+		app.css
+	js/
+		app.jsx
+		main.jsx
+		config/
+			firebase.config.js
+		features/
+			auth/
+			dashboard/
+			home/
+			profile/
+		lib/
+			firestore.js
+			utils.js
+		shared/
+			components/
+			hooks/
 ```
 
-## Docs
+## Firebase Notes
 
-Project documentation is in [docs/](docs/). Start with [docs/00-overview.md](docs/00-overview.md).
+- Authentication and Firestore are initialized in `app/js/config/firebase.config.js`.
+- Firestore uses persistent local cache when available.
+- If persistence is unavailable, app falls back to in-memory Firestore.
+
+## Deployment
+
+- Frontend build output is generated in `dist/`.
+- You can deploy to Vercel, Firebase Hosting, Netlify, or any static host.
+- If using Firebase rules/deployment, see docs below.
+
+## Documentation
+
+Project documentation is in [docs/](docs/). Start with:
+
+- [docs/00-overview.md](docs/00-overview.md)
+- [docs/07-firebase-schema.md](docs/07-firebase-schema.md)
+- [docs/08-firebase-deployment.md](docs/08-firebase-deployment.md)
+- [docs/09-google-auth-setup.md](docs/09-google-auth-setup.md)

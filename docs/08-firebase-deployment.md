@@ -87,12 +87,12 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
     
-    function isOrganizer() {
-      return hasRole('organizer') || hasRole('admin');
+    function isEditor() {
+      return hasRole('editor') || hasRole('superadmin');
     }
-    
-    function isAdmin() {
-      return hasRole('admin');
+
+    function isSuperadmin() {
+      return hasRole('superadmin');
     }
     
     // Users collection
@@ -100,38 +100,38 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == userId;
       allow update: if isOwner(userId);
-      allow delete: if isAdmin();
+      allow delete: if isSuperadmin();
     }
     
     // Leagues collection
     match /leagues/{leagueId} {
       allow read: if isAuthenticated();
-      allow create: if isOrganizer();
-      allow update: if isOrganizer() && 
-                       (isOwner(resource.data.organizerId) || isAdmin());
-      allow delete: if isAdmin();
+      allow create: if isEditor();
+      allow update: if isEditor() && 
+                       (isOwner(resource.data.organizerId) || isSuperadmin());
+      allow delete: if isSuperadmin();
       
       // Seasons subcollection
       match /seasons/{seasonId} {
         allow read: if isAuthenticated();
-        allow write: if isOrganizer() && 
+        allow write: if isEditor() && 
                         (isOwner(get(/databases/$(database)/documents/leagues/$(leagueId)).data.organizerId) 
-                         || isAdmin());
+                         || isSuperadmin());
         
         // Rounds subcollection
         match /rounds/{roundId} {
           allow read: if isAuthenticated();
-          allow write: if isOrganizer();
+          allow write: if isEditor();
           
           // Matches subcollection
           match /matches/{matchId} {
             allow read: if isAuthenticated();
-            allow create: if isOrganizer();
+            allow create: if isEditor();
             allow update: if isAuthenticated() && 
                             (resource.data.player1Id == request.auth.uid ||
                              resource.data.player2Id == request.auth.uid ||
-                             isOrganizer());
-            allow delete: if isOrganizer();
+                             isEditor());
+            allow delete: if isEditor();
           }
         }
       }
@@ -146,15 +146,15 @@ service cloud.firestore {
     // News collection
     match /news/{newsId} {
       allow read: if isAuthenticated();
-      allow create: if isOrganizer();
-      allow update: if isOrganizer() && isOwner(resource.data.authorId);
-      allow delete: if isOrganizer() && isOwner(resource.data.authorId);
+      allow create: if isEditor();
+      allow update: if isEditor() && isOwner(resource.data.authorId);
+      allow delete: if isEditor() && isOwner(resource.data.authorId);
     }
     
     // Notifications collection
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isOrganizer() || isAdmin();
+      allow create: if isEditor() || isSuperadmin();
       allow update: if isOwner(resource.data.userId); // Update read status
       allow delete: if isOwner(resource.data.userId);
     }
@@ -177,13 +177,13 @@ firebase firestore:rules:list
 
 ## Setting Up User Roles
 
-By default, new users have `role: 'player'`. To promote users to organizer or admin:
+By default, new users have `role: 'player'`. To promote users to editor or superadmin:
 
 ### Option 1: Manual Update (via Firebase Console)
 
 1. Go to Firebase Console → Firestore Database
 2. Navigate to `users/{userId}` document
-3. Edit `role` field to `'organizer'` or `'admin'`
+3. Edit `role` field to `'editor'` or `'superadmin'`
 
 ### Option 2: Admin Script (Recommended)
 
@@ -221,7 +221,7 @@ setUserRole(userId, role).catch(console.error)
 
 Run:
 ```bash
-node scripts/set-user-role.js USER_ID_HERE organizer
+node scripts/set-user-role.js USER_ID_HERE editor
 ```
 
 ### Option 3: Firebase Admin SDK (Production)
@@ -232,7 +232,7 @@ For production, use Firebase Admin SDK with service account credentials to set c
 const admin = require('firebase-admin')
 admin.initializeApp()
 
-await admin.auth().setCustomUserClaims(userId, { role: 'organizer' })
+await admin.auth().setCustomUserClaims(userId, { role: 'editor' })
 ```
 
 ---
@@ -355,8 +355,8 @@ await createUser(user.uid, {
 1. ✅ Deploy security rules: `firebase deploy --only firestore:rules`
 2. ✅ Update `.env` with Firebase credentials
 3. ✅ Test authentication flow (signup, login, logout)
-4. ✅ Promote first user to organizer role
-5. ✅ Test league creation with organizer account
+4. ✅ Promote first user to editor role
+5. ✅ Test league creation with editor account
 6. 📋 Set up Firebase Functions (for ranking calculations, notifications)
 7. 📋 Configure Firebase Hosting (optional)
 8. 📋 Set up CI/CD pipeline

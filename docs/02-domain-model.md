@@ -27,12 +27,12 @@ This document is **technology-agnostic** and must not depend on:
 
 The following terms are used consistently across the system:
 
-- **League** – An organizational unit for competition
-- **Tournament** – An organizational unit for competition (shorter period then league)
-- **Tournament** – An organizational unit for competition (shorter period than league)
-- **Season** – A time-bounded competition cycle for league and tournaments
-- **Round** – A set of matches played in a specific phase of a league or tournament
-- **Knockout** – A set of matches played in a specific phase of a league or tournament
+- **Season** – A yearly time container (e.g. 2025, 2026) that groups all leagues and tournaments
+- **League** – A competition that runs throughout most or all of a season; supports `round_robin`, `knockout`, or `round_robin_knockout` (hybrid) formats
+- **Tournament** – A shorter, self-contained competition within a season; supports the same format options as a league
+- **Round** – A set of matches played in a specific phase of a league or tournament (round-robin round or knockout stage)
+- **Knockout** – A knockout-stage bracket within a league or tournament
+- **Group** (also called Draw) – A sub-division of players within a league or tournament; used in round-robin and hybrid formats. Players are assigned to groups; group winners advance to the knockout bracket in hybrid format. Knockout format has no groups — players are seeded directly into a bracket.
 - **Match** – A tennis game between two players
 - **Player** – A participant in the league
 - **CompetitionPlayers** - List of players in specific league or tournament
@@ -51,54 +51,92 @@ These terms must not be reinterpreted or renamed at the implementation level.
 ## 3. Core Entities
 
 ### 3.1 League
-Represents a recreational tennis league.
+Represents a recreational tennis league. Runs throughout most or all of a season.
 
 **Responsibilities:**
-- Defines competition rules
-- Groups seasons under a single identity
+- Defines competition format and rules
+- Groups rounds and matches under a Season
 
 **Attributes:**
 - id
+- season_id
 - name
-- rules
-
-**Notes:**
+ - format: `round_robin` | `knockout` | `round_robin_knockout`
+ - num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+ - players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+ - rules
+ 
+ **Invariants:**
+ - A League belongs to exactly one Season.
+ - Format determines which configuration fields are required.
+ - Match slots for round-robin phases are auto-generated when all groups are fully assigned with players.
 
 ---
 
 ### 3.1a Tournament
-Represents a recreational tennis tournament.
+Represents a recreational tennis tournament. Shorter time period than a league, but shares the same format options.
 
 **Responsibilities:**
-- Defines competition rules
-- Groups seasons under a single identity
+- Defines competition format and rules
+- Groups rounds and matches under a Season
 
 **Attributes:**
 - id
+- season_id
 - name
-- rules
-
-**Notes:**
+ - format: `round_robin` | `knockout` | `round_robin_knockout`
+ - num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+ - players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+ - start_date
+ - end_date
+ - rules
+ 
+ **Invariants:**
+ - A Tournament belongs to exactly one Season.
+ - Tournament dates must fall within the parent Season's date range.
+ - Match slots are auto-generated once all groups reach full player capacity.
 
 ---
 
 ### 3.2 Season
-Represents a single competition cycle and can have league(s) and tournament(s).
+Represents a yearly competition period (e.g. "2025", "2026"). Top-level temporal container for all leagues and tournaments.
 
 **Responsibilities:**
-- Groups rounds and matches
-- Defines time boundaries for competition
+- Groups leagues and tournaments under a named yearly period
+- Defines overall time boundaries
 
 **Attributes:**
 - id
+- name (e.g. "2025", "2026 Spring")
 - start_date
 - end_date
-- league_id
-- tournament_id
 
 **Invariants:**
-- A Season can have many leagues and tournaments.
-- A Season must not overlap with another active Season in the same League.
+- A Season can contain many Leagues and many Tournaments.
+- Seasons must not overlap in time (within the same application scope).
+
+---
+
+### 3.2a Group
+Represents a draw/group of players in a round-robin or hybrid competition.
+
+**Responsibilities:**
+- Holds the list of players assigned to this group
+- Acts as the source for auto-generating round-robin match slots (N players → N*(N-1)/2 match slots)
+
+**Attributes:**
+- id
+- competition_id (league_id or tournament_id)
+- competition_type (`league` | `tournament`)
+- name (e.g. "Group A", "Group B")
+- position (display order: 1, 2, 3...)
+- player_ids (ordered list of players assigned to this group)
+
+**Invariants:**
+- A Group belongs to exactly one League or Tournament.
+- A player may appear in only one group per competition.
+- Knockout format has no groups.
+- When a group reaches `players_per_group` capacity, match slots are auto-generated for that group.
 
 ---
 
@@ -109,10 +147,12 @@ Represents a logical grouping of matches.
 - Organizes matches within a League or Tournament
 
 **Attributes:**
-- id
-- number
-- date
-- season_id
+ - id
+ - number
+ - date
+ - competition_id (league_id or tournament_id)
+ - type: `round_robin` | `knockout`
+ - group_id (for round-robin rounds; null for knockout rounds)
 
 **Invariants:**
 - A Round belongs to exactly one League or Tournament.
