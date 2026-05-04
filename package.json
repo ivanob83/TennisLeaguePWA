@@ -9,7 +9,9 @@
         "format": "prettier . --check",
         "format:fix": "prettier . --write",
         "deploy": "dotenv -e .env.deploy -- node deploy.js",
-        "ship": "vite build && dotenv -e .env.deploy -- node deploy.js"
+        "ship": "vite build && dotenv -e .env.deploy -- node deploy.js",
+        "backup": "node scripts/backup-firestore.js",
+        "restore": "node scripts/restore-firestore.js"
     },
     "devDependencies": {
         "@vitejs/plugin-react": "^5.1.4",
@@ -26,6 +28,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "firebase": "^11.0.0",
+        "firebase-admin": "^13.8.0",
         "lucide-react": "^0.539.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",

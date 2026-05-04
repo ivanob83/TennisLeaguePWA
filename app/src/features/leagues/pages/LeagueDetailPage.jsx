@@ -2,17 +2,27 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import AppLayout from '../../../layouts/AppLayout.jsx'
-import { SectionTitle, Button, Loader, Card, Badge, Container, ConfirmDialog } from '../../../ui/index.js'
+import {
+  SectionTitle,
+  Button,
+  Loader,
+  Card,
+  Badge,
+  Container,
+  ConfirmDialog,
+} from '../../../ui/index.js'
 import { useFirestoreDoc } from '../../../hooks/useFirestore.js'
 import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { useToast } from '../../../context/ToastContext.jsx'
 import { deleteCompetition } from '../../enrollment/services/competitionDelete.js'
+import { repairRoundRobinMatches } from '../../enrollment/services/expandRoundRobin.js'
 import EnrollmentManager from '../../enrollment/components/EnrollmentManager.jsx'
 import CompetitionDrawTab from '../../enrollment/components/CompetitionDrawTab.jsx'
 import GroupMatchesTab from '../../enrollment/components/GroupMatchesTab.jsx'
 import GroupStandingsTab from '../../enrollment/components/GroupStandingsTab.jsx'
 import KnockoutTab from '../../enrollment/components/KnockoutTab.jsx'
+import ExpandGroupsDialog from '../components/ExpandGroupsDialog.jsx'
 
 const FORMAT_LABEL = {
   round_robin: 'Round Robin',
@@ -22,7 +32,11 @@ const FORMAT_LABEL = {
 
 function formatDate(iso) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 export default function LeagueDetailPage() {
@@ -35,12 +49,49 @@ export default function LeagueDetailPage() {
   const [activeTab, setActiveTab] = useState('setup')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [expandOpen, setExpandOpen] = useState(false)
+  const [repairing, setRepairing] = useState(false)
+
+  async function handleRepair() {
+    setRepairing(true)
+    try {
+      const dry = await repairRoundRobinMatches(leagueId, { dryRun: true })
+      const wouldCreate = dry.perGroup.reduce((s, g) => s + g.missing, 0)
+      if (wouldCreate === 0) {
+        showToast({
+          title: 'Nothing to repair',
+          message: `All ${dry.expectedPerGroup} pairs per group are present.`,
+          variant: 'info',
+        })
+        setRepairing(false)
+        return
+      }
+      const result = await repairRoundRobinMatches(leagueId)
+      const skippedNote =
+        result.groupsWithoutRound > 0
+          ? ` ${result.groupsWithoutRound} group(s) had no round_robin round and were skipped.`
+          : ''
+      showToast({
+        title: 'Match slots synced',
+        message: `Created ${result.matchesCreated} missing match slots across ${result.groupsTotal} ${result.groupsTotal === 1 ? 'group' : 'groups'}.${skippedNote}`,
+        variant: 'success',
+      })
+    } catch (err) {
+      showToast({ title: 'Repair failed', message: err.message, variant: 'error' })
+    } finally {
+      setRepairing(false)
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true)
     try {
       await deleteCompetition(leagueId, 'leagues')
-      showToast({ title: 'League deleted', message: 'Competition and all data removed.', variant: 'success' })
+      showToast({
+        title: 'League deleted',
+        message: 'Competition and all data removed.',
+        variant: 'success',
+      })
       navigate('/leagues')
     } catch {
       showToast({ title: 'Delete failed', message: 'Please try again.', variant: 'error' })
@@ -49,9 +100,11 @@ export default function LeagueDetailPage() {
     }
   }
 
-  const season = seasons.find(s => s.id === league?.seasonId)
+  const season = seasons.find((s) => s.id === league?.seasonId)
   const isGroupBased = league?.format === 'round_robin' || league?.format === 'round_robin_knockout'
   const hasKnockout = league?.format === 'knockout' || league?.format === 'round_robin_knockout'
+  const canExpandGroups =
+    isSuperadmin && isGroupBased && (league?.status === 'draft' || league?.status === 'active')
 
   const tabs = [
     ...(isEditor ? [{ id: 'setup', label: 'Setup' }] : []),
@@ -61,7 +114,7 @@ export default function LeagueDetailPage() {
     ...(hasKnockout ? [{ id: 'knockout', label: 'Knockout' }] : []),
   ]
 
-  const currentTab = tabs.find(t => t.id === activeTab) ? activeTab : tabs[0]?.id
+  const currentTab = tabs.find((t) => t.id === activeTab) ? activeTab : tabs[0]?.id
 
   return (
     <AppLayout>
@@ -84,11 +137,20 @@ export default function LeagueDetailPage() {
               action={
                 isEditor && (
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/leagues/${leagueId}/edit`)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/leagues/${leagueId}/edit`)}
+                    >
                       Edit
                     </Button>
                     {isSuperadmin && (
-                      <Button size="sm" variant="ghost" className="text-rose-500 hover:text-rose-600" onClick={() => setConfirmDelete(true)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-rose-500 hover:text-rose-600"
+                        onClick={() => setConfirmDelete(true)}
+                      >
                         <Trash2 size={15} />
                         Delete
                       </Button>
@@ -100,7 +162,7 @@ export default function LeagueDetailPage() {
 
             <div className="mt-6 border-b border-slate-200">
               <div className="flex gap-1">
-                {tabs.map(tab => (
+                {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
@@ -128,7 +190,9 @@ export default function LeagueDetailPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-text-light">Season</span>
-                        <span className="font-medium text-text">{season?.name || league?.seasonId || '—'}</span>
+                        <span className="font-medium text-text">
+                          {season?.name || league?.seasonId || '—'}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-text-light">Status</span>
@@ -138,11 +202,15 @@ export default function LeagueDetailPage() {
                         <>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Number of groups</span>
-                            <span className="font-medium text-text">{league?.numGroups ?? '—'}</span>
+                            <span className="font-medium text-text">
+                              {league?.numGroups ?? '—'}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Players per group</span>
-                            <span className="font-medium text-text">{league?.playersPerGroup ?? '—'}</span>
+                            <span className="font-medium text-text">
+                              {league?.playersPerGroup ?? '—'}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Points (W / L)</span>
@@ -153,11 +221,17 @@ export default function LeagueDetailPage() {
                           {league?.tierMultipliers?.length > 0 && (
                             <>
                               <div className="border-t border-slate-100 pt-3">
-                                <p className="mb-2 text-text-light text-xs uppercase tracking-wide font-medium">Ranking tiers</p>
+                                <p className="mb-2 text-text-light text-xs uppercase tracking-wide font-medium">
+                                  Ranking tiers
+                                </p>
                                 {league.tierMultipliers.map((m, i) => (
                                   <div key={i} className="flex items-center justify-between py-0.5">
-                                    <span className="text-text-light">Group {String.fromCharCode(65 + i)}</span>
-                                    <span className="font-medium text-text">{Math.round(m * 100)}%</span>
+                                    <span className="text-text-light">
+                                      Group {String.fromCharCode(65 + i)}
+                                    </span>
+                                    <span className="font-medium text-text">
+                                      {Math.round(m * 100)}%
+                                    </span>
                                   </div>
                                 ))}
                               </div>
@@ -179,7 +253,7 @@ export default function LeagueDetailPage() {
                       )}
                     </div>
                     {isEditor && (
-                      <div className="mt-4 border-t border-slate-100 pt-4">
+                      <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
                         <Button
                           size="sm"
                           variant="outline"
@@ -187,6 +261,22 @@ export default function LeagueDetailPage() {
                         >
                           Edit league settings
                         </Button>
+                        {canExpandGroups && (
+                          <Button size="sm" variant="outline" onClick={() => setExpandOpen(true)}>
+                            Expand groups
+                          </Button>
+                        )}
+                        {canExpandGroups && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleRepair}
+                            loading={repairing}
+                            loadingLabel="Syncing..."
+                          >
+                            Sync match slots
+                          </Button>
+                        )}
                       </div>
                     )}
                   </Card>
@@ -205,21 +295,42 @@ export default function LeagueDetailPage() {
               )}
 
               {currentTab === 'group_matches' && (
-                <GroupMatchesTab competitionType="leagues" competitionId={leagueId} competitionName={league?.name} />
+                <GroupMatchesTab
+                  playersPerGroup={league?.playersPerGroup}
+                  competitionType="leagues"
+                  competitionId={leagueId}
+                  competitionName={league?.name}
+                />
               )}
 
               {currentTab === 'standings' && (
-                <GroupStandingsTab competitionType="leagues" competitionId={leagueId} competition={league} />
+                <GroupStandingsTab
+                  competitionType="leagues"
+                  competitionId={leagueId}
+                  competition={league}
+                />
               )}
 
               {currentTab === 'knockout' && (
                 <KnockoutTab competitionType="leagues" competitionId={leagueId} />
               )}
-
             </div>
           </>
         )}
       </Container>
+
+      <ExpandGroupsDialog
+        open={expandOpen}
+        league={league}
+        onClose={() => setExpandOpen(false)}
+        onSuccess={(result) =>
+          showToast({
+            title: `Expanded to ${result.newSize} players`,
+            message: `${result.matchesCreated} new match slots created across ${result.groupsUpdated} ${result.groupsUpdated === 1 ? 'group' : 'groups'}.`,
+            variant: 'success',
+          })
+        }
+      />
 
       <ConfirmDialog
         open={confirmDelete}

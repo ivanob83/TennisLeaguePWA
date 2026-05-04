@@ -46,3 +46,7 @@ dist-ssr
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Firestore backups
+backups/
+serviceAccountKey.json
