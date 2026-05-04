@@ -26,7 +26,7 @@ export default function SectionTitle({
         {action ? <div className="shrink-0 pb-2">{action}</div> : null}
       </div>
       {subtitle ? (
-        <p className="mt-3 font-body text-sm text-text-light">{subtitle}</p>
+        <p className="mt-3 font-body text-sm font-semibold text-text-light">{subtitle}</p>
       ) : null}
     </div>
   )

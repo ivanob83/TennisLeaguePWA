@@ -14,8 +14,6 @@ import {
   persistentLocalCache,
   persistentSingleTabManager,
 } from 'firebase/firestore';
-import { getMessaging, onMessage } from 'firebase/messaging';
-
 export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -54,27 +52,27 @@ try {
 
 export const db = firestoreInstance;
 
-// Initialize Cloud Messaging (optional - requires service worker)
+// Initialize Cloud Messaging lazily — only when service worker is ready
 let messaging = null;
-try {
-  // Check if service worker is available before initializing messaging
-  if ('serviceWorker' in navigator) {
-    messaging = getMessaging(app);
-    
-    // Handle messages in the foreground
-    onMessage(messaging, payload => {
-      console.log('Message received:', payload);
-      // Handle notification display here
-      if (Notification.permission === 'granted' && payload.notification) {
-        new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: '/favicon.ico',
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready
+    .then(() => import('firebase/messaging'))
+    .then(({ getMessaging, onMessage }) => {
+      try {
+        messaging = getMessaging(app);
+        onMessage(messaging, payload => {
+          if (Notification.permission === 'granted' && payload.notification) {
+            new Notification(payload.notification.title, {
+              body: payload.notification.body,
+              icon: '/favicon.ico',
+            });
+          }
         });
+      } catch (err) {
+        console.warn('Cloud Messaging not available:', err.message);
       }
-    });
-  }
-} catch (err) {
-  console.warn('Cloud Messaging not available:', err.message);
+    })
+    .catch(() => {});
 }
 
 export { messaging };

@@ -1,8 +1,8 @@
 # Development Plan
 
-Version: 2.2
+Version: 2.3
 Status: Active
-Last updated: 2026-03-14
+Last updated: 2026-03-22
 
 ---
 
@@ -189,6 +189,8 @@ Status: ✅ COMPLETED
 
 ## Sprint 2 - Players, Season, League & Tournament Setup
 
+**Status:** ✅ COMPLETED
+
 **Goal:** Admin can manage players, create seasons, configure leagues/tournaments with draw structure, assign players to groups, and have match slots auto-generated
 
 **Domain Model Recap:**
@@ -216,8 +218,8 @@ Status: ✅ COMPLETED
 - ✅ Admin user management (create, edit, role change)
 - ✅ Player ↔ User linking (admin can link/unlink one player per user)
 - ✅ Header avatar + display name sourced from linked player
-- 📋 Player edit form: update name, avatar
-- 📋 Player detail page: stats placeholder, competition history placeholder
+- ✅ Player edit form: update name, avatar
+- ✅ Player detail page: stats placeholder, competition history placeholder
 
 **Backend Tasks (Firestore):**
 - ✅ Implement `PlayerRepository` (CRUD — top-level `players` collection)
@@ -243,137 +245,150 @@ Status: ✅ COMPLETED
 7. Match slots from Tab 3 and Tab 4 become the input for Sprint 3's match scheduling and results workflow.
 
 **Frontend Tasks:**
-- Season creation form (name, start date, end date)
-- Season list view
-- League creation form:
-  - Fields: season (dropdown — required, must select existing season), name, format, rules
-  - Conditional fields shown only for `round_robin` / `round_robin_knockout`: `num_groups`, `players_per_group`
-  - System auto-creates empty group slots (`num_groups` × named groups) on save
-- League list view with season filter
-- Tournament creation form (same fields as league + `start_date` / `end_date` constrained within season bounds)
-- Tournament list view with season filter
-- Competition detail page with **4 tabs**:
-  - **Tab 1 — Setup**: view/edit competition config (name, format, rules, dates)
-  - **Tab 2 — Draw**:
-    - `round_robin` / `round_robin_knockout`: assign players to groups (drag or select); shows player count vs `players_per_group` target per group
-    - `knockout`: manage ordered seed list (select players, drag to reorder)
-  - **Tab 3 — Group Matches** *(visible for `round_robin` and `round_robin_knockout` only)*: shows auto-generated match pair slots per group; slots appear when group is full; each slot shows player1 vs player2 with status `pending`
-  - **Tab 4 — Knockout** *(visible for `knockout` and `round_robin_knockout` only)*: shows auto-generated knockout bracket; first-round matchups generated from seed order; bracket tree visualization
+- ✅ Season creation form (name, start date, end date)
+- ✅ Season list view
+- ✅ Season edit form
+- ✅ League creation form:
+  - ✅ Fields: season (dropdown — required, must select existing season), name, format, rules
+  - ✅ Conditional fields shown only for `round_robin` / `round_robin_knockout`: `num_groups`, `players_per_group`
+  - ✅ System auto-creates empty group slots (`num_groups` × named groups) on save
+- ✅ League list view with season filter
+- ✅ League edit form
+- ✅ Tournament creation form (same fields as league + `start_date` / `end_date` constrained within season bounds)
+- ✅ Tournament list view with season filter
+- ✅ Tournament edit form
+- ✅ Competition detail page with **4 tabs**:
+  - ✅ **Tab 1 — Setup**: view/edit competition config (name, format, rules, dates)
+  - ✅ **Tab 2 — Draw**:
+    - ✅ `round_robin` / `round_robin_knockout`: assign players to groups (select); shows player count vs `players_per_group` target per group
+    - ✅ `knockout`: manage ordered seed list (select players, generate slots)
+  - ✅ **Tab 3 — Group Matches** *(visible for `round_robin` and `round_robin_knockout` only)*: shows auto-generated match pair slots per group; slots appear when group is full; each slot shows player1 vs player2 with status badge
+  - ✅ **Tab 4 — Knockout** *(visible for `knockout` and `round_robin_knockout` only)*: shows auto-generated knockout bracket; first-round matchups generated from seed order
 
 **Backend Tasks (Firestore):**
-- Implement `SeasonRepository` (CRUD — top-level `seasons` collection)
-- Implement `LeagueRepository` (CRUD — stores `season_id`, format, `num_groups`, `players_per_group`)
-- Implement `TournamentRepository` (CRUD — stores `season_id`, date range, format config)
-- Implement `GroupRepository` (subcollection under each competition: `leagues/{id}/groups`, `tournaments/{id}/groups`)
-- Implement enrollment subcollection (`leagues/{id}/enrollments`, `tournaments/{id}/enrollments`)
-- **Match slot auto-generation** (triggered server-side when group player list reaches capacity):
-  - RR group of N players → write N*(N-1)/2 match documents with status `pending`
-  - Knockout seeded list → write first-round bracket match documents (1 vs N, 2 vs N-1, etc.)
-- Firestore real-time listeners for league/tournament/group/match-slot updates
+- ✅ Implement `SeasonRepository` (CRUD — top-level `seasons` collection)
+- ✅ Implement `LeagueRepository` (CRUD — stores `season_id`, format, `num_groups`, `players_per_group`)
+- ✅ Implement `TournamentRepository` (CRUD — stores `season_id`, date range, format config)
+- ✅ Implement `GroupRepository` (subcollection under each competition: `leagues/{id}/groups`, `tournaments/{id}/groups`)
+- ✅ Implement enrollment subcollection (`leagues/{id}/enrollments`, `tournaments/{id}/enrollments`)
+- ✅ **Match slot auto-generation** (triggered client-side when group player list reaches capacity):
+  - ✅ RR group of N players → write N*(N-1)/2 match documents with status `not_scheduled`
+  - ✅ Knockout seeded list → write first-round bracket match documents (1 vs N, 2 vs N-1, etc.)
+- ✅ Firestore real-time listeners for league/tournament/group/match-slot updates
 
 **Domain Layer:**
-- Format validation (`round_robin`, `knockout`, `round_robin_knockout` only)
-- `num_groups` + `players_per_group` required for RR/hybrid; forbidden (null) for pure knockout
-- Tournament date validation (within parent season date range)
-- Player uniqueness per group (a player may appear in only one group per competition)
-- Match slot generation: group of N → N*(N-1)/2 slots; correct pair enumeration
-- Knockout bracket generation: ordered seed list → first-round matchups (seed 1 vs seed N, seed 2 vs seed N-1, etc.)
+- ✅ Format validation (`round_robin`, `knockout`, `round_robin_knockout` only)
+- ✅ `num_groups` + `players_per_group` required for RR/hybrid; forbidden (null) for pure knockout
+- ✅ Tournament date validation (within parent season date range)
+- ✅ Player uniqueness per group (a player may appear in only one group per competition)
+- ✅ Match slot generation: group of N → N*(N-1)/2 slots; correct pair enumeration
+- ✅ Knockout bracket generation: ordered seed list → first-round matchups (seed 1 vs seed N, seed 2 vs seed N-1, etc.)
 
 **Testing:**
-- Player CRUD (create, read, update, list)
-- Season CRUD
-- League/Tournament CRUD with format + group config validation
-- Conditional field validation (`num_groups` required for RR, null for knockout)
-- Season prerequisite: cannot create competition without a season
-- Group assignment: duplicate player rejection
-- Match slot auto-generation: correct count and correct player pairs for various N
-- Knockout bracket generation: correct bracket pairings from seed order
+- 📋 Player CRUD (create, read, update, list) — deferred to Sprint 5
+- 📋 Season CRUD — deferred to Sprint 5
+- 📋 League/Tournament CRUD with format + group config validation — deferred to Sprint 5
+- 📋 Conditional field validation (`num_groups` required for RR, null for knockout) — deferred to Sprint 5
+- 📋 Season prerequisite: cannot create competition without a season — deferred to Sprint 5
+- 📋 Group assignment: duplicate player rejection — deferred to Sprint 5
+- 📋 Match slot auto-generation: correct count and correct player pairs for various N — deferred to Sprint 5
+- 📋 Knockout bracket generation: correct bracket pairings from seed order — deferred to Sprint 5
 
 **Deliverables:**
-- Admin can create and manage player profiles
-- Admin can create a season
-- Admin can create a league or tournament (must select an existing season)
-- Admin can assign players to groups (or seed bracket order for knockout)
-- Group Matches tab shows auto-generated match slots when group is full
-- Knockout tab shows auto-generated bracket from seed list
-- Competition lists filterable by season
+- ✅ Admin can create and manage player profiles
+- ✅ Admin can create a season
+- ✅ Admin can create a league or tournament (must select an existing season)
+- ✅ Admin can assign players to groups (or seed bracket order for knockout)
+- ✅ Group Matches tab shows auto-generated match slots when group is full
+- ✅ Knockout tab shows auto-generated bracket from seed list
+- ✅ Competition lists filterable by season
 
 
 ---
 
-## Sprint 3 - Rounds, Matches & Results
+## Sprint 3 - Match Scheduling & Results
 
-**Goal:** Full match scheduling and result recording workflow
+**Status:** ✅ COMPLETED
+
+**Goal:** Schedule auto-generated match slots and record results
+
+> Match slots (RR pairs + knockout bracket) are already written to Firestore at the end of Sprint 2 — they exist with status `not_scheduled`. Sprint 3 picks up from there: assign dates/times to slots, record scores, and transition statuses.
 
 **Frontend Tasks:**
-- Round creation form (number, name, date range)
-- Match creation form (select player pair, schedule date/time)
-- Match list view (upcoming and finished)
-- Match detail + score entry form
-- Results confirmation flow
+- ✅ Match scheduling: organizer assigns date/time inline on Group Matches / Knockout tab (Schedule / Reschedule toggle)
+- ✅ Match list view per competition (Matches tab on detail page, filter by status: all / not_scheduled / scheduled / finished)
+- ✅ Match detail page: show players, scheduled time, scores, status (`/:competitionType/:competitionId/rounds/:roundId/matches/:matchId`)
+- ✅ Score entry form (organizer + linked player): scores per set (dynamic add/remove sets)
+- ✅ Winner auto-determined from set count on score submit
 
 **Backend Tasks (Firestore):**
-- Implement RoundRepository (nested under seasons)
-- Implement MatchRepository (nested under rounds)
-- Real-time listeners for matches in a round
-- Firestore write permissions control (who can edit match scores)
+- ✅ `matchesRepository` update: patches `scheduledAt`, `status`, `sets`, `winnerId`, `finishedAt` on existing match documents
+- ✅ Real-time listeners for match list within a competition (via `useFirestoreCollection` on rounds + matches subcollections)
+- ✅ Permission check (client-side): only editor+ or linked matched player can schedule / submit scores
 
 **Domain Layer:**
-- Match domain service (state transitions: scheduled → in_progress → finished)
-- Route match completion to ranking update service
-- Match validation (both players exist, valid scores)
+- ✅ Match status transitions: `not_scheduled → scheduled → finished`
+- ✅ Score validation: at least 1 set, whole non-negative numbers, no draw sets
+- ✅ Winner auto-determined by sets won count
+- ✅ On match finish: ranking stub called (`onMatchFinished` in `matchService.js`) — Sprint 4 plugs in real recalculation
 
 **Testing:**
-- Match CRUD with permission checks
-- State transitions (scheduled → finished)
-- Result entry flow (both player and organizer)
+- 📋 Schedule a match slot (date assigned, status → scheduled) — deferred to Sprint 5
+- 📋 Score entry (valid and invalid sets) — deferred to Sprint 5
+- 📋 State transitions: full path not_scheduled → finished — deferred to Sprint 5
+- 📋 Permission check: unrelated player cannot edit scores — deferred to Sprint 5
 
 **Deliverables:**
-- Organizer can create rounds and matches
-- Players can record match results
-- Match status tracked in Firestore
+- ✅ Organizer can schedule any auto-generated match slot (inline on Group Matches / Knockout tab)
+- ✅ Players and organizers can record match scores (per set, winner auto-resolved)
+- ✅ Match status tracked in real-time in Firestore
+- ✅ Finished matches ready as input for Sprint 4 ranking engine (stub in place)
 
 ---
 
 ## Sprint 4 - Rankings, News & PWA
 
+**Status:** ✅ COMPLETED
+
 **Goal:** Automatic ranking updates, announcements, and offline capability
 
 **Frontend Tasks:**
-- Rankings page (display current season rankings)
-- Ranking trending view (show rank changes over time)
-- News feed page (league-specific announcements)
-- News creation form (organizers only)
-- PWA manifest and service worker setup
-- Add "Install App" prompt for PWA
+- ✅ Rankings page (`/rankings`) — select competition type + competition, view ranked table (MP/W/L/Sets/Win%)
+- 📋 Ranking trending view — deferred (post-MVP)
+- ✅ News feed page (`/news`) — chronological list of articles, links to detail
+- ✅ News creation form (`/news/create`) — organizers only; title + content
+- ✅ News detail page (`/news/:articleId`) — full article; editor can delete
+- ✅ PWA manifest (`public/manifest.json`) — name, icons, theme, display standalone
+- ✅ Service worker (`public/sw.js`) — app shell cache, offline navigation fallback
+- ✅ SW registered in `main.jsx` on `load` event
 
 **Backend Tasks (Firestore):**
-- Implement RankingRepository (denormalized rankings document)
-- Implement NewsRepository
-- Firestore real-time listeners for rankings and news
-- Deploy FCM (Cloud Messaging) subscription handler
-- Set up Firestore background update trigger (on match finish → update rankings)
+- ✅ `rankingsRepository` already exported from `infrastructure/firestore.js`
+- ✅ `newsRepository` already exported from `infrastructure/firestore.js`
+- ✅ Real-time listener for rankings via `useFirestoreCollection` on subcollection path
+- ✅ Real-time listener for news with `orderBy('createdAt', 'desc')`
+- 📋 FCM push notifications — deferred (post-MVP)
 
 **Domain Layer:**
-- Ranking calculation service (wins, losses, win rate)
-- Ranking update triggered on match completion
-- News validation (title, content required)
+- ✅ `recalculateRankings(competitionType, competitionId, enrollments)` — reads all finished matches across all rounds, tallies W/L/sets, upserts per-player ranking docs via `setDoc(..., { merge: true })`
+- ✅ Ranking auto-triggered: `approveScores` calls `onMatchFinished` which fires `recalculateRankings` asynchronously (non-blocking)
+- ✅ News validation: title + content required on form submit
 
 **Offline:**
-- Firestore offline persistence working
-- Service worker caches app shell
-- Background sync for queued operations
+- ✅ Firestore offline persistence (configured in Sprint 0 via `persistentLocalCache`)
+- ✅ Service worker caches app shell (network-first for navigation, cache-first for static assets)
+- 📋 Background sync for queued mutations — deferred
 
 **Testing:**
-- Ranking recalculation on match scores
-- News visibility (public vs league-only)
-- Offline read/write with sync on reconnect
+- 📋 Ranking recalculation — deferred to Sprint 5
+- 📋 News CRUD — deferred to Sprint 5
+- 📋 Offline read/write — deferred to Sprint 5
 
 **Deliverables:**
-- Rankings auto-update when matches finish
-- News feed visible to league members
-- App installable as PWA
-- Offline read capability
+- ✅ Rankings auto-update when a match result is approved
+- ✅ News feed visible to all authenticated users; organizers can create/delete
+- ✅ App installable as PWA (manifest + SW in place)
+- ✅ Offline read via Firestore persistence + SW app shell cache
 
 ---
 

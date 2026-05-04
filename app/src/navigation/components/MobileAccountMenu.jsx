@@ -42,6 +42,15 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
           </div>
 
           <nav className="flex-1 space-y-1">
+            <Link
+              to="/profile"
+              onClick={onClose}
+              className="flex w-full items-center gap-3 px-4 py-3 text-sm font-bold uppercase tracking-[0.14em] text-primary transition-colors hover:bg-background-light"
+            >
+              <UserCircle2 size={18} className="text-secondary shrink-0" />
+              Profile
+            </Link>
+
             {/* Admin section */}
             {isEditor && (
               <div className="mt-4 pt-4 border-t border-gray-200">

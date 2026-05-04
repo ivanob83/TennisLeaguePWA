@@ -13,6 +13,7 @@ export {
 export { default as Badge } from './Badge.jsx'
 export { default as Avatar } from './Avatar.jsx'
 export { default as AvatarUpload } from './AvatarUpload.jsx'
+export { default as ImageUpload } from './ImageUpload.jsx'
 export { default as Loader } from './Loader.jsx'
 export { default as Alert } from './Alert.jsx'
 export { default as Input } from './Input.jsx'

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { where } from 'firebase/firestore'
+import { Trash2 } from 'lucide-react'
 import {
   Alert,
   Badge,
@@ -18,31 +18,17 @@ import {
   tournamentsRepository,
 } from '../../../infrastructure/firestore.js'
 
-function groupName(position) {
-  return `Group ${String.fromCharCode(64 + position)}`
-}
-
-function buildRoundRobinPairs(playerIds) {
-  const pairs = []
-  for (let i = 0; i < playerIds.length; i += 1) {
-    for (let j = i + 1; j < playerIds.length; j += 1) {
-      pairs.push([playerIds[i], playerIds[j]])
-    }
-  }
-  return pairs
-}
-
 /**
- * Draw tab logic for group assignment (RR/hybrid) and seeded list (knockout).
- * @param {{competitionType: 'leagues'|'tournaments', competitionId: string, competition: any}} props
+ * Draw tab: assign enrolled players to group positions (RR) or seed positions (knockout).
+ * Match slots already exist (created on competition creation) with null player IDs.
+ * Assigning a player to position N updates all match slots for that position.
  */
 export default function CompetitionDrawTab({ competitionType, competitionId, competition }) {
-  const groupsRepo =
-    competitionType === 'leagues'
-      ? leagueGroupsRepository(competitionId)
-      : tournamentGroupsRepository(competitionId)
-
+  const groupsRepo = competitionType === 'leagues'
+    ? leagueGroupsRepository(competitionId)
+    : tournamentGroupsRepository(competitionId)
   const competitionRepo = competitionType === 'leagues' ? leaguesRepository : tournamentsRepository
+
   const enrollmentPath = `${competitionType}/${competitionId}/enrollments`
   const groupsPath = `${competitionType}/${competitionId}/groups`
   const roundsPath = `${competitionType}/${competitionId}/rounds`
@@ -55,14 +41,13 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
   const [working, setWorking] = useState(false)
   const [error, setError] = useState(null)
 
-  const isGroupBased =
-    competition?.format === 'round_robin' || competition?.format === 'round_robin_knockout'
+  const isGroupBased = competition?.format === 'round_robin' || competition?.format === 'round_robin_knockout'
 
+  // All player IDs currently assigned to any group position
   const assignedPlayerIds = useMemo(() => {
-    if (!isGroupBased) return new Set()
-    const ids = groups.flatMap(g => g.playerIds || [])
+    const ids = groups.flatMap(g => (g.playerIds || []).filter(Boolean))
     return new Set(ids)
-  }, [groups, isGroupBased])
+  }, [groups])
 
   const availableForGroups = useMemo(
     () => enrollments.filter(en => !assignedPlayerIds.has(en.playerId)),
@@ -72,95 +57,44 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
   const seedList = competition?.seededPlayerIds || []
   const seedablePlayers = enrollments.filter(en => !seedList.includes(en.playerId))
 
-  async function ensureGroups() {
-    if (!competition?.numGroups || !competition?.playersPerGroup) return
-    setWorking(true)
-    setError(null)
-    try {
-      const existingByPosition = new Map(groups.map(g => [g.position, g]))
-      const tasks = []
-      for (let pos = 1; pos <= competition.numGroups; pos += 1) {
-        if (!existingByPosition.has(pos)) {
-          tasks.push(
-            groupsRepo.create({
-              competitionId,
-              competitionType: competitionType === 'leagues' ? 'league' : 'tournament',
-              name: groupName(pos),
-              position: pos,
-              playerIds: [],
-            })
-          )
-        }
-      }
-      await Promise.all(tasks)
-    } catch {
-      setError('Failed to initialize groups.')
-    } finally {
-      setWorking(false)
-    }
+  function playerLabel(playerId) {
+    if (!playerId) return 'BYE'
+    const en = enrollments.find(e => e.playerId === playerId)
+    return en?.playerName || en?.playerEmail || playerId
   }
 
-  async function ensureRoundRobinSlots(group, playerIds) {
-    if (!competition?.playersPerGroup || playerIds.length !== competition.playersPerGroup) return
-
-    const roundsRepo = roundsRepository(competitionType, competitionId)
-    const existing = await roundsRepo.query([
-      where('type', '==', 'round_robin'),
-      where('groupId', '==', group.id),
-    ])
-
-    let round = existing[0]
-    if (!round) {
-      round = await roundsRepo.create({
-        competitionId,
-        competitionType: competitionType === 'leagues' ? 'league' : 'tournament',
-        roundNumber: group.position,
-        name: `${group.name} Round Robin`,
-        type: 'round_robin',
-        groupId: group.id,
-        status: 'scheduled',
-      })
+  // Update all match slots in a round that reference a given position
+  async function updateMatchSlots(roundId, position, playerId) {
+    const mRepo = matchesRepository(competitionType, competitionId, roundId)
+    const allMatches = await mRepo.getAll()
+    const updates = []
+    for (const match of allMatches) {
+      if (match.player1Position === position) updates.push(mRepo.update(match.id, { player1Id: playerId }))
+      if (match.player2Position === position) updates.push(mRepo.update(match.id, { player2Id: playerId }))
     }
-
-    const mRepo = matchesRepository(competitionType, competitionId, round.id)
-    const existingMatches = await mRepo.getAll()
-    if (existingMatches.length > 0) return
-
-    const pairs = buildRoundRobinPairs(playerIds)
-    await Promise.all(
-      pairs.map(([player1Id, player2Id]) =>
-        mRepo.create({
-          competitionId,
-          competitionType: competitionType === 'leagues' ? 'league' : 'tournament',
-          roundId: round.id,
-          groupId: group.id,
-          player1Id,
-          player2Id,
-          status: 'not_scheduled',
-          scheduledAt: null,
-          generated: true,
-        })
-      )
-    )
+    await Promise.all(updates)
   }
 
   async function assignToGroup(group) {
     const selected = groupSelectState[group.id]
     if (!selected) return
-    const current = group.playerIds || []
-
-    if (current.length >= (competition?.playersPerGroup || Infinity)) {
-      setError(`Group is full (${competition.playersPerGroup} players).`)
+    const playerIds = group.playerIds || []
+    const emptyIdx = playerIds.indexOf(null)
+    if (emptyIdx === -1) {
+      setError(`Group ${group.name} is full.`)
       return
     }
 
     setWorking(true)
     setError(null)
     try {
-      const nextPlayerIds = [...current, selected]
+      const nextPlayerIds = [...playerIds]
+      nextPlayerIds[emptyIdx] = selected
       await groupsRepo.update(group.id, { playerIds: nextPlayerIds })
       setGroupSelectState(prev => ({ ...prev, [group.id]: '' }))
-      await ensureRoundRobinSlots(group, nextPlayerIds)
+
+      const round = rounds.find(r => r.groupId === group.id)
+      if (round) await updateMatchSlots(round.id, emptyIdx + 1, selected)
     } catch {
       setError('Failed to assign player to group.')
     } finally {
@@ -168,12 +102,16 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
     }
   }
 
-  async function removeFromGroup(group, playerId) {
+  async function removeFromGroup(group, idx) {
     setWorking(true)
     setError(null)
     try {
-      const nextPlayerIds = (group.playerIds || []).filter(id => id !== playerId)
+      const nextPlayerIds = [...(group.playerIds || [])]
+      nextPlayerIds[idx] = null
       await groupsRepo.update(group.id, { playerIds: nextPlayerIds })
+
+      const round = rounds.find(r => r.groupId === group.id)
+      if (round) await updateMatchSlots(round.id, idx + 1, null)
     } catch {
       setError('Failed to remove player from group.')
     } finally {
@@ -182,95 +120,41 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
   }
 
   async function addToSeedList(playerId) {
+    const emptyIdx = seedList.indexOf(null)
+    if (emptyIdx === -1) return
     setWorking(true)
     setError(null)
     try {
-      await competitionRepo.update(competitionId, {
-        seededPlayerIds: [...seedList, playerId],
-      })
+      const next = [...seedList]
+      next[emptyIdx] = playerId
+      await competitionRepo.update(competitionId, { seededPlayerIds: next })
+      setGroupSelectState(prev => ({ ...prev, knockout: '' }))
+
+      const round = rounds.find(r => r.type === 'knockout')
+      if (round) await updateMatchSlots(round.id, emptyIdx + 1, playerId)
     } catch {
-      setError('Failed to add player to seeded list.')
+      setError('Failed to assign player to seed position.')
     } finally {
       setWorking(false)
     }
   }
 
-  async function removeFromSeedList(playerId) {
+  async function removeFromSeedList(idx) {
     setWorking(true)
     setError(null)
     try {
-      await competitionRepo.update(competitionId, {
-        seededPlayerIds: seedList.filter(id => id !== playerId),
-      })
+      const next = [...seedList]
+      next[idx] = null
+      await competitionRepo.update(competitionId, { seededPlayerIds: next })
+
+      const round = rounds.find(r => r.type === 'knockout')
+      if (round) await updateMatchSlots(round.id, idx + 1, null)
     } catch {
-      setError('Failed to remove player from seeded list.')
+      setError('Failed to remove player from seed list.')
     } finally {
       setWorking(false)
     }
   }
-
-  async function generateKnockoutSlots() {
-    if (seedList.length < 2 || seedList.length % 2 !== 0) {
-      setError('Seed list must contain an even number of players (minimum 2).')
-      return
-    }
-
-    setWorking(true)
-    setError(null)
-    try {
-      const roundsRepo = roundsRepository(competitionType, competitionId)
-      const existing = await roundsRepo.query([where('type', '==', 'knockout'), where('roundNumber', '==', 1)])
-
-      let round = existing[0]
-      if (!round) {
-        round = await roundsRepo.create({
-          competitionId,
-          competitionType: competitionType === 'leagues' ? 'league' : 'tournament',
-          roundNumber: 1,
-          name: `Knockout Round (${seedList.length})`,
-          type: 'knockout',
-          groupId: null,
-          status: 'scheduled',
-        })
-      }
-
-      const mRepo = matchesRepository(competitionType, competitionId, round.id)
-      const existingMatches = await mRepo.getAll()
-      if (existingMatches.length > 0) return
-
-      const pairings = []
-      for (let i = 0; i < seedList.length / 2; i += 1) {
-        pairings.push([seedList[i], seedList[seedList.length - 1 - i]])
-      }
-
-      await Promise.all(
-        pairings.map(([player1Id, player2Id]) =>
-          mRepo.create({
-            competitionId,
-            competitionType: competitionType === 'leagues' ? 'league' : 'tournament',
-            roundId: round.id,
-            groupId: null,
-            player1Id,
-            player2Id,
-            status: 'not_scheduled',
-            scheduledAt: null,
-            generated: true,
-          })
-        )
-      )
-    } catch {
-      setError('Failed to generate knockout slots.')
-    } finally {
-      setWorking(false)
-    }
-  }
-
-  function playerLabel(playerId) {
-    const enrollment = enrollments.find(en => en.playerId === playerId)
-    return enrollment?.playerName || enrollment?.playerEmail || playerId
-  }
-
-  const generatedRoundCount = rounds.filter(r => r.type === (isGroupBased ? 'round_robin' : 'knockout')).length
 
   if (enrollmentsLoading || groupsLoading) {
     return <div className="flex justify-center py-10"><Loader /></div>
@@ -283,66 +167,60 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-heading text-base font-semibold text-text">Draw</h3>
-          <div className="flex items-center gap-2 text-sm">
-            <Badge variant="neutral">Rounds: {generatedRoundCount}</Badge>
-            <Badge variant="neutral">Enrolled: {enrollments.length}</Badge>
-          </div>
+          <Badge variant="neutral">Enrolled: {enrollments.length}</Badge>
         </div>
       </Card>
 
       {isGroupBased ? (
-        <>
-          {groups.length === 0 && (
-            <Card>
-              <p className="mb-4 text-sm text-text-light">
-                This format needs groups. Initialize groups before assigning players.
-              </p>
-              <Button size="sm" onClick={ensureGroups} loading={working}>
-                Create {competition?.numGroups || 0} Groups
-              </Button>
-            </Card>
-          )}
-
-          {groups.map(group => {
-            const currentIds = group.playerIds || []
-            const available = availableForGroups
-            const isFull = currentIds.length >= (competition?.playersPerGroup || Infinity)
+        groups
+          .slice()
+          .sort((a, b) => (a.position || 0) - (b.position || 0))
+          .map(group => {
+            const playerIds = group.playerIds || []
+            const filled = playerIds.filter(Boolean).length
+            const total = playerIds.length
+            const isFull = filled >= total
 
             return (
               <Card key={group.id}>
                 <div className="mb-3 flex items-center justify-between">
                   <h4 className="font-heading text-sm font-semibold text-text">{group.name}</h4>
                   <Badge variant={isFull ? 'finished' : 'scheduled'}>
-                    {currentIds.length}/{competition?.playersPerGroup || 0}
+                    {filled}/{total}
                   </Badge>
                 </div>
 
-                {currentIds.length === 0 ? (
-                  <p className="mb-3 text-sm text-text-light">No players assigned yet.</p>
-                ) : (
-                  <div className="mb-3 space-y-2">
-                    {currentIds.map(playerId => (
-                      <div key={playerId} className="flex items-center justify-between border border-slate-200 px-3 py-2">
-                        <span className="text-sm text-text">{playerLabel(playerId)}</span>
-                        <button
-                          type="button"
-                          className="text-xs text-rose-600 hover:text-rose-700"
-                          onClick={() => removeFromGroup(group, playerId)}
-                        >
-                          Remove
-                        </button>
+                <div className="mb-3 space-y-1.5">
+                  {playerIds.map((playerId, idx) => (
+                    <div key={idx} className="flex items-center justify-between border border-slate-200 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-xs text-text-light">{idx + 1}</span>
+                        <span className={`text-sm ${playerId ? 'text-text' : 'italic text-text-light'}`}>
+                          {playerLabel(playerId)}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      {playerId && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-400 hover:text-rose-500"
+                          onClick={() => removeFromGroup(group, idx)}
+                          disabled={working}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
 
                 {!isFull && (
                   <div className="flex gap-3">
                     <Select
                       className="flex-1"
-                      placeholder="Select player"
+                      placeholder="Select player to assign"
                       value={groupSelectState[group.id] || ''}
-                      options={available.map(en => ({
+                      options={availableForGroups.map(en => ({
                         value: en.playerId,
                         label: en.playerName || en.playerEmail,
                       }))}
@@ -354,70 +232,67 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
                       size="sm"
                       variant="outline"
                       onClick={() => assignToGroup(group)}
-                      disabled={!groupSelectState[group.id]}
+                      disabled={!groupSelectState[group.id] || working}
                     >
-                      Add
+                      Assign
                     </Button>
                   </div>
                 )}
               </Card>
             )
-          })}
-        </>
+          })
       ) : (
         <Card>
-          <h4 className="mb-3 font-heading text-sm font-semibold text-text">Seeded Player List (Knockout)</h4>
+          <h4 className="mb-3 font-heading text-sm font-semibold text-text">Seeded Positions (Knockout)</h4>
 
-          {seedList.length === 0 ? (
-            <p className="mb-3 text-sm text-text-light">No seeded players yet.</p>
-          ) : (
-            <div className="mb-4 space-y-2">
-              {seedList.map((playerId, index) => (
-                <div key={playerId} className="flex items-center justify-between border border-slate-200 px-3 py-2">
-                  <span className="text-sm text-text">{index + 1}. {playerLabel(playerId)}</span>
-                  <button
-                    type="button"
-                    className="text-xs text-rose-600 hover:text-rose-700"
-                    onClick={() => removeFromSeedList(playerId)}
-                  >
-                    Remove
-                  </button>
+          <div className="mb-4 space-y-1.5">
+            {seedList.map((playerId, idx) => (
+              <div key={idx} className="flex items-center justify-between border border-slate-200 px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 text-xs text-text-light">{idx + 1}</span>
+                  <span className={`text-sm ${playerId ? 'text-text' : 'italic text-text-light'}`}>
+                    {playerLabel(playerId)}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mb-4 flex gap-3">
-            <Select
-              className="flex-1"
-              placeholder="Select player"
-              options={seedablePlayers.map(en => ({
-                value: en.playerId,
-                label: en.playerName || en.playerEmail,
-              }))}
-              value={groupSelectState.knockout || ''}
-              onChange={e =>
-                setGroupSelectState(prev => ({ ...prev, knockout: e.target.value }))
-              }
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!groupSelectState.knockout}
-              onClick={() => addToSeedList(groupSelectState.knockout)}
-            >
-              Add Seed
-            </Button>
+                {playerId && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-slate-400 hover:text-rose-500"
+                    onClick={() => removeFromSeedList(idx)}
+                    disabled={working}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
 
-          <Button
-            size="sm"
-            onClick={generateKnockoutSlots}
-            loading={working}
-            loadingLabel="Generating..."
-          >
-            Generate Knockout Slots
-          </Button>
+          {seedList.some(id => id === null) && (
+            <div className="flex gap-3">
+              <Select
+                className="flex-1"
+                placeholder="Select player"
+                options={seedablePlayers.map(en => ({
+                  value: en.playerId,
+                  label: en.playerName || en.playerEmail,
+                }))}
+                value={groupSelectState.knockout || ''}
+                onChange={e =>
+                  setGroupSelectState(prev => ({ ...prev, knockout: e.target.value }))
+                }
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!groupSelectState.knockout || working}
+                onClick={() => addToSeedList(groupSelectState.knockout)}
+              >
+                Assign
+              </Button>
+            </div>
+          )}
         </Card>
       )}
     </div>

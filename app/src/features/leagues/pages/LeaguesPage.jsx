@@ -6,6 +6,7 @@ import {
   SectionTitle,
   Button,
   Loader,
+  Select,
   TournamentCard,
   Container,
 } from '../../../ui/index.js'
@@ -34,18 +35,15 @@ export default function LeaguesPage() {
           subtitle="Tennis leagues organised by season."
           action={canManage && <Button size="sm" onClick={() => navigate('/leagues/create')}>+ New League</Button>}
         />
-        <div className="mb-6 mt-8 flex flex-wrap items-center gap-3">
-          <label className="text-sm font-medium text-text">Season</label>
-          <select
-            className="border border-slate-300 bg-white px-3 py-2 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            value={selectedSeasonId}
-            onChange={e => setSelectedSeasonId(e.target.value)}
-          >
-            <option value="">All seasons</option>
-            {seasons.map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
+        <div className="mb-6 mt-8 flex flex-wrap items-center gap-4">
+          <div className="w-48">
+            <Select
+              placeholder="All seasons"
+              options={seasons.map(s => ({ value: s.id, label: s.name }))}
+              value={selectedSeasonId}
+              onChange={e => setSelectedSeasonId(e.target.value)}
+            />
+          </div>
           {canManage && (
             <Link to="/seasons/create" className="text-sm text-primary hover:underline">
               + New Season
@@ -71,14 +69,12 @@ export default function LeaguesPage() {
                     image: league.image || null,
                   }}
                 />
-                {canManage && (
-                  <Link
-                    to={`/leagues/${league.id}/enroll`}
-                    className="inline-block text-sm font-medium text-primary hover:underline"
-                  >
-                    Setup & Draw →
-                  </Link>
-                )}
+                <Link
+                  to={`/leagues/${league.id}`}
+                  className="inline-block text-sm font-medium text-primary hover:underline"
+                >
+                  View →
+                </Link>
               </div>
             ))}
           </div>

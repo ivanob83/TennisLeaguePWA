@@ -2,7 +2,7 @@
 export default {
   content: [
     './index.html',
-    './app/js/**/*.{js,jsx,ts,tsx}',
+    './app/src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     extend: {
@@ -46,5 +46,5 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [],
 }

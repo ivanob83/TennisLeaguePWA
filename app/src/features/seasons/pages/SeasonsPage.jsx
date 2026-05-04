@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { orderBy } from 'firebase/firestore'
+import { Pencil, Trash2 } from 'lucide-react'
 import AppLayout from '../../../layouts/AppLayout.jsx'
 import {
   SectionTitle,
@@ -8,10 +10,14 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
+  ConfirmDialog,
   Loader,
   Container,
 } from '../../../ui/index.js'
 import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
+import { useAuthContext } from '../../auth/context/AuthContext.jsx'
+import { useToast } from '../../../context/ToastContext.jsx'
+import { seasonsRepository } from '../../../infrastructure/firestore.js'
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -24,7 +30,26 @@ function formatDate(iso) {
 
 export default function SeasonsPage() {
   const navigate = useNavigate()
+  const { isEditor, isSuperadmin } = useAuthContext()
+  const { showToast } = useToast()
   const { data: seasons, loading } = useFirestoreCollection('seasons', [orderBy('startDate', 'desc')])
+  const [confirmId, setConfirmId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const confirmSeason = seasons.find(s => s.id === confirmId)
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await seasonsRepository.delete(confirmId)
+      showToast({ title: 'Season deleted', variant: 'success' })
+      setConfirmId(null)
+    } catch {
+      showToast({ title: 'Delete failed', message: 'Please try again.', variant: 'error' })
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <AppLayout>
@@ -44,7 +69,31 @@ export default function SeasonsPage() {
               {seasons.map(season => (
                 <Card key={season.id}>
                   <CardHeader>
-                    <CardTitle>{season.name}</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{season.name}</CardTitle>
+                      {isEditor && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/seasons/${season.id}/edit`)}
+                            className="inline-flex h-8 w-8 items-center justify-center text-text-light transition-colors hover:text-primary"
+                            title="Edit season"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          {isSuperadmin && (
+                            <button
+                              type="button"
+                              onClick={() => setConfirmId(season.id)}
+                              className="inline-flex h-8 w-8 items-center justify-center text-text-light transition-colors hover:text-rose-500"
+                              title="Delete season"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-text-light">
@@ -57,6 +106,16 @@ export default function SeasonsPage() {
           )}
         </div>
       </Container>
+
+      <ConfirmDialog
+        open={!!confirmId}
+        title="Delete Season"
+        description={`Delete "${confirmSeason?.name}"? This will not automatically delete leagues or tournaments inside it.`}
+        confirmLabel="Delete"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmId(null)}
+      />
     </AppLayout>
   )
 }

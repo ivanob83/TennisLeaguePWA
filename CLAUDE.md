@@ -16,6 +16,17 @@ Ako neki ne odgovara, pitaj korisnika da li želi da ga pokrene i prikaži koman
 - **Monitoring server:** `node D:/claude-monitoring/server.js`
 - **Grafana:** `cd /d D:/grafana && bin/grafana-server.exe --homepath D:/grafana --config D:/grafana/conf/custom.ini`
 
+## Feature dokumentacija
+
+Pre nego što tražiš po kodu, uvek prvo proveri `agents/features/` fajlove. Svaki feature ima svoj MD fajl koji opisuje rute, Firestore operacije, access control i logiku.
+
+- `agents/features/FeaturesInstructions.md` — indeks svih feature-a
+- `agents/features/<feature>.md` — detalji za konkretan feature
+
+Redosled istraživanja:
+1. Pročitaj odgovarajući `agents/features/<feature>.md`
+2. Tek ako informacija nedostaje ili je nejasna — čitaj kod direktno
+
 ## Commands
 
 ```bash

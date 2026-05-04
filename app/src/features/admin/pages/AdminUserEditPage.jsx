@@ -45,7 +45,7 @@ export default function AdminUserEditPage() {
         const [userData, linked, free] = await Promise.all([
           getUserById(userId),
           playersRepository.query([where('authUid', '==', userId)]),
-          playersRepository.query([where('authUid', '==', null)]),
+          playersRepository.getAll().then(all => all.filter(p => !p.authUid)),
         ])
 
         if (!userData) { setServerError('User not found.'); setLoading(false); return }
@@ -136,6 +136,11 @@ export default function AdminUserEditPage() {
   return (
     <AppLayout>
       <div className="mx-auto max-w-lg px-6 py-section">
+        <div className="mb-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/users')}>
+            ← Back to Users
+          </Button>
+        </div>
         <div className="mb-8">
           <SectionTitle title="Edit User" subtitle="Update user details and role." />
         </div>

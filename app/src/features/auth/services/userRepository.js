@@ -67,12 +67,18 @@ export async function userExists(uid) {
 }
 
 /**
- * Returns true if no users exist yet — used to assign superadmin to first registrant
+ * Returns true if no users exist yet — used to assign superadmin to first registrant.
+ * Query fails with permission denied once any user exists (rules deny collection listing),
+ * which means it's definitely not the first user — treat as false.
  */
 export async function isFirstUser() {
-  const q = query(collection(db, COLLECTION), limit(1))
-  const snapshot = await getDocs(q)
-  return snapshot.empty
+  try {
+    const q = query(collection(db, COLLECTION), limit(1))
+    const snapshot = await getDocs(q)
+    return snapshot.empty
+  } catch {
+    return false
+  }
 }
 
 /**

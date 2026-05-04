@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isEditor() {
+      return isAuthenticated() && getUserRole() in ['editor', 'superadmin'];
+    }
+
+    function isSuperadmin() {
+      return isAuthenticated() && getUserRole() == 'superadmin';
+    }
+
+    // True if the current user is one of the two players in the match (via linked authUid on player doc)
+    function isMatchPlayer(match) {
+      return isAuthenticated() &&
+        match.player1Id != null && match.player2Id != null &&
+        (
+          get(/databases/$(database)/documents/players/$(match.player1Id)).data.authUid == request.auth.uid ||
+          get(/databases/$(database)/documents/players/$(match.player2Id)).data.authUid == request.auth.uid
+        );
+    }
+
+    // Fields a player is allowed to set when submitting a score
+    function isScoreSubmission() {
+      return request.resource.data.status == 'pending_approval' &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['pendingSets', 'pendingWinnerId', 'status', 'submittedAt', 'updatedAt']);
+    }
+
+    // Seasons — public read, editor write
+    match /seasons/{id} {
+      allow read: if true;
+      allow create, update, delete: if isEditor();
+    }
+
+    // Leagues — public read, editor write; subcollections public read
+    match /leagues/{leagueId} {
+      allow read: if true;
+      allow create, update, delete: if isEditor();
+
+      match /enrollments/{docId} {
+        allow read: if true;
+        allow create, delete: if isEditor();
+      }
+
+      match /groups/{docId} {
+        allow read: if true;
+        allow create, update, delete: if isEditor();
+      }
+
+      match /rounds/{roundId} {
+        allow read: if true;
+        allow create, update, delete: if isEditor();
+
+        match /matches/{matchId} {
+          allow read: if true;
+          allow create, delete: if isEditor();
+          allow update: if isEditor() || (isMatchPlayer(resource.data) && isScoreSubmission());
+        }
+      }
+
+      match /rankings/{docId} {
+        allow read: if true;
+        allow write: if isEditor();
+      }
+    }
+
+    // Tournaments — public read, editor write; subcollections public read
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow create, update, delete: if isEditor();
+
+      match /enrollments/{docId} {
+        allow read: if true;
+        allow create, delete: if isEditor();
+      }
+
+      match /groups/{docId} {
+        allow read: if true;
+        allow create, update, delete: if isEditor();
+      }
+
+      match /rounds/{roundId} {
+        allow read: if true;
+        allow create, update, delete: if isEditor();
+
+        match /matches/{matchId} {
+          allow read: if true;
+          allow create, delete: if isEditor();
+          allow update: if isEditor() || (isMatchPlayer(resource.data) && isScoreSubmission());
+        }
+      }
+
+      match /rankings/{docId} {
+        allow read: if true;
+        allow write: if isEditor();
+      }
+    }
+
+    // Players — public read, editor write; linked user can update their own
+    match /players/{id} {
+      allow read: if true;
+      allow create, delete: if isEditor();
+      allow update: if isEditor() || (isAuthenticated() && resource.data.authUid == request.auth.uid);
+    }
+
+    // Users — public read (display names visible to all), own profile write
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isSuperadmin());
+      allow delete: if isSuperadmin();
+    }
+
+    // collectionGroup queries (required for cross-competition queries)
+    match /{path=**}/matches/{matchId} {
+      allow read: if true;
+    }
+
+    match /{path=**}/enrollments/{docId} {
+      allow read: if isAuthenticated();
+    }
+
+    // Connection requests — authenticated read, player creates own, editor manages
+    match /connectionRequests/{id} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isEditor();
+    }
+  }
+}

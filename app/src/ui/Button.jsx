@@ -15,6 +15,7 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-white hover:bg-secondary-dark',
         outline: 'border border-primary text-primary hover:bg-primary/5',
         ghost: 'text-primary hover:bg-primary/10',
+        success: 'bg-success text-white hover:opacity-90',
       },
       size: {
         sm: 'h-9 px-3 text-sm',

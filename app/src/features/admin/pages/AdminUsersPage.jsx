@@ -12,6 +12,7 @@ import {
   Container,
 } from '../../../ui/index.js'
 import { getAllUsers, updateUserRole } from '../../auth/services/userRepository.js'
+import { playersRepository } from '../../../infrastructure/firestore.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { useToast } from '../../../context/ToastContext.jsx'
 
@@ -38,6 +39,7 @@ export default function AdminUsersPage() {
   const { user, profile, refreshProfile } = useAuthContext()
   const { showToast } = useToast()
   const [users, setUsers] = useState([])
+  const [linkedByUid, setLinkedByUid] = useState({}) // uid → player
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(null)
   const [pendingRoles, setPendingRoles] = useState({})
@@ -46,11 +48,17 @@ export default function AdminUsersPage() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getAllUsers()
+        const [data, players] = await Promise.all([
+          getAllUsers(),
+          playersRepository.getAll(),
+        ])
         setUsers(data)
         const initial = {}
         data.forEach(u => { initial[u.id] = u.role || 'player' })
         setPendingRoles(initial)
+        const map = {}
+        players.forEach(p => { if (p.authUid) map[p.authUid] = p })
+        setLinkedByUid(map)
       } catch (err) {
         console.error(err)
         setError('Failed to load users.')
@@ -123,7 +131,14 @@ export default function AdminUsersPage() {
                         <span className="text-xs font-bold uppercase tracking-[0.14em] text-secondary">you</span>
                       )}
                     </div>
-                    <span className="text-xs text-text-light">{formatDate(u.createdAt)}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-text-light">{formatDate(u.createdAt)}</span>
+                      {linkedByUid[u.id] ? (
+                        <Badge variant="success">{linkedByUid[u.id].name}</Badge>
+                      ) : (
+                        <Badge variant="neutral">No player</Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Email */}

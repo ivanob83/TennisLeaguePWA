@@ -12,6 +12,7 @@ import {
   ConfirmDialog,
 } from '../../../ui/index.js'
 import { playersRepository } from '../../../infrastructure/firestore.js'
+import { enrichPlayersWithUserNames } from '../../../infrastructure/enrichPlayers.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { useToast } from '../../../context/ToastContext.jsx'
 
@@ -29,8 +30,9 @@ export default function PlayersPage() {
     async function load() {
       try {
         const data = await playersRepository.getAll()
-        data.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-        setPlayers(data)
+        const enriched = await enrichPlayersWithUserNames(data)
+        const list = Object.values(enriched).sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        setPlayers(list)
       } catch (err) {
         console.error(err)
         setError('Failed to load players.')
@@ -92,7 +94,13 @@ export default function PlayersPage() {
                     className="h-9 w-9 border border-gray-200"
                   />
                   <div className="min-w-0">
-                    <span className="font-semibold text-primary truncate block">{player.name}</span>
+                    <button
+                      type="button"
+                      className="font-semibold text-primary truncate block hover:underline text-left"
+                      onClick={() => navigate(`/players/${player.id}`)}
+                    >
+                      {player.name}
+                    </button>
                     {player.authUid && (
                       <span className="text-xs font-bold uppercase tracking-[0.12em] text-secondary">linked</span>
                     )}

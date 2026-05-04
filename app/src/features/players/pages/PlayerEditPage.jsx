@@ -14,11 +14,24 @@ import {
 import { playersRepository } from '../../../infrastructure/firestore.js'
 import { uploadPlayerAvatar } from '../../../infrastructure/avatar.js'
 import { useToast } from '../../../context/ToastContext.jsx'
+import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 
 export default function PlayerEditPage() {
   const { playerId } = useParams()
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { isEditor, linkedPlayer } = useAuthContext()
+  const isOwnProfile = linkedPlayer?.id === playerId
+
+  if (!isEditor && !isOwnProfile) {
+    return (
+      <AppLayout>
+        <Container className="py-8">
+          <p className="text-sm text-text-light">You don't have permission to edit this player.</p>
+        </Container>
+      </AppLayout>
+    )
+  }
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)

@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { where } from 'firebase/firestore'
+import { useState, useEffect, useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import {
   Card,
@@ -13,12 +12,12 @@ import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
 import {
   leagueEnrollmentRepository,
   tournamentEnrollmentRepository,
-  usersRepository,
+  playersRepository,
 } from '../../../infrastructure/firestore.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 
 /**
- * Shared enrollment manager used by both LeagueEnrollPage and TournamentEnrollPage.
+ * Shared enrollment manager used by both LeagueDetailPage and TournamentDetailPage.
  * @param {{ competitionId: string, competitionType: 'leagues'|'tournaments' }} props
  */
 export default function EnrollmentManager({ competitionId, competitionType }) {
@@ -28,59 +27,55 @@ export default function EnrollmentManager({ competitionId, competitionType }) {
     ? leagueEnrollmentRepository(competitionId)
     : tournamentEnrollmentRepository(competitionId)
 
-  const { data: enrollments, loading } = useFirestoreCollection(enrollmentPath)
-  const [email, setEmail] = useState('')
-  const [foundUser, setFoundUser] = useState(null)
-  const [searchError, setSearchError] = useState(null)
-  const [searching, setSearching] = useState(false)
-  const [enrolling, setEnrolling] = useState(false)
+  const { data: enrollments, loading: enrollmentsLoading } = useFirestoreCollection(enrollmentPath)
+
+  const [allPlayers, setAllPlayers] = useState([])
+  const [playersLoading, setPlayersLoading] = useState(false)
+  const [showList, setShowList] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [enrolling, setEnrolling] = useState(null)
   const [removingId, setRemovingId] = useState(null)
+  const [error, setError] = useState(null)
 
-  async function handleSearch(e) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setSearching(true)
-    setFoundUser(null)
-    setSearchError(null)
-    try {
-      const results = await usersRepository.query([where('email', '==', email.trim().toLowerCase())])
-      if (results.length === 0) {
-        setSearchError('No user found with that email address.')
-      } else {
-        const found = results[0]
-        const playerId = found.uid || found.id
-        const alreadyEnrolled = enrollments.some(en => en.playerId === playerId)
-        if (alreadyEnrolled) {
-          setSearchError('This player is already enrolled.')
-        } else {
-          setFoundUser(found)
-        }
-      }
-    } catch {
-      setSearchError('Search failed. Please try again.')
-    } finally {
-      setSearching(false)
-    }
-  }
+  useEffect(() => {
+    if (!showList || allPlayers.length > 0) return
+    setPlayersLoading(true)
+    playersRepository.getAll()
+      .then(setAllPlayers)
+      .catch(() => setError('Failed to load players.'))
+      .finally(() => setPlayersLoading(false))
+  }, [showList])
 
-  async function handleEnroll() {
-    if (!foundUser) return
-    setEnrolling(true)
+  const enrolledPlayerIds = useMemo(
+    () => new Set(enrollments.map(en => en.playerId)),
+    [enrollments]
+  )
+
+  const filteredPlayers = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return allPlayers.filter(p => {
+      if (enrolledPlayerIds.has(p.id)) return false
+      if (!q) return true
+      return (p.name || '').toLowerCase().includes(q)
+    })
+  }, [allPlayers, searchQuery, enrolledPlayerIds])
+
+  async function handleEnroll(player) {
+    setEnrolling(player.id)
+    setError(null)
     try {
       await repo.create({
-        playerId: foundUser.uid || foundUser.id,
-        playerName: foundUser.displayName || foundUser.email,
-        playerEmail: foundUser.email,
+        playerId: player.id,
+        playerName: player.name || player.email || player.id,
+        playerEmail: player.email || null,
         status: 'active',
         enrolledAt: new Date().toISOString(),
         enrolledBy: user.uid,
       })
-      setEmail('')
-      setFoundUser(null)
     } catch {
-      setSearchError('Failed to enroll player. Please try again.')
+      setError('Failed to enroll player. Please try again.')
     } finally {
-      setEnrolling(false)
+      setEnrolling(null)
     }
   }
 
@@ -89,7 +84,7 @@ export default function EnrollmentManager({ competitionId, competitionType }) {
     try {
       await repo.delete(enrollmentId)
     } catch {
-      // silently ignore — player stays in list, admin can retry
+      // silently ignore
     } finally {
       setRemovingId(null)
     }
@@ -98,43 +93,69 @@ export default function EnrollmentManager({ competitionId, competitionType }) {
   return (
     <div className="space-y-8">
       <Card>
-        <h3 className="mb-4 font-heading text-base font-semibold text-text">Add Player</h3>
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <Input
-            name="email"
-            placeholder="Player email address"
-            type="email"
-            value={email}
-            onChange={e => {
-              setEmail(e.target.value)
-              setFoundUser(null)
-              setSearchError(null)
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="font-heading text-base font-semibold text-text">Add Player</h3>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setShowList(v => !v)
+              setSearchQuery('')
+              setError(null)
             }}
-            className="flex-1"
-          />
-          <Button type="submit" variant="outline" size="sm" loading={searching} loadingLabel="Searching...">
-            Search
+          >
+            {showList ? 'Hide list' : 'Show list'}
           </Button>
-        </form>
-        {searchError && <Alert variant="error" className="mt-3">{searchError}</Alert>}
-        {foundUser && (
-          <div className="mt-4 flex items-center justify-between border border-slate-200 bg-[#fafafa] p-3">
-            <div>
-              <p className="text-sm font-medium text-text">{foundUser.displayName || '—'}</p>
-              <p className="text-xs text-text-light">{foundUser.email}</p>
-            </div>
-            <Button size="sm" loading={enrolling} loadingLabel="Enrolling..." onClick={handleEnroll}>
-              Enroll
-            </Button>
-          </div>
+        </div>
+
+        {showList && (
+          <>
+            <Input
+              placeholder="Filter by name..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="mb-3"
+            />
+            {error && <Alert variant="error" className="mb-3">{error}</Alert>}
+            {playersLoading ? (
+              <div className="flex justify-center py-6"><Loader /></div>
+            ) : filteredPlayers.length === 0 ? (
+              <p className="py-4 text-center text-sm text-text-light">
+                {searchQuery ? 'No players match your search.' : 'All players are already enrolled.'}
+              </p>
+            ) : (
+              <div className="max-h-64 divide-y divide-slate-100 overflow-y-auto border border-slate-200">
+                {filteredPlayers.map(player => (
+                  <div key={player.id} className="flex items-center justify-between px-3 py-2.5">
+                    <div>
+                      <p className="text-sm font-medium text-text">{player.name || '—'}</p>
+                      {player.email && (
+                        <p className="text-xs text-text-light">{player.email}</p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      loading={enrolling === player.id}
+                      loadingLabel="..."
+                      onClick={() => handleEnroll(player)}
+                    >
+                      Enroll
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </Card>
 
       <div>
         <h3 className="mb-4 font-heading text-base font-semibold text-text">
-          Enrolled Players ({loading ? '…' : enrollments.length})
+          Enrolled Players ({enrollmentsLoading ? '…' : enrollments.length})
         </h3>
-        {loading ? (
+        {enrollmentsLoading ? (
           <div className="flex justify-center py-10"><Loader /></div>
         ) : enrollments.length === 0 ? (
           <p className="text-sm text-text-light">No players enrolled yet.</p>
@@ -144,20 +165,24 @@ export default function EnrollmentManager({ competitionId, competitionType }) {
               <div key={en.id} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <p className="text-sm font-medium text-text">{en.playerName}</p>
-                  <p className="text-xs text-text-light">{en.playerEmail}</p>
+                  {en.playerEmail && (
+                    <p className="text-xs text-text-light">{en.playerEmail}</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant={en.status === 'active' ? 'finished' : 'cancelled'}>
                     {en.status}
                   </Badge>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleRemove(en.id)}
                     disabled={removingId === en.id}
-                    className="text-slate-400 transition-colors hover:text-rose-500 disabled:opacity-50"
+                    className="text-slate-400 hover:text-rose-500"
                     aria-label="Remove player"
                   >
                     <Trash2 size={16} />
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}

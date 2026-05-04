@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { where } from 'firebase/firestore'
 import AppLayout from '../../../layouts/AppLayout.jsx'
 import {
   SectionTitle,
@@ -40,7 +39,7 @@ export default function PlayerConnectionRequestsPage() {
       try {
         const [allRequests, unlinkeds] = await Promise.all([
           connectionRequestsRepository.getAll(),
-          playersRepository.query([where('authUid', '==', null)]),
+          playersRepository.getAll().then(all => all.filter(p => !p.authUid)),
         ])
         const sorted = allRequests.sort((a, b) => {
           const at = a.createdAt?.seconds ?? 0
@@ -64,7 +63,7 @@ export default function PlayerConnectionRequestsPage() {
     setError(null)
     try {
       await Promise.all([
-        playersRepository.update(request.playerId, { authUid: request.userId }),
+        playersRepository.update(request.playerId, { authUid: request.userId, name: request.userName }),
         connectionRequestsRepository.update(request.id, {
           status: 'approved',
           resolvedAt: new Date(),

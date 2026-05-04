@@ -25,6 +25,7 @@ dist-ssr
 
 # Laravel
 .env
+.env.deploy
 .env.backup
 .env.production
 .phpactor.json

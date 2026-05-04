@@ -13,6 +13,7 @@ import {
   where,
   orderBy,
   getDoc,
+  getDocs,
 } from 'firebase/firestore';
 import { db } from '../infrastructure/firebase.js';
 
@@ -68,6 +69,12 @@ export function useFirestoreCollection(collectionPath, constraints = []) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!collectionPath) {
+      setData([]);
+      setLoading(false);
+      return;
+    }
+
     const collRef = collection(db, collectionPath);
     const q = query(collRef, ...constraints);
 
@@ -85,6 +92,32 @@ export function useFirestoreCollection(collectionPath, constraints = []) {
     );
 
     return unsubscribe;
+  }, [collectionPath, JSON.stringify(constraints)]);
+
+  return { data, loading, error };
+}
+
+/**
+ * Hook for one-time collection fetch (non-real-time)
+ *
+ * @param {string} collectionPath
+ * @param {Array} constraints
+ * @returns {object} { data, loading, error }
+ */
+export function useFirestoreCollectionOnce(collectionPath, constraints = []) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const collRef = collection(db, collectionPath);
+    const q = query(collRef, ...constraints);
+    getDocs(q)
+      .then(snapshot => {
+        setData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setLoading(false);
+      })
+      .catch(err => { setError(err); setLoading(false); });
   }, [collectionPath, JSON.stringify(constraints)]);
 
   return { data, loading, error };
