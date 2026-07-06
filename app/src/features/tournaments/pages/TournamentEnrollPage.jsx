@@ -30,14 +30,13 @@ export default function TournamentEnrollPage() {
           </Button>
         </div>
         {loading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
         ) : (
           <>
             <div className="mb-8">
-              <SectionTitle
-                title="Tournament Setup"
-                subtitle={tournament?.name ?? 'Tournament'}
-              />
+              <SectionTitle title="Tournament Setup" subtitle={tournament?.name ?? 'Tournament'} />
             </div>
 
             <div className="mb-6 flex gap-3 border-b border-slate-200 pb-3">
@@ -70,7 +69,9 @@ export default function TournamentEnrollPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-text-light">Date range</span>
-                    <span className="font-medium text-text">{tournament?.startDate || '—'} - {tournament?.endDate || '—'}</span>
+                    <span className="font-medium text-text">
+                      {tournament?.startDate || '—'} - {tournament?.endDate || '—'}
+                    </span>
                   </div>
                   {isGroupFormat && (
                     <>
@@ -80,7 +81,9 @@ export default function TournamentEnrollPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-text-light">Players per group</span>
-                        <span className="font-medium text-text">{tournament?.playersPerGroup || 0}</span>
+                        <span className="font-medium text-text">
+                          {tournament?.playersPerGroup || 0}
+                        </span>
                       </div>
                     </>
                   )}

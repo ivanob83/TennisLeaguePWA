@@ -67,12 +67,13 @@ export default function ImageUpload({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xs font-bold uppercase tracking-[0.14em] text-text">
-        {label}
-      </label>
+      <label className="text-xs font-bold uppercase tracking-[0.14em] text-text">{label}</label>
 
       {previewUrl ? (
-        <div className="relative w-full overflow-hidden rounded border border-slate-200" style={{ aspectRatio: '16/9' }}>
+        <div
+          className="relative w-full overflow-hidden rounded border border-slate-200"
+          style={{ aspectRatio: '16/9' }}
+        >
           <img
             src={previewUrl}
             alt="Featured"
@@ -80,7 +81,9 @@ export default function ImageUpload({
           />
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/60">
-              <span className="text-xs font-bold uppercase tracking-widest text-primary">Saving…</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                Saving…
+              </span>
             </div>
           )}
         </div>

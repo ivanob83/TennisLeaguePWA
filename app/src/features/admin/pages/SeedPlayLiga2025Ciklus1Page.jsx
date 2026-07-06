@@ -34,31 +34,31 @@ const LEAGUE_NAME = 'Play Liga 2025 Ciklus 1'
 
 const PLAYERS = [
   // Group A
-  { name: 'Jovica Mijailovic',    existing: true  }, // 0  JM
-  { name: 'Petar Blagojevic',     existing: false }, // 1  PB
-  { name: 'Marko Cvetkovski',     existing: true  }, // 2  MC
-  { name: 'Ivan Suvacarevic',     existing: true  }, // 3  IS
-  { name: 'Aleksandar Jovanovic', existing: true  }, // 4  A
-  { name: 'Ivan Blagojevic',      existing: true  }, // 5  IB
-  { name: 'Vuk Sebek',            existing: true  }, // 6  VS
+  { name: 'Jovica Mijailovic', existing: true }, // 0  JM
+  { name: 'Petar Blagojevic', existing: false }, // 1  PB
+  { name: 'Marko Cvetkovski', existing: true }, // 2  MC
+  { name: 'Ivan Suvacarevic', existing: true }, // 3  IS
+  { name: 'Aleksandar Jovanovic', existing: true }, // 4  A
+  { name: 'Ivan Blagojevic', existing: true }, // 5  IB
+  { name: 'Vuk Sebek', existing: true }, // 6  VS
   // Group B
-  { name: 'Ivan Obradovic',       existing: true  }, // 7  IO
-  { name: 'Blagoje Djukic',       existing: false }, // 8  BD
-  { name: 'Veljko',               existing: false }, // 9  V  (surname unknown)
-  { name: 'Miljan Milenkovic',    existing: true  }, // 10 MM
-  { name: 'Bojan Cicic',          existing: false }, // 11 BC
-  { name: 'Marko Obrenovic',      existing: false }, // 12 MO
-  { name: 'Pedja Standard',       existing: false }, // 13 PS
-  { name: 'Lazar Spasenic',       existing: false }, // 14 LS
+  { name: 'Ivan Obradovic', existing: true }, // 7  IO
+  { name: 'Blagoje Djukic', existing: false }, // 8  BD
+  { name: 'Veljko', existing: false }, // 9  V  (surname unknown)
+  { name: 'Miljan Milenkovic', existing: true }, // 10 MM
+  { name: 'Bojan Cicic', existing: false }, // 11 BC
+  { name: 'Marko Obrenovic', existing: false }, // 12 MO
+  { name: 'Pedja Standard', existing: false }, // 13 PS
+  { name: 'Lazar Spasenic', existing: false }, // 14 LS
   // Group C
-  { name: 'N. Stanisic',          existing: false }, // 15 NS (first name unknown)
-  { name: 'Goran',                existing: false }, // 16 G  (surname unknown)
-  { name: 'Matija',               existing: false }, // 17 M  (surname unknown)
-  { name: 'Bojan Milinkovic',     existing: true  }, // 18 BM
-  { name: 'Nikola 3M',            existing: false }, // 19 N3 (nickname)
-  { name: 'Milos Simovic',        existing: false }, // 20 MS
-  { name: 'Sasa Markovic',        existing: false }, // 21 SM
-  { name: 'Nenad',                existing: false }, // 22 N  (surname unknown)
+  { name: 'N. Stanisic', existing: false }, // 15 NS (first name unknown)
+  { name: 'Goran', existing: false }, // 16 G  (surname unknown)
+  { name: 'Matija', existing: false }, // 17 M  (surname unknown)
+  { name: 'Bojan Milinkovic', existing: true }, // 18 BM
+  { name: 'Nikola 3M', existing: false }, // 19 N3 (nickname)
+  { name: 'Milos Simovic', existing: false }, // 20 MS
+  { name: 'Sasa Markovic', existing: false }, // 21 SM
+  { name: 'Nenad', existing: false }, // 22 N  (surname unknown)
 ]
 
 // ─── Match data ──────────────────────────────────────────────────────────────
@@ -75,39 +75,234 @@ const GROUPS = [
     playerIndices: [0, 1, 2, 3, 4, 5, 6],
     matches: [
       // ── Round 1 ──────────────────────────────────────────────────────
-      { p1:0, p2:1, winnerIdx:0, scheduledAt:null,                scores:[{player1:6,player2:0},{player1:6,player2:3}] },                              // JM def PB 6-0 6-3
-      { p1:2, p2:3, winnerIdx:2, scheduledAt:null,                scores:[{player1:5,player2:7},{player1:6,player2:3},{player1:7,player2:6}] },         // MC def IS 5-7 6-3 7-6
-      { p1:5, p2:6, winnerIdx:6, scheduledAt:'2025-05-22T17:00',  scores:[{player1:1,player2:6},{player1:4,player2:6}] },                              // VS def IB 6-1 6-4
+      {
+        p1: 0,
+        p2: 1,
+        winnerIdx: 0,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 0 },
+          { player1: 6, player2: 3 },
+        ],
+      }, // JM def PB 6-0 6-3
+      {
+        p1: 2,
+        p2: 3,
+        winnerIdx: 2,
+        scheduledAt: null,
+        scores: [
+          { player1: 5, player2: 7 },
+          { player1: 6, player2: 3 },
+          { player1: 7, player2: 6 },
+        ],
+      }, // MC def IS 5-7 6-3 7-6
+      {
+        p1: 5,
+        p2: 6,
+        winnerIdx: 6,
+        scheduledAt: '2025-05-22T17:00',
+        scores: [
+          { player1: 1, player2: 6 },
+          { player1: 4, player2: 6 },
+        ],
+      }, // VS def IB 6-1 6-4
       // A bye in R1
       // ── Round 2 ──────────────────────────────────────────────────────
-      { p1:0, p2:2, winnerIdx:2, scheduledAt:'2025-05-19T16:00',  scores:[{player1:0,player2:6},{player1:0,player2:6}] },                              // MC def JM 6-0 6-0
-      { p1:4, p2:6, winnerIdx:4, scheduledAt:'2025-05-26T17:00',  scores:[{player1:6,player2:4},{player1:6,player2:3}] },                              // A  def VS 6-4 6-3
-      { p1:5, p2:3, winnerIdx:3, scheduledAt:'2025-06-05T18:00',  scores:[{player1:1,player2:6},{player1:3,player2:6}] },                              // IS def IB 6-1 6-3
+      {
+        p1: 0,
+        p2: 2,
+        winnerIdx: 2,
+        scheduledAt: '2025-05-19T16:00',
+        scores: [
+          { player1: 0, player2: 6 },
+          { player1: 0, player2: 6 },
+        ],
+      }, // MC def JM 6-0 6-0
+      {
+        p1: 4,
+        p2: 6,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-26T17:00',
+        scores: [
+          { player1: 6, player2: 4 },
+          { player1: 6, player2: 3 },
+        ],
+      }, // A  def VS 6-4 6-3
+      {
+        p1: 5,
+        p2: 3,
+        winnerIdx: 3,
+        scheduledAt: '2025-06-05T18:00',
+        scores: [
+          { player1: 1, player2: 6 },
+          { player1: 3, player2: 6 },
+        ],
+      }, // IS def IB 6-1 6-3
       // PB bye in R2
       // ── Round 3 ──────────────────────────────────────────────────────
-      { p1:0, p2:4, winnerIdx:4, scheduledAt:null,                scores:[{player1:3,player2:6},{player1:1,player2:6}] },                              // A  def JM 6-3 6-1
-      { p1:1, p2:2, winnerIdx:2, scheduledAt:'2025-06-10T18:00',  scores:[{player1:3,player2:6},{player1:4,player2:6}] },                              // MC def PB 6-3 6-4
-      { p1:3, p2:6, winnerIdx:6, scheduledAt:null,                scores:[{player1:3,player2:6},{player1:7,player2:5},{player1:6,player2:10}] },        // VS def IS 6-3 5-7 10-6 (ST)
+      {
+        p1: 0,
+        p2: 4,
+        winnerIdx: 4,
+        scheduledAt: null,
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 1, player2: 6 },
+        ],
+      }, // A  def JM 6-3 6-1
+      {
+        p1: 1,
+        p2: 2,
+        winnerIdx: 2,
+        scheduledAt: '2025-06-10T18:00',
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 4, player2: 6 },
+        ],
+      }, // MC def PB 6-3 6-4
+      {
+        p1: 3,
+        p2: 6,
+        winnerIdx: 6,
+        scheduledAt: null,
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 7, player2: 5 },
+          { player1: 6, player2: 10 },
+        ],
+      }, // VS def IS 6-3 5-7 10-6 (ST)
       // IB bye in R3
       // ── Round 4 ──────────────────────────────────────────────────────
-      { p1:0, p2:5, winnerIdx:0, scheduledAt:null,                scores:[{player1:6,player2:1},{player1:6,player2:4}] },                              // JM def IB 6-1 6-4
-      { p1:1, p2:4, winnerIdx:4, scheduledAt:'2025-05-22T17:00',  scores:[{player1:1,player2:6},{player1:2,player2:6}] },                              // A  def PB 6-1 6-2
-      { p1:2, p2:6, winnerIdx:2, scheduledAt:'2025-06-02T17:00',  scores:[{player1:6,player2:3},{player1:7,player2:5}] },                              // MC def VS 6-3 7-5
+      {
+        p1: 0,
+        p2: 5,
+        winnerIdx: 0,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 1 },
+          { player1: 6, player2: 4 },
+        ],
+      }, // JM def IB 6-1 6-4
+      {
+        p1: 1,
+        p2: 4,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-22T17:00',
+        scores: [
+          { player1: 1, player2: 6 },
+          { player1: 2, player2: 6 },
+        ],
+      }, // A  def PB 6-1 6-2
+      {
+        p1: 2,
+        p2: 6,
+        winnerIdx: 2,
+        scheduledAt: '2025-06-02T17:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 7, player2: 5 },
+        ],
+      }, // MC def VS 6-3 7-5
       // IS bye in R4
       // ── Round 5 ──────────────────────────────────────────────────────
-      { p1:0, p2:3, winnerIdx:0, scheduledAt:null,                scores:[{player1:6,player2:0},{player1:6,player2:4}] },                              // JM def IS 6-0 6-4
-      { p1:1, p2:5, winnerIdx:5, scheduledAt:'2025-05-26T16:00',  scores:[{player1:7,player2:6},{player1:6,player2:7},{player1:8,player2:10}] },        // IB def PB 6-7 7-6 10-8 (ST)
-      { p1:2, p2:4, winnerIdx:4, scheduledAt:null,                scores:[{player1:6,player2:7},{player1:3,player2:6}] },                              // A  def MC 7-6 6-3
+      {
+        p1: 0,
+        p2: 3,
+        winnerIdx: 0,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 0 },
+          { player1: 6, player2: 4 },
+        ],
+      }, // JM def IS 6-0 6-4
+      {
+        p1: 1,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: '2025-05-26T16:00',
+        scores: [
+          { player1: 7, player2: 6 },
+          { player1: 6, player2: 7 },
+          { player1: 8, player2: 10 },
+        ],
+      }, // IB def PB 6-7 7-6 10-8 (ST)
+      {
+        p1: 2,
+        p2: 4,
+        winnerIdx: 4,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 7 },
+          { player1: 3, player2: 6 },
+        ],
+      }, // A  def MC 7-6 6-3
       // VS bye in R5
       // ── Round 6 ──────────────────────────────────────────────────────
-      { p1:0, p2:6, winnerIdx:6, scheduledAt:'2025-05-12T10:00',  scores:[{player1:6,player2:4},{player1:0,player2:6},{player1:10,player2:12}] },       // VS def JM 4-6 6-0 12-10 (ST)
-      { p1:1, p2:3, winnerIdx:3, scheduledAt:'2025-05-15T16:00',  scores:[{player1:0,player2:6},{player1:6,player2:3},{player1:8,player2:10}] },        // IS def PB 6-0 3-6 10-8 (ST)
-      { p1:4, p2:5, winnerIdx:4, scheduledAt:'2025-05-13T16:00',  scores:[{player1:6,player2:2},{player1:6,player2:0}] },                              // A  def IB 6-2 6-0
+      {
+        p1: 0,
+        p2: 6,
+        winnerIdx: 6,
+        scheduledAt: '2025-05-12T10:00',
+        scores: [
+          { player1: 6, player2: 4 },
+          { player1: 0, player2: 6 },
+          { player1: 10, player2: 12 },
+        ],
+      }, // VS def JM 4-6 6-0 12-10 (ST)
+      {
+        p1: 1,
+        p2: 3,
+        winnerIdx: 3,
+        scheduledAt: '2025-05-15T16:00',
+        scores: [
+          { player1: 0, player2: 6 },
+          { player1: 6, player2: 3 },
+          { player1: 8, player2: 10 },
+        ],
+      }, // IS def PB 6-0 3-6 10-8 (ST)
+      {
+        p1: 4,
+        p2: 5,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-13T16:00',
+        scores: [
+          { player1: 6, player2: 2 },
+          { player1: 6, player2: 0 },
+        ],
+      }, // A  def IB 6-2 6-0
       // MC bye in R6
       // ── Round 7 ──────────────────────────────────────────────────────
-      { p1:1, p2:6, winnerIdx:1, scheduledAt:'2025-06-06T17:00',  scores:[{player1:6,player2:4},{player1:2,player2:6},{player1:10,player2:8}] },        // PB def VS 6-4 2-6 10-8 (ST)
-      { p1:2, p2:5, winnerIdx:2, scheduledAt:'2025-06-07T18:00',  scores:[{player1:6,player2:3},{player1:6,player2:2}] },                              // MC def IB 6-3 6-2
-      { p1:4, p2:3, winnerIdx:4, scheduledAt:'2025-06-03T18:00',  scores:[{player1:6,player2:1},{player1:6,player2:1}] },                              // A  def IS 6-1 6-1
+      {
+        p1: 1,
+        p2: 6,
+        winnerIdx: 1,
+        scheduledAt: '2025-06-06T17:00',
+        scores: [
+          { player1: 6, player2: 4 },
+          { player1: 2, player2: 6 },
+          { player1: 10, player2: 8 },
+        ],
+      }, // PB def VS 6-4 2-6 10-8 (ST)
+      {
+        p1: 2,
+        p2: 5,
+        winnerIdx: 2,
+        scheduledAt: '2025-06-07T18:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 6, player2: 2 },
+        ],
+      }, // MC def IB 6-3 6-2
+      {
+        p1: 4,
+        p2: 3,
+        winnerIdx: 4,
+        scheduledAt: '2025-06-03T18:00',
+        scores: [
+          { player1: 6, player2: 1 },
+          { player1: 6, player2: 1 },
+        ],
+      }, // A  def IS 6-1 6-1
       // JM bye in R7
     ],
   },
@@ -119,23 +314,131 @@ const GROUPS = [
     playerIndices: [7, 8, 9, 10, 11, 12, 13, 14],
     matches: [
       // ── Round 1 ──────────────────────────────────────────────────────
-      { p1:4, p2:5, winnerIdx:5, scheduledAt:null,                scores:[{player1:6,player2:7},{player1:6,player2:3},{player1:20,player2:22}] },       // MO def BC 7-6 3-6 22-20 (ST)
+      {
+        p1: 4,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 7 },
+          { player1: 6, player2: 3 },
+          { player1: 20, player2: 22 },
+        ],
+      }, // MO def BC 7-6 3-6 22-20 (ST)
       // ── Round 2 ──────────────────────────────────────────────────────
-      { p1:4, p2:7, winnerIdx:4, scheduledAt:'2025-05-29T18:00',  scores:[{player1:3,player2:6},{player1:7,player2:6},{player1:10,player2:6}] },        // BC def LS 3-6 7-6 10-6 (ST)
+      {
+        p1: 4,
+        p2: 7,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-29T18:00',
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 7, player2: 6 },
+          { player1: 10, player2: 6 },
+        ],
+      }, // BC def LS 3-6 7-6 10-6 (ST)
       // ── Round 3 ──────────────────────────────────────────────────────
-      { p1:0, p2:4, winnerIdx:4, scheduledAt:'2025-05-13T17:00',  scores:[{player1:4,player2:6},{player1:4,player2:6}] },                              // BC def IO 6-4 6-4
-      { p1:3, p2:7, winnerIdx:7, scheduledAt:'2025-05-24T12:00',  scores:[{player1:1,player2:6},{player1:6,player2:4},{player1:9,player2:11}] },        // LS def MM 6-1 4-6 11-9 (ST)
+      {
+        p1: 0,
+        p2: 4,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-13T17:00',
+        scores: [
+          { player1: 4, player2: 6 },
+          { player1: 4, player2: 6 },
+        ],
+      }, // BC def IO 6-4 6-4
+      {
+        p1: 3,
+        p2: 7,
+        winnerIdx: 7,
+        scheduledAt: '2025-05-24T12:00',
+        scores: [
+          { player1: 1, player2: 6 },
+          { player1: 6, player2: 4 },
+          { player1: 9, player2: 11 },
+        ],
+      }, // LS def MM 6-1 4-6 11-9 (ST)
       // ── Round 4 ──────────────────────────────────────────────────────
-      { p1:1, p2:4, winnerIdx:1, scheduledAt:'2025-05-20T17:00',  scores:[{player1:2,player2:6},{player1:7,player2:5},{player1:10,player2:7}] },        // BD def BC 2-6 7-5 10-7 (ST)
-      { p1:3, p2:5, winnerIdx:3, scheduledAt:'2025-06-15T20:00',  scores:[{player1:6,player2:0},{player1:5,player2:7},{player1:12,player2:10}] },       // MM def MO 6-0 5-7 12-10 (ST)
+      {
+        p1: 1,
+        p2: 4,
+        winnerIdx: 1,
+        scheduledAt: '2025-05-20T17:00',
+        scores: [
+          { player1: 2, player2: 6 },
+          { player1: 7, player2: 5 },
+          { player1: 10, player2: 7 },
+        ],
+      }, // BD def BC 2-6 7-5 10-7 (ST)
+      {
+        p1: 3,
+        p2: 5,
+        winnerIdx: 3,
+        scheduledAt: '2025-06-15T20:00',
+        scores: [
+          { player1: 6, player2: 0 },
+          { player1: 5, player2: 7 },
+          { player1: 12, player2: 10 },
+        ],
+      }, // MM def MO 6-0 5-7 12-10 (ST)
       // ── Round 5 ──────────────────────────────────────────────────────
-      { p1:0, p2:3, winnerIdx:3, scheduledAt:'2025-05-20T16:00',  scores:[{player1:4,player2:6},{player1:6,player2:2},{player1:6,player2:10}] },        // MM def IO 6-4 2-6 10-6 (ST)
-      { p1:7, p2:5, winnerIdx:5, scheduledAt:null,                scores:[{player1:6,player2:7},{player1:0,player2:6}] },                              // MO def LS 7-6 6-0
+      {
+        p1: 0,
+        p2: 3,
+        winnerIdx: 3,
+        scheduledAt: '2025-05-20T16:00',
+        scores: [
+          { player1: 4, player2: 6 },
+          { player1: 6, player2: 2 },
+          { player1: 6, player2: 10 },
+        ],
+      }, // MM def IO 6-4 2-6 10-6 (ST)
+      {
+        p1: 7,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 7 },
+          { player1: 0, player2: 6 },
+        ],
+      }, // MO def LS 7-6 6-0
       // ── Round 6 ──────────────────────────────────────────────────────
-      { p1:1, p2:3, winnerIdx:1, scheduledAt:null,                scores:[{player1:2,player2:6},{player1:6,player2:3},{player1:11,player2:9}] },        // BD def MM 2-6 6-3 11-9 (ST)
+      {
+        p1: 1,
+        p2: 3,
+        winnerIdx: 1,
+        scheduledAt: null,
+        scores: [
+          { player1: 2, player2: 6 },
+          { player1: 6, player2: 3 },
+          { player1: 11, player2: 9 },
+        ],
+      }, // BD def MM 2-6 6-3 11-9 (ST)
       // ── Round 7 ──────────────────────────────────────────────────────
-      { p1:0, p2:5, winnerIdx:5, scheduledAt:'2025-06-07T10:00',  scores:[{player1:6,player2:3},{player1:5,player2:7},{player1:5,player2:10}] },        // MO def IO 6-3 5-7 10-5 (ST)
-      { p1:4, p2:3, winnerIdx:3, scheduledAt:'2025-06-04T17:00',  scores:[{player1:6,player2:1},{player1:3,player2:6},{player1:10,player2:12}] },       // MM def BC 1-6 6-3 12-10 (ST)
+      {
+        p1: 0,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: '2025-06-07T10:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 5, player2: 7 },
+          { player1: 5, player2: 10 },
+        ],
+      }, // MO def IO 6-3 5-7 10-5 (ST)
+      {
+        p1: 4,
+        p2: 3,
+        winnerIdx: 3,
+        scheduledAt: '2025-06-04T17:00',
+        scores: [
+          { player1: 6, player2: 1 },
+          { player1: 3, player2: 6 },
+          { player1: 10, player2: 12 },
+        ],
+      }, // MM def BC 1-6 6-3 12-10 (ST)
     ],
   },
   {
@@ -146,22 +449,124 @@ const GROUPS = [
     playerIndices: [15, 16, 17, 18, 19, 20, 21, 22],
     matches: [
       // ── Round 1 ──────────────────────────────────────────────────────
-      { p1:4, p2:5, winnerIdx:5, scheduledAt:null,                scores:[{player1:3,player2:6},{player1:7,player2:5},{player1:5,player2:10}] },        // MS def N3 6-3 5-7 10-5 (ST)
-      { p1:6, p2:7, winnerIdx:6, scheduledAt:null,                scores:[{player1:6,player2:4},{player1:7,player2:5}] },                              // SM def N 6-4 7-5
+      {
+        p1: 4,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: null,
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 7, player2: 5 },
+          { player1: 5, player2: 10 },
+        ],
+      }, // MS def N3 6-3 5-7 10-5 (ST)
+      {
+        p1: 6,
+        p2: 7,
+        winnerIdx: 6,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 4 },
+          { player1: 7, player2: 5 },
+        ],
+      }, // SM def N 6-4 7-5
       // ── Round 2 ──────────────────────────────────────────────────────
-      { p1:1, p2:5, winnerIdx:1, scheduledAt:null,                scores:[{player1:6,player2:4},{player1:6,player2:2}] },                              // G  def MS 6-4 6-2
-      { p1:4, p2:7, winnerIdx:4, scheduledAt:'2025-05-27T18:00',  scores:[{player1:6,player2:2},{player1:6,player2:0}] },                              // N3 def N  6-2 6-0
+      {
+        p1: 1,
+        p2: 5,
+        winnerIdx: 1,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 4 },
+          { player1: 6, player2: 2 },
+        ],
+      }, // G  def MS 6-4 6-2
+      {
+        p1: 4,
+        p2: 7,
+        winnerIdx: 4,
+        scheduledAt: '2025-05-27T18:00',
+        scores: [
+          { player1: 6, player2: 2 },
+          { player1: 6, player2: 0 },
+        ],
+      }, // N3 def N  6-2 6-0
       // ── Round 3 ──────────────────────────────────────────────────────
-      { p1:1, p2:2, winnerIdx:1, scheduledAt:'2025-05-14T18:00',  scores:[{player1:6,player2:3},{player1:4,player2:6},{player1:10,player2:8}] },        // G  def M  6-3 4-6 10-8 (ST)
-      { p1:5, p2:6, winnerIdx:6, scheduledAt:'2025-06-15T18:00',  scores:[{player1:3,player2:6},{player1:6,player2:7}] },                              // SM def MS 6-3 7-6
+      {
+        p1: 1,
+        p2: 2,
+        winnerIdx: 1,
+        scheduledAt: '2025-05-14T18:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 4, player2: 6 },
+          { player1: 10, player2: 8 },
+        ],
+      }, // G  def M  6-3 4-6 10-8 (ST)
+      {
+        p1: 5,
+        p2: 6,
+        winnerIdx: 6,
+        scheduledAt: '2025-06-15T18:00',
+        scores: [
+          { player1: 3, player2: 6 },
+          { player1: 6, player2: 7 },
+        ],
+      }, // SM def MS 6-3 7-6
       // ── Round 4 ──────────────────────────────────────────────────────
-      { p1:1, p2:4, winnerIdx:1, scheduledAt:'2025-06-05T17:00',  scores:[{player1:6,player2:3},{player1:6,player2:4}] },                              // G  def N3 6-3 6-4
+      {
+        p1: 1,
+        p2: 4,
+        winnerIdx: 1,
+        scheduledAt: '2025-06-05T17:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 6, player2: 4 },
+        ],
+      }, // G  def N3 6-3 6-4
       // ── Round 5 ──────────────────────────────────────────────────────
-      { p1:1, p2:6, winnerIdx:1, scheduledAt:'2025-05-14T18:00',  scores:[{player1:6,player2:3},{player1:0,player2:6},{player1:10,player2:4}] },        // G  def SM 6-3 0-6 10-4 (ST)
-      { p1:7, p2:5, winnerIdx:5, scheduledAt:'2025-06-05T18:00',  scores:[{player1:2,player2:6},{player1:2,player2:6}] },                              // MS def N  6-2 6-2
+      {
+        p1: 1,
+        p2: 6,
+        winnerIdx: 1,
+        scheduledAt: '2025-05-14T18:00',
+        scores: [
+          { player1: 6, player2: 3 },
+          { player1: 0, player2: 6 },
+          { player1: 10, player2: 4 },
+        ],
+      }, // G  def SM 6-3 0-6 10-4 (ST)
+      {
+        p1: 7,
+        p2: 5,
+        winnerIdx: 5,
+        scheduledAt: '2025-06-05T18:00',
+        scores: [
+          { player1: 2, player2: 6 },
+          { player1: 2, player2: 6 },
+        ],
+      }, // MS def N  6-2 6-2
       // ── Round 7 ──────────────────────────────────────────────────────
-      { p1:1, p2:7, winnerIdx:1, scheduledAt:null,                scores:[{player1:6,player2:1},{player1:6,player2:3}] },                              // G  def N  6-1 6-3
-      { p1:4, p2:3, winnerIdx:3, scheduledAt:'2025-05-15T17:00',  scores:[{player1:1,player2:6},{player1:3,player2:6}] },                              // BM def N3 6-1 6-3
+      {
+        p1: 1,
+        p2: 7,
+        winnerIdx: 1,
+        scheduledAt: null,
+        scores: [
+          { player1: 6, player2: 1 },
+          { player1: 6, player2: 3 },
+        ],
+      }, // G  def N  6-1 6-3
+      {
+        p1: 4,
+        p2: 3,
+        winnerIdx: 3,
+        scheduledAt: '2025-05-15T17:00',
+        scores: [
+          { player1: 1, player2: 6 },
+          { player1: 3, player2: 6 },
+        ],
+      }, // BM def N3 6-1 6-3
     ],
   },
 ]
@@ -195,13 +600,23 @@ async function findOrCreatePlayer(fullName, isExisting, log) {
   return await playersRepository.create({ name: fullName, email: null })
 }
 
-async function createGroupWithMatches({ lid, groupsRepo, rRepo, name, position, rankingMultiplier, groupPlayerDocs, matches, roundNumber }) {
+async function createGroupWithMatches({
+  lid,
+  groupsRepo,
+  rRepo,
+  name,
+  position,
+  rankingMultiplier,
+  groupPlayerDocs,
+  matches,
+  roundNumber,
+}) {
   const group = await groupsRepo.create({
     competitionId: lid,
     competitionType: 'league',
     name,
     position,
-    playerIds: groupPlayerDocs.map(p => p.id),
+    playerIds: groupPlayerDocs.map((p) => p.id),
     rankingMultiplier,
   })
 
@@ -248,7 +663,10 @@ async function createGroupWithMatches({ lid, groupsRepo, rRepo, name, position, 
 async function runCleanup(log) {
   log('Looking for existing league...')
   const existing = await leaguesRepository.query([where('name', '==', LEAGUE_NAME)])
-  if (existing.length === 0) { log('Nothing to delete.'); return }
+  if (existing.length === 0) {
+    log('Nothing to delete.')
+    return
+  }
   for (const t of existing) {
     log(`Deleting league ${t.id}...`)
     await deleteCompetition(t.id, 'leagues')
@@ -265,15 +683,16 @@ async function runSeed(userId, log) {
 
   log('Resolving season 2025...')
   const existingSeasons = await seasonsRepository.query([where('name', '==', '2025')])
-  const season = existingSeasons.length > 0
-    ? existingSeasons[0]
-    : await seasonsRepository.create({
-        name: '2025',
-        startDate: '2025-01-01',
-        endDate: '2025-12-31',
-        status: 'active',
-        organizerId: userId,
-      })
+  const season =
+    existingSeasons.length > 0
+      ? existingSeasons[0]
+      : await seasonsRepository.create({
+          name: '2025',
+          startDate: '2025-01-01',
+          endDate: '2025-12-31',
+          status: 'active',
+          organizerId: userId,
+        })
 
   log('Creating league...')
   const league = await leaguesRepository.create({
@@ -289,7 +708,8 @@ async function runSeed(userId, log) {
     tierMultipliers: [1.0, 0.75, 0.5],
     promotionCount: 2,
     relegationCount: 2,
-    rules: 'Best of 3 sets. 3rd set = super tiebreak. Group A = 100%, B = 75%, C = 50% ranking points. Top 2 promoted, bottom 2 relegated.',
+    rules:
+      'Best of 3 sets. 3rd set = super tiebreak. Group A = 100%, B = 75%, C = 50% ranking points. Top 2 promoted, bottom 2 relegated.',
     organizerId: userId,
     status: 'completed',
   })
@@ -328,14 +748,14 @@ async function runSeed(userId, log) {
       name: g.name,
       position: g.position,
       rankingMultiplier: g.rankingMultiplier,
-      groupPlayerDocs: g.playerIndices.map(i => playerDocs[i]),
+      groupPlayerDocs: g.playerIndices.map((i) => playerDocs[i]),
       matches: g.matches,
       roundNumber: gi + 1,
     })
   }
 
   log('Calculating rankings...')
-  const enrollments = playerDocs.map(p => ({ playerId: p.id, playerName: p.name }))
+  const enrollments = playerDocs.map((p) => ({ playerId: p.id, playerName: p.name }))
   await recalculateRankings('leagues', lid, enrollments)
 
   log('Done!')
@@ -351,26 +771,34 @@ export default function SeedPlayLiga2025Ciklus1Page() {
   const [logs, setLogs] = useState([])
   const [leagueId, setLeagueId] = useState(null)
 
-  function log(msg) { setLogs(prev => [...prev, msg]) }
+  function log(msg) {
+    setLogs((prev) => [...prev, msg])
+  }
 
   async function handleSeed() {
-    setStatus('running'); setLogs([])
+    setStatus('running')
+    setLogs([])
     try {
       const lid = await runSeed(user.uid, log)
-      setLeagueId(lid); setStatus('done')
+      setLeagueId(lid)
+      setStatus('done')
     } catch (err) {
-      log(`Error: ${err.message}`); setStatus('error')
+      log(`Error: ${err.message}`)
+      setStatus('error')
     }
   }
 
   async function handleCleanupAndSeed() {
-    setStatus('running'); setLogs([])
+    setStatus('running')
+    setLogs([])
     try {
       await runCleanup(log)
       const lid = await runSeed(user.uid, log)
-      setLeagueId(lid); setStatus('done')
+      setLeagueId(lid)
+      setStatus('done')
     } catch (err) {
-      log(`Error: ${err.message}`); setStatus('error')
+      log(`Error: ${err.message}`)
+      setStatus('error')
     }
   }
 
@@ -403,7 +831,10 @@ export default function SeedPlayLiga2025Ciklus1Page() {
               <li>• Grupa B (×0.75): 8 igrača, 11 odigranih mečeva</li>
               <li>• Grupa C (×0.5): 8 igrača, 11 odigranih mečeva</li>
               <li>• Promocija: top 2 | Relegacija: bottom 2</li>
-              <li className="text-amber-600">• Igrači sa nepoznatim prezimenima: Veljko, Goran, Matija, Nenad, N. Stanisic, Nikola 3M</li>
+              <li className="text-amber-600">
+                • Igrači sa nepoznatim prezimenima: Veljko, Goran, Matija, Nenad, N. Stanisic,
+                Nikola 3M
+              </li>
             </ul>
             <p className="mt-3 text-xs text-amber-600">Run only once.</p>
           </Card>
@@ -411,8 +842,20 @@ export default function SeedPlayLiga2025Ciklus1Page() {
           {logs.length > 0 && (
             <Card className="font-mono text-xs max-h-72 overflow-y-auto">
               {logs.map((l, i) => (
-                <div key={i} className={l.startsWith('Error') ? 'text-rose-600' : l.startsWith('Warning') ? 'text-amber-600' : l.startsWith('Done') ? 'text-green-600' : 'text-text-light'}>
-                  {l.startsWith('Done') ? '✓ ' : l.startsWith('Error') ? '✗ ' : '→ '}{l}
+                <div
+                  key={i}
+                  className={
+                    l.startsWith('Error')
+                      ? 'text-rose-600'
+                      : l.startsWith('Warning')
+                        ? 'text-amber-600'
+                        : l.startsWith('Done')
+                          ? 'text-green-600'
+                          : 'text-text-light'
+                  }
+                >
+                  {l.startsWith('Done') ? '✓ ' : l.startsWith('Error') ? '✗ ' : '→ '}
+                  {l}
                 </div>
               ))}
             </Card>
@@ -422,26 +865,44 @@ export default function SeedPlayLiga2025Ciklus1Page() {
             {status === 'idle' && (
               <>
                 <Button onClick={handleSeed}>Run Seed</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
             {status === 'running' && (
-              <Button disabled loading loadingLabel="Running...">Running...</Button>
+              <Button disabled loading loadingLabel="Running...">
+                Running...
+              </Button>
             )}
             {status === 'done' && (
               <>
-                <Button variant="outline" onClick={() => navigate(`/leagues/${leagueId}`)}>Open League</Button>
-                <Button variant="ghost" onClick={() => { setStatus('idle'); setLogs([]) }}>Re-seed</Button>
+                <Button variant="outline" onClick={() => navigate(`/leagues/${leagueId}`)}>
+                  Open League
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setStatus('idle')
+                    setLogs([])
+                  }}
+                >
+                  Re-seed
+                </Button>
                 <span className="self-center text-sm text-green-600">Seeded successfully</span>
               </>
             )}
             {status === 'error' && (
               <>
                 <Button onClick={handleSeed}>Retry</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
-            <Button variant="ghost" onClick={() => navigate(-1)}>Back</Button>
+            <Button variant="ghost" onClick={() => navigate(-1)}>
+              Back
+            </Button>
           </div>
         </div>
       </Container>

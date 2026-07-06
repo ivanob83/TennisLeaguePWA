@@ -1,17 +1,27 @@
 import { useState, useEffect } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase.js'
-import { playersRepository, seasonsRepository, leaguesRepository } from '../../../infrastructure/firestore.js'
+import {
+  playersRepository,
+  seasonsRepository,
+  leaguesRepository,
+} from '../../../infrastructure/firestore.js'
 import { enrichPlayersWithUserNames } from '../../../infrastructure/enrichPlayers.js'
+
+function setRatio(e) {
+  const won = e.setsWon ?? 0
+  const lost = e.setsLost ?? 0
+  const total = won + lost
+  return total > 0 ? won / total : 0
+}
 
 function sortRankings(list) {
   return [...list].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points
+    const ratioDiff = setRatio(b) - setRatio(a)
+    if (ratioDiff !== 0) return ratioDiff
     if (b.wins !== a.wins) return b.wins - a.wins
-    const ar = a.matchesPlayed > 0 ? a.wins / a.matchesPlayed : 0
-    const br = b.matchesPlayed > 0 ? b.wins / b.matchesPlayed : 0
-    if (br !== ar) return br - ar
-    return b.setsWon - a.setsWon
+    return (b.setsWon ?? 0) - (a.setsWon ?? 0)
   })
 }
 
@@ -31,7 +41,7 @@ export function useCurrentLeagueTopPlayer() {
         ])
 
         const seasonStartById = Object.fromEntries(
-          seasons.map(s => [s.id, s.startDate ? new Date(s.startDate) : new Date(0)])
+          seasons.map((s) => [s.id, s.startDate ? new Date(s.startDate) : new Date(0)]),
         )
 
         const best = [...leagues].sort((a, b) => {
@@ -48,14 +58,16 @@ export function useCurrentLeagueTopPlayer() {
         setLeagueName(best.name)
 
         const rankingsSnap = await getDocs(collection(db, `leagues/${best.id}/rankings`))
-        const entries = rankingsSnap.docs.map(d => d.data()).filter(e => e.playerId)
+        const entries = rankingsSnap.docs.map((d) => d.data()).filter((e) => e.playerId)
         const top = sortRankings(entries)[0] ?? null
         setTopEntry(top)
 
         if (top) {
           const allPlayers = await playersRepository.getAll()
           const enriched = await enrichPlayersWithUserNames(allPlayers)
-          setTopPlayer(enriched[top.playerId] ?? allPlayers.find(p => p.id === top.playerId) ?? null)
+          setTopPlayer(
+            enriched[top.playerId] ?? allPlayers.find((p) => p.id === top.playerId) ?? null,
+          )
         }
       } catch (err) {
         console.error('useCurrentLeagueTopPlayer:', err)

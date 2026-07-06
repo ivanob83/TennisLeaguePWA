@@ -6,17 +6,13 @@ const sizeClasses = {
   lg: 'h-8 w-8 border-4',
 }
 
-export default function Loader({
-  size = 'md',
-  className,
-  label,
-}) {
+export default function Loader({ size = 'md', className, label }) {
   return (
     <span
       className={cn(
         'inline-block animate-spin rounded-full border-solid border-current border-r-transparent',
         sizeClasses[size] || sizeClasses.md,
-        className
+        className,
       )}
       role="status"
       aria-live="polite"

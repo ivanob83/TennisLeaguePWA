@@ -82,9 +82,17 @@ export default function PlayerCreatePage() {
 
       if (timedResult === 'timeout') {
         createPromise.catch(() => {})
-        showToast({ title: 'Player created', message: 'Saving is still syncing in background.', variant: 'info' })
+        showToast({
+          title: 'Player created',
+          message: 'Saving is still syncing in background.',
+          variant: 'info',
+        })
       } else {
-        showToast({ title: 'Player created', message: `${name.trim()} has been added.`, variant: 'success' })
+        showToast({
+          title: 'Player created',
+          message: `${name.trim()} has been added.`,
+          variant: 'success',
+        })
       }
 
       navigate('/players')
@@ -100,7 +108,11 @@ export default function PlayerCreatePage() {
       <Container className="py-8">
         <SectionTitle title="New Player" subtitle="Add a player to the system." />
         <div className="mt-8 max-w-lg">
-          {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
           <Card>
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input

@@ -80,12 +80,14 @@ export default function ConfirmDialog({
       {/* Panel */}
       <div className="relative w-full max-w-sm border border-slate-200 bg-white shadow-xl">
         {/* Top accent bar */}
-        <div className={cn(
-          'h-1 w-full',
-          variant === 'danger' && 'bg-rose-500',
-          variant === 'warning' && 'bg-amber-500',
-          variant === 'default' && 'bg-primary',
-        )} />
+        <div
+          className={cn(
+            'h-1 w-full',
+            variant === 'danger' && 'bg-rose-500',
+            variant === 'warning' && 'bg-amber-500',
+            variant === 'default' && 'bg-primary',
+          )}
+        />
 
         <div className="p-6">
           <div className="flex items-start gap-4">
@@ -116,23 +118,20 @@ export default function ConfirmDialog({
             >
               {cancelLabel}
             </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              disabled={loading}
-              className={confirmClass}
-            >
+            <button type="button" onClick={onConfirm} disabled={loading} className={confirmClass}>
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   {confirmLabel}...
                 </span>
-              ) : confirmLabel}
+              ) : (
+                confirmLabel
+              )}
             </button>
           </div>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   )
 }

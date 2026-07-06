@@ -1,4 +1,19 @@
-import { BarChart3, CalendarPlus2, FlaskConical, FolderPlus, Link2, Newspaper, PlusSquare, Trophy, UserPlus, Users, User, CalendarDays } from 'lucide-react'
+import {
+  BarChart3,
+  CalendarPlus2,
+  CalendarRange,
+  CheckCheck,
+  FlaskConical,
+  FolderPlus,
+  Link2,
+  Newspaper,
+  PlusSquare,
+  Trophy,
+  UserPlus,
+  Users,
+  User,
+  CalendarDays,
+} from 'lucide-react'
 
 export const primaryNavItems = [
   { to: '/competitions', label: 'Competitions', icon: Trophy },
@@ -19,6 +34,8 @@ export const createNavItems = [
 export const adminNavItems = [
   { to: '/admin/users', label: 'Users', icon: Users, superadminOnly: true },
   { to: '/admin/seeds', label: 'Seeds', icon: FlaskConical, superadminOnly: true },
+  { to: '/admin/pending-approvals', label: 'Approvals', icon: CheckCheck },
+  { to: '/scheduling', label: 'Scheduling', icon: CalendarRange },
   { to: '/players', label: 'Players', icon: User },
   { to: '/seasons', label: 'Seasons', icon: CalendarDays },
   { to: '/competitions', label: 'Competitions', icon: Trophy },

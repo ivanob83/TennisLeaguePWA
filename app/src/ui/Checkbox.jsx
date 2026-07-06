@@ -2,7 +2,10 @@ export default function Checkbox({ label, id, className = '', ...props }) {
   const checkboxId = id || props.name
 
   return (
-    <label htmlFor={checkboxId} className={`inline-flex items-center gap-2 text-sm text-text ${className}`}>
+    <label
+      htmlFor={checkboxId}
+      className={`inline-flex items-center gap-2 text-sm text-text ${className}`}
+    >
       <input
         id={checkboxId}
         type="checkbox"

@@ -14,6 +14,7 @@ This guide covers deploying Firebase services (Firestore, Auth, Security Rules) 
 ## Prerequisites
 
 1. **Firebase CLI installed:**
+
    ```bash
    npm install -g firebase-tools
    ```
@@ -42,11 +43,13 @@ firebase init
 ```
 
 Select:
+
 - ✅ Firestore (with rules and indexes)
 - ✅ Hosting (optional, if deploying frontend to Firebase Hosting)
 - ✅ Storage (optional, for future file uploads)
 
 Configuration:
+
 - Firestore rules file: `firestore.rules`
 - Firestore indexes file: `firestore.indexes.json`
 - Public directory: `dist` (Vite build output)
@@ -72,21 +75,21 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-    
+
     function hasRole(role) {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
-    
+
     function isEditor() {
       return hasRole('editor') || hasRole('superadmin');
     }
@@ -94,7 +97,7 @@ service cloud.firestore {
     function isSuperadmin() {
       return hasRole('superadmin');
     }
-    
+
     // Users collection
     match /users/{userId} {
       allow read: if isAuthenticated();
@@ -102,32 +105,32 @@ service cloud.firestore {
       allow update: if isOwner(userId);
       allow delete: if isSuperadmin();
     }
-    
+
     // Leagues collection
     match /leagues/{leagueId} {
       allow read: if isAuthenticated();
       allow create: if isEditor();
-      allow update: if isEditor() && 
+      allow update: if isEditor() &&
                        (isOwner(resource.data.organizerId) || isSuperadmin());
       allow delete: if isSuperadmin();
-      
+
       // Seasons subcollection
       match /seasons/{seasonId} {
         allow read: if isAuthenticated();
-        allow write: if isEditor() && 
-                        (isOwner(get(/databases/$(database)/documents/leagues/$(leagueId)).data.organizerId) 
+        allow write: if isEditor() &&
+                        (isOwner(get(/databases/$(database)/documents/leagues/$(leagueId)).data.organizerId)
                          || isSuperadmin());
-        
+
         // Rounds subcollection
         match /rounds/{roundId} {
           allow read: if isAuthenticated();
           allow write: if isEditor();
-          
+
           // Matches subcollection
           match /matches/{matchId} {
             allow read: if isAuthenticated();
             allow create: if isEditor();
-            allow update: if isAuthenticated() && 
+            allow update: if isAuthenticated() &&
                             (resource.data.player1Id == request.auth.uid ||
                              resource.data.player2Id == request.auth.uid ||
                              isEditor());
@@ -136,13 +139,13 @@ service cloud.firestore {
         }
       }
     }
-    
+
     // Rankings collection (denormalized)
     match /rankings/{rankingId} {
       allow read: if isAuthenticated();
       allow write: if false; // Only server-side updates (via Cloud Functions)
     }
-    
+
     // News collection
     match /news/{newsId} {
       allow read: if isAuthenticated();
@@ -150,7 +153,7 @@ service cloud.firestore {
       allow update: if isEditor() && isOwner(resource.data.authorId);
       allow delete: if isEditor() && isOwner(resource.data.authorId);
     }
-    
+
     // Notifications collection
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && isOwner(resource.data.userId);
@@ -169,6 +172,7 @@ firebase deploy --only firestore:rules
 ```
 
 Verify deployment:
+
 ```bash
 firebase firestore:rules:list
 ```
@@ -220,6 +224,7 @@ setUserRole(userId, role).catch(console.error)
 ```
 
 Run:
+
 ```bash
 node scripts/set-user-role.js USER_ID_HERE editor
 ```
@@ -242,6 +247,7 @@ await admin.auth().setCustomUserClaims(userId, { role: 'editor' })
 ### 1. Get Firebase Config
 
 From Firebase Console:
+
 - Project Settings → General → Your apps → Web app
 - Copy config values
 
@@ -307,6 +313,7 @@ firebase firestore:rules:release --rule-set RULESET_ID
 ```
 
 List previous rule sets:
+
 ```bash
 firebase firestore:rules:list
 ```
@@ -314,6 +321,7 @@ firebase firestore:rules:list
 ### Audit Logs
 
 Monitor security rule violations:
+
 - Firebase Console → Firestore → Usage tab
 - Look for denied operations
 
@@ -324,6 +332,7 @@ Monitor security rule violations:
 ### Issue: "Permission denied" errors
 
 **Solution:** Check:
+
 1. User is authenticated (`request.auth != null`)
 2. User document exists in `/users/{uid}` with correct `role` field
 3. Security rules match your use case
@@ -331,6 +340,7 @@ Monitor security rule violations:
 ### Issue: Rules deploy fails
 
 **Solution:** Validate syntax:
+
 ```bash
 firebase deploy --only firestore:rules --dry-run
 ```
@@ -338,13 +348,14 @@ firebase deploy --only firestore:rules --dry-run
 ### Issue: User role not recognized
 
 **Solution:** Ensure user document in Firestore has `role` field:
+
 ```javascript
 // In Register.jsx after signup:
 await createUser(user.uid, {
   email: user.email,
   displayName,
   role: 'player', // Default role
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
 })
 ```
 

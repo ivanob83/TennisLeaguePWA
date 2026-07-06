@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import AppLayout from '../../../layouts/AppLayout.jsx'
-import { SectionTitle, Button, Loader, Card, Badge, Container, ConfirmDialog } from '../../../ui/index.js'
+import {
+  SectionTitle,
+  Button,
+  Loader,
+  Card,
+  Badge,
+  Container,
+  ConfirmDialog,
+} from '../../../ui/index.js'
 import { useFirestoreDoc } from '../../../hooks/useFirestore.js'
 import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
@@ -24,7 +32,11 @@ const FORMAT_LABEL = {
 
 function formatDate(iso) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 export default function TournamentDetailPage() {
@@ -44,7 +56,11 @@ export default function TournamentDetailPage() {
     try {
       const enrollments = await tournamentEnrollmentRepository(tournamentId).getAll()
       await recalculateRankings('tournaments', tournamentId, enrollments)
-      showToast({ title: 'Rankings updated', message: 'Rankings recalculated successfully.', variant: 'success' })
+      showToast({
+        title: 'Rankings updated',
+        message: 'Rankings recalculated successfully.',
+        variant: 'success',
+      })
     } catch (err) {
       showToast({ title: 'Recalculation failed', message: err.message, variant: 'error' })
     } finally {
@@ -56,7 +72,11 @@ export default function TournamentDetailPage() {
     setDeleting(true)
     try {
       await deleteCompetition(tournamentId, 'tournaments')
-      showToast({ title: 'Tournament deleted', message: 'Competition and all data removed.', variant: 'success' })
+      showToast({
+        title: 'Tournament deleted',
+        message: 'Competition and all data removed.',
+        variant: 'success',
+      })
       navigate('/tournaments')
     } catch {
       showToast({ title: 'Delete failed', message: 'Please try again.', variant: 'error' })
@@ -65,9 +85,11 @@ export default function TournamentDetailPage() {
     }
   }
 
-  const season = seasons.find(s => s.id === tournament?.seasonId)
-  const isGroupBased = tournament?.format === 'round_robin' || tournament?.format === 'round_robin_knockout'
-  const hasKnockout = tournament?.format === 'knockout' || tournament?.format === 'round_robin_knockout'
+  const season = seasons.find((s) => s.id === tournament?.seasonId)
+  const isGroupBased =
+    tournament?.format === 'round_robin' || tournament?.format === 'round_robin_knockout'
+  const hasKnockout =
+    tournament?.format === 'knockout' || tournament?.format === 'round_robin_knockout'
 
   const tabs = [
     ...(isEditor ? [{ id: 'setup', label: 'Setup' }] : []),
@@ -77,7 +99,7 @@ export default function TournamentDetailPage() {
     ...(hasKnockout ? [{ id: 'knockout', label: 'Knockout' }] : []),
   ]
 
-  const currentTab = tabs.find(t => t.id === activeTab) ? activeTab : tabs[0]?.id
+  const currentTab = tabs.find((t) => t.id === activeTab) ? activeTab : tabs[0]?.id
 
   return (
     <AppLayout>
@@ -109,11 +131,20 @@ export default function TournamentDetailPage() {
                     >
                       Recalculate Rankings
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/tournaments/${tournamentId}/edit`)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/tournaments/${tournamentId}/edit`)}
+                    >
                       Edit
                     </Button>
                     {isSuperadmin && (
-                      <Button size="sm" variant="ghost" className="text-rose-500 hover:text-rose-600" onClick={() => setConfirmDelete(true)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-rose-500 hover:text-rose-600"
+                        onClick={() => setConfirmDelete(true)}
+                      >
                         <Trash2 size={15} />
                         Delete
                       </Button>
@@ -125,7 +156,7 @@ export default function TournamentDetailPage() {
 
             <div className="mt-6 border-b border-slate-200">
               <div className="flex gap-1">
-                {tabs.map(tab => (
+                {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
@@ -171,11 +202,15 @@ export default function TournamentDetailPage() {
                         <>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Number of groups</span>
-                            <span className="font-medium text-text">{tournament?.numGroups ?? '—'}</span>
+                            <span className="font-medium text-text">
+                              {tournament?.numGroups ?? '—'}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Players per group</span>
-                            <span className="font-medium text-text">{tournament?.playersPerGroup ?? '—'}</span>
+                            <span className="font-medium text-text">
+                              {tournament?.playersPerGroup ?? '—'}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-text-light">Points (W / L)</span>
@@ -219,17 +254,24 @@ export default function TournamentDetailPage() {
               )}
 
               {currentTab === 'group_matches' && (
-                <GroupMatchesTab competitionType="tournaments" competitionId={tournamentId} competitionName={tournament?.name} />
+                <GroupMatchesTab
+                  competitionType="tournaments"
+                  competitionId={tournamentId}
+                  competitionName={tournament?.name}
+                />
               )}
 
               {currentTab === 'standings' && (
-                <GroupStandingsTab competitionType="tournaments" competitionId={tournamentId} competition={tournament} />
+                <GroupStandingsTab
+                  competitionType="tournaments"
+                  competitionId={tournamentId}
+                  competition={tournament}
+                />
               )}
 
               {currentTab === 'knockout' && (
                 <KnockoutTab competitionType="tournaments" competitionId={tournamentId} />
               )}
-
             </div>
           </>
         )}

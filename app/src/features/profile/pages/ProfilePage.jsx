@@ -3,7 +3,10 @@ import { updateProfile, updateEmail, updatePassword } from 'firebase/auth'
 import { where } from 'firebase/firestore'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { updateUser, getUserById } from '../../auth/services/userRepository.js'
-import { playersRepository, connectionRequestsRepository } from '../../../infrastructure/firestore.js'
+import {
+  playersRepository,
+  connectionRequestsRepository,
+} from '../../../infrastructure/firestore.js'
 import { uploadPlayerAvatar } from '../../../infrastructure/avatar.js'
 import { useToast } from '../../../context/ToastContext.jsx'
 import AppLayout from '../../../layouts/AppLayout.jsx'
@@ -42,9 +45,11 @@ function PlayerLinkSection({ user }) {
         }
         const [requests, allPlayers] = await Promise.all([
           connectionRequestsRepository.query([where('userId', '==', user.uid)]),
-          playersRepository.getAll().then(all => all.filter(p => !p.authUid)),
+          playersRepository.getAll().then((all) => all.filter((p) => !p.authUid)),
         ])
-        const sorted = requests.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
+        const sorted = requests.sort(
+          (a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0),
+        )
         setLatestRequest(sorted[0] || null)
         setUnlinkedPlayers(allPlayers)
       } catch (err) {
@@ -62,7 +67,7 @@ function PlayerLinkSection({ user }) {
     setSubmitting(true)
     setError(null)
     try {
-      const player = unlinkedPlayers.find(p => p.id === selectedPlayerId)
+      const player = unlinkedPlayers.find((p) => p.id === selectedPlayerId)
       await connectionRequestsRepository.create({
         playerId: selectedPlayerId,
         playerName: player.name,
@@ -74,7 +79,11 @@ function PlayerLinkSection({ user }) {
         resolvedBy: null,
       })
       setLatestRequest({ status: 'pending', playerName: player.name })
-      showToast({ title: 'Request sent', message: 'Waiting for admin approval.', variant: 'success' })
+      showToast({
+        title: 'Request sent',
+        message: 'Waiting for admin approval.',
+        variant: 'success',
+      })
     } catch {
       setError('Failed to send request. Please try again.')
     } finally {
@@ -92,9 +101,13 @@ function PlayerLinkSection({ user }) {
           {linkedPlayer && (
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary mb-1">Linked player</p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary mb-1">
+                  Linked player
+                </p>
                 <p className="text-lg font-black text-primary">{linkedPlayer.name}</p>
-                {linkedPlayer.email && <p className="text-sm text-text-light">{linkedPlayer.email}</p>}
+                {linkedPlayer.email && (
+                  <p className="text-sm text-text-light">{linkedPlayer.email}</p>
+                )}
               </div>
               <Badge variant="success">Connected</Badge>
             </div>
@@ -103,7 +116,9 @@ function PlayerLinkSection({ user }) {
           {!linkedPlayer && latestRequest?.status === 'pending' && (
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary mb-1">Pending request</p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary mb-1">
+                  Pending request
+                </p>
                 <p className="text-base font-semibold text-primary">{latestRequest.playerName}</p>
               </div>
               <Badge variant="warning">Awaiting approval</Badge>
@@ -113,7 +128,8 @@ function PlayerLinkSection({ user }) {
           {!linkedPlayer && latestRequest?.status === 'rejected' && (
             <div className="space-y-4">
               <Alert variant="warning">
-                Your previous request for <strong>{latestRequest.playerName}</strong> was rejected. You can submit a new request below.
+                Your previous request for <strong>{latestRequest.playerName}</strong> was rejected.
+                You can submit a new request below.
               </Alert>
               {renderRequestForm()}
             </div>
@@ -121,7 +137,11 @@ function PlayerLinkSection({ user }) {
 
           {!linkedPlayer && !latestRequest && renderRequestForm()}
 
-          {error && <Alert variant="error" className="mt-4">{error}</Alert>}
+          {error && (
+            <Alert variant="error" className="mt-4">
+              {error}
+            </Alert>
+          )}
         </Card>
       </div>
     </div>
@@ -141,13 +161,18 @@ function PlayerLinkSection({ user }) {
           label="Select your player profile"
           placeholder="Choose a player..."
           value={selectedPlayerId}
-          onChange={e => setSelectedPlayerId(e.target.value)}
-          options={unlinkedPlayers.map(p => ({
+          onChange={(e) => setSelectedPlayerId(e.target.value)}
+          options={unlinkedPlayers.map((p) => ({
             value: p.id,
             label: p.name + (p.email ? ` (${p.email})` : ''),
           }))}
         />
-        <Button type="submit" loading={submitting} loadingLabel="Sending..." disabled={!selectedPlayerId}>
+        <Button
+          type="submit"
+          loading={submitting}
+          loadingLabel="Sending..."
+          disabled={!selectedPlayerId}
+        >
           Send Link Request
         </Button>
       </form>
@@ -228,7 +253,8 @@ export default function ProfilePage() {
     setLoading(true)
     try {
       if (newPassword && newPassword !== confirmPassword) throw new Error('Passwords do not match')
-      if (newPassword && newPassword.length < 6) throw new Error('Password must be at least 6 characters')
+      if (newPassword && newPassword.length < 6)
+        throw new Error('Password must be at least 6 characters')
       if (displayName !== user.displayName) await updateProfile(user, { displayName })
       if (email !== user.email) await updateEmail(user, email)
       if (newPassword) await updatePassword(user, newPassword)
@@ -252,7 +278,9 @@ export default function ProfilePage() {
   if (authLoading) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
@@ -294,7 +322,9 @@ export default function ProfilePage() {
               <div className="space-y-4 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-text-light">Display name</span>
-                  <span className="font-medium text-text">{user?.displayName || userData?.displayName || '—'}</span>
+                  <span className="font-medium text-text">
+                    {user?.displayName || userData?.displayName || '—'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-light">Email</span>
@@ -302,12 +332,16 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-light">Role</span>
-                  <Badge variant="neutral" className="capitalize">{userData?.role || 'player'}</Badge>
+                  <Badge variant="neutral" className="capitalize">
+                    {userData?.role || 'player'}
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-text-light">Member since</span>
                   <span className="font-medium text-text">
-                    {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-GB') : '—'}
+                    {userData?.createdAt
+                      ? new Date(userData.createdAt).toLocaleDateString('en-GB')
+                      : '—'}
                   </span>
                 </div>
               </div>
@@ -320,7 +354,7 @@ export default function ProfilePage() {
                   id="displayName"
                   type="text"
                   value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
+                  onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your display name"
                 />
                 <Input
@@ -328,7 +362,7 @@ export default function ProfilePage() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
                 />
@@ -340,7 +374,7 @@ export default function ProfilePage() {
                       id="newPassword"
                       type="password"
                       value={newPassword}
-                      onChange={e => setNewPassword(e.target.value)}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Leave blank to keep current password"
                     />
                     <Input
@@ -348,7 +382,7 @@ export default function ProfilePage() {
                       id="confirmPassword"
                       type="password"
                       value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
                     />
                   </div>

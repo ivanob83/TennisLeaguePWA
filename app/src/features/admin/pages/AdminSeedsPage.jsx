@@ -8,36 +8,49 @@ const SEEDS = [
   {
     id: 'playopen-2022',
     name: 'PLAYOPEN Jun 2022',
-    description: 'Round Robin + Knockout. 16 players, 4 groups of 4. All group results + SF and Final entered.',
+    description:
+      'Round Robin + Knockout. 16 players, 4 groups of 4. All group results + SF and Final entered.',
     path: '/admin/seed/playopen-2022',
     tags: ['tournament', 'round_robin_knockout'],
   },
   {
     id: 'play-liga-2025',
     name: 'PLAYOFF 2025',
-    description: 'Round Robin + Knockout. 8 players, 2 groups of 4. All group results + SF and Final entered.',
+    description:
+      'Round Robin + Knockout. 8 players, 2 groups of 4. All group results + SF and Final entered.',
     path: '/admin/seed/play-liga-2025',
     tags: ['league', 'round_robin_knockout'],
   },
   {
     id: 'play-liga-2025-ciklus1',
     name: 'Play Liga 2025 — Ciklus 1',
-    description: 'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 7+8+8 players. Promotion/relegation top/bottom 2.',
+    description:
+      'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 7+8+8 players. Promotion/relegation top/bottom 2.',
     path: '/admin/seed/play-liga-2025-ciklus1',
     tags: ['league', 'round_robin', 'tiered'],
   },
   {
     id: 'play-liga-2025-ciklus2',
     name: 'Play Liga 2025 — Ciklus 2',
-    description: 'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 7+8+7 players. 3pts/1pt format.',
+    description:
+      'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 7+8+7 players. 3pts/1pt format.',
     path: '/admin/seed/play-liga-2025-ciklus2',
     tags: ['league', 'round_robin', 'tiered'],
   },
   {
     id: 'play-liga-2025-ciklus3',
     name: 'Play Liga 2025 — Ciklus 3',
-    description: 'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 8+8+6 players. 3pts/1pt format.',
+    description:
+      'Round Robin, 3 tiered groups (A=100%, B=75%, C=50%). 8+8+6 players. 3pts/1pt format.',
     path: '/admin/seed/play-liga-2025-ciklus3',
+    tags: ['league', 'round_robin', 'tiered'],
+  },
+  {
+    id: 'play-liga-2026-ciklus2',
+    name: 'Play Liga 2026 — Ciklus 2',
+    description:
+      'Round Robin, 2 tiered groups (Grupa 1=100%, Grupa 2=75%). 10+10 players. Prazan raspored (not scheduled). Roster iz Ciklusa 1.',
+    path: '/admin/seed/play-liga-2026-ciklus2',
     tags: ['league', 'round_robin', 'tiered'],
   },
 ]
@@ -63,7 +76,7 @@ export default function AdminSeedsPage() {
           subtitle="Predefined datasets for testing and demo purposes. Run only once per environment."
         />
         <div className="mt-8 max-w-2xl space-y-3">
-          {SEEDS.map(seed => (
+          {SEEDS.map((seed) => (
             <Card key={seed.id}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -73,20 +86,26 @@ export default function AdminSeedsPage() {
                   </div>
                   <p className="mt-1 text-xs text-text-light">{seed.description}</p>
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {seed.tags.map(tag => (
-                      <Badge key={tag} variant="neutral" className="text-xs">{tag}</Badge>
+                    {seed.tags.map((tag) => (
+                      <Badge key={tag} variant="neutral" className="text-xs">
+                        {tag}
+                      </Badge>
                     ))}
                   </div>
                 </div>
                 <Link to={seed.path} className="shrink-0">
-                  <Button size="sm" variant="outline">Run</Button>
+                  <Button size="sm" variant="outline">
+                    Run
+                  </Button>
                 </Link>
               </div>
             </Card>
           ))}
 
           <div className="pt-4 border-t border-slate-200">
-            <p className="mb-3 text-xs font-medium text-text-light uppercase tracking-wide">Utilities</p>
+            <p className="mb-3 text-xs font-medium text-text-light uppercase tracking-wide">
+              Utilities
+            </p>
             <Card>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -99,7 +118,9 @@ export default function AdminSeedsPage() {
                   </p>
                 </div>
                 <Link to="/admin/dedupe-players" className="shrink-0">
-                  <Button size="sm" variant="outline">Run</Button>
+                  <Button size="sm" variant="outline">
+                    Run
+                  </Button>
                 </Link>
               </div>
             </Card>
@@ -116,7 +137,9 @@ export default function AdminSeedsPage() {
                   </p>
                 </div>
                 <Link to="/admin/orphan-matches" className="shrink-0">
-                  <Button size="sm" variant="outline">Run</Button>
+                  <Button size="sm" variant="outline">
+                    Run
+                  </Button>
                 </Link>
               </div>
             </Card>

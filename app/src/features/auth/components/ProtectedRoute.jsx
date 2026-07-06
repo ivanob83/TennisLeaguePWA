@@ -1,6 +1,6 @@
 /**
  * ProtectedRoute Component
- * 
+ *
  * Wrapper for routes that require authentication.
  * Redirects to /login if user is not authenticated.
  */

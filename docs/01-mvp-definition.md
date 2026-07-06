@@ -12,6 +12,7 @@ Last updated: 2026-02-08
 This document defines the **Minimum Viable Product (MVP)** for Tennis League PWA.
 
 Its purpose is to:
+
 - Define what functionality is required for the **first usable version**
 - Explicitly limit scope to protect delivery
 - Serve as the reference point for all further design and implementation decisions
@@ -31,6 +32,7 @@ The MVP must support the **full lifecycle of a season**, from setup to completed
 ## 3. MVP User Roles
 
 ### Organizer (Primary MVP User)
+
 - Create leagues and tournaments
 - Create and manage seasons
 - Enters match results
@@ -38,6 +40,7 @@ The MVP must support the **full lifecycle of a season**, from setup to completed
 - Create news
 
 ### Player (Read-only in MVP)
+
 - Views matches and results
 - Views rankings
 - Views league information
@@ -52,19 +55,24 @@ The MVP must support the **full lifecycle of a season**, from setup to completed
 The MVP consists of the following **five core use-cases**.
 
 ### UC-01: Create Season
+
 An organizer creates a new season within a league.
 
 ### UC-02: Register Player
+
 An admin creates player profiles in the system. Players must exist before they can be assigned to any competition. Player profiles may be admin-created independently of Firebase Auth accounts.
 
 ### UC-03: Create Match
+
 An organizer creates a match between two players within a season.
 
 ### UC-04: Record Match Result
+
 An organizer records the result of a match.
 The system automatically updates standings and rankings.
 
 ### UC-05: View Ranking
+
 Players and organizers can view current rankings for a season.
 
 ---
@@ -107,6 +115,7 @@ If all conditions above are met, the MVP is complete.
 ## 7. Non-Goals
 
 The MVP is **not intended** to:
+
 - Be fully automated
 - Support all league formats
 - Optimize for scalability
@@ -136,6 +145,7 @@ The MVP prioritizes **correctness, clarity, and usability** over completeness.
 ## 9. Change Policy
 
 Changes to MVP scope require:
+
 - Explicit update of this document
 - Acknowledgement that delivery timeline may be affected
 

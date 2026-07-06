@@ -25,7 +25,7 @@ export default function Select({
           'w-full border border-slate-300 bg-white px-field-x py-field-y text-sm text-text transition-colors duration-280',
           'focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30',
           error && 'border-rose-400 focus:border-rose-500 focus:ring-rose-200',
-          className
+          className,
         )}
         {...props}
       >

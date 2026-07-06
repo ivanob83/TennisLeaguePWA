@@ -21,9 +21,7 @@ export default function ImageCropModal({ open, imageSrc, onClose, onConfirm }) {
           <h2 className="font-heading text-base font-black uppercase tracking-tight text-[#212121]">
             Crop Image
           </h2>
-          <p className="mt-0.5 text-xs text-text-light">
-            Drag to reposition · Scroll to zoom
-          </p>
+          <p className="mt-0.5 text-xs text-text-light">Drag to reposition · Scroll to zoom</p>
         </div>
 
         <div className="relative h-72 bg-[#111]">
@@ -41,7 +39,9 @@ export default function ImageCropModal({ open, imageSrc, onClose, onConfirm }) {
         </div>
 
         <div className="flex items-center gap-3 border-b border-slate-200 px-6 py-3">
-          <span className="text-xs font-semibold text-text-light uppercase tracking-[0.12em]">Zoom</span>
+          <span className="text-xs font-semibold text-text-light uppercase tracking-[0.12em]">
+            Zoom
+          </span>
           <input
             type="range"
             min={1}
@@ -54,8 +54,14 @@ export default function ImageCropModal({ open, imageSrc, onClose, onConfirm }) {
         </div>
 
         <div className="flex justify-end gap-3 px-6 py-4">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => { if (croppedAreaPixels) onConfirm(croppedAreaPixels) }}>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              if (croppedAreaPixels) onConfirm(croppedAreaPixels)
+            }}
+          >
             Crop & Save
           </Button>
         </div>

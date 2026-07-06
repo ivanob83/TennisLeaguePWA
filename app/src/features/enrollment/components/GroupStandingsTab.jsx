@@ -12,12 +12,12 @@ function resolvePlayerIds(playerIds, enrollments, players) {
     const key = (p.name || '').trim().toLowerCase()
     if (key) nameToPlayerId[key] = p.id
   }
-  const validIds = new Set(players.map(p => p.id))
-  return playerIds.map(oldId => {
+  const validIds = new Set(players.map((p) => p.id))
+  return playerIds.map((oldId) => {
     if (!oldId || validIds.has(oldId)) return oldId
-    const en = enrollments.find(e => e.playerId === oldId)
+    const en = enrollments.find((e) => e.playerId === oldId)
     if (!en?.playerName) return oldId
-    const resolved = nameToPlayerId[(en.playerName).trim().toLowerCase()]
+    const resolved = nameToPlayerId[en.playerName.trim().toLowerCase()]
     return resolved || oldId
   })
 }
@@ -38,52 +38,87 @@ function computeStandings(matches, playerIds, pointsPerWin = 3, pointsPerLoss = 
     if (stats[winner]) stats[winner].wins++
     if (stats[loser]) stats[loser].losses++
 
-    for (const set of (m.scores || [])) {
-      if (stats[m.player1Id]) { stats[m.player1Id].setsWon += set.player1; stats[m.player1Id].setsLost += set.player2 }
-      if (stats[m.player2Id]) { stats[m.player2Id].setsWon += set.player2; stats[m.player2Id].setsLost += set.player1 }
+    for (const set of m.scores || []) {
+      if (stats[m.player1Id]) {
+        stats[m.player1Id].setsWon += set.player1
+        stats[m.player1Id].setsLost += set.player2
+      }
+      if (stats[m.player2Id]) {
+        stats[m.player2Id].setsWon += set.player2
+        stats[m.player2Id].setsLost += set.player1
+      }
     }
   }
 
-  return Object.values(stats).map(s => ({
-    ...s,
-    points: s.wins * pointsPerWin + s.losses * pointsPerLoss,
-    setsDiff: s.setsWon - s.setsLost,
-  })).sort((a, b) => b.points - a.points || b.wins - a.wins || b.setsDiff - a.setsDiff)
+  return Object.values(stats)
+    .map((s) => {
+      const setsTotal = s.setsWon + s.setsLost
+      return {
+        ...s,
+        points: s.wins * pointsPerWin + s.losses * pointsPerLoss,
+        setsDiff: s.setsWon - s.setsLost,
+        setRatio: setsTotal > 0 ? s.setsWon / setsTotal : 0,
+      }
+    })
+    .sort(
+      (a, b) =>
+        b.points - a.points || b.setRatio - a.setRatio || b.wins - a.wins || b.setsWon - a.setsWon,
+    )
 }
 
-function GroupStandingCard({ group, roundId, enrollments, players, pointsPerWin, pointsPerLoss, promotionCount, relegationCount, isFirstGroup, isLastGroup, competitionType, competitionId }) {
+function GroupStandingCard({
+  group,
+  roundId,
+  enrollments,
+  players,
+  pointsPerWin,
+  pointsPerLoss,
+  promotionCount,
+  relegationCount,
+  isFirstGroup,
+  isLastGroup,
+  competitionType,
+  competitionId,
+}) {
   const matchesPath = `${competitionType}/${competitionId}/rounds/${roundId}/matches`
   const { data: matches, loading } = useFirestoreCollectionOnce(matchesPath)
 
   function playerName(id) {
-    const en = enrollments.find(e => e.playerId === id)
+    const en = enrollments.find((e) => e.playerId === id)
     if (en?.playerName) return en.playerName
-    const p = players?.find(p => p.id === id)
+    const p = players?.find((p) => p.id === id)
     return p?.name || en?.playerEmail || id
   }
 
   const resolvedIds = loading ? [] : resolvePlayerIds(group.playerIds || [], enrollments, players)
-  const standings = loading ? [] : computeStandings(matches, resolvedIds, pointsPerWin, pointsPerLoss)
+  const standings = loading
+    ? []
+    : computeStandings(matches, resolvedIds, pointsPerWin, pointsPerLoss)
   const total = standings.length
   const promo = promotionCount ?? 0
   const relego = relegationCount ?? 0
 
   function rowIndicator(i) {
-    if (!isFirstGroup && promo > 0 && i < promo) return <span className="text-green-500 font-bold mr-1">↑</span>
-    if (!isLastGroup && relego > 0 && i >= total - relego) return <span className="text-rose-500 font-bold mr-1">↓</span>
+    if (!isFirstGroup && promo > 0 && i < promo)
+      return <span className="text-green-500 font-bold mr-1">↑</span>
+    if (!isLastGroup && relego > 0 && i >= total - relego)
+      return <span className="text-rose-500 font-bold mr-1">↓</span>
     return null
   }
 
-  const multiplierLabel = group.rankingMultiplier != null && group.rankingMultiplier !== 1
-    ? `${Math.round(group.rankingMultiplier * 100)}% ranking`
-    : null
+  const multiplierLabel =
+    group.rankingMultiplier != null && group.rankingMultiplier !== 1
+      ? `${Math.round(group.rankingMultiplier * 100)}% ranking`
+      : null
 
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between">
         <h4 className="font-heading text-sm font-semibold text-text">{group.name}</h4>
         {multiplierLabel && (
-          <span className="text-xs text-text-light bg-slate-100 px-2 py-0.5 rounded-full">{multiplierLabel}</span>
+          <span className="text-xs text-text-light bg-slate-100 px-2 py-0.5 rounded-full">
+            {multiplierLabel}
+          </span>
         )}
       </div>
       {loading ? (
@@ -113,7 +148,9 @@ function GroupStandingCard({ group, roundId, enrollments, players, pointsPerWin,
                 </td>
                 <td className="py-2 text-center">{s.wins}</td>
                 <td className="py-2 text-center">{s.losses}</td>
-                <td className="py-2 text-center text-xs">{s.setsWon}:{s.setsLost}</td>
+                <td className="py-2 text-center text-xs">
+                  {s.setsWon}:{s.setsLost}
+                </td>
                 <td className="py-2 text-center font-bold text-primary">{s.points}</td>
               </tr>
             ))}
@@ -141,7 +178,11 @@ export default function GroupStandingsTab({ competitionType, competitionId, comp
   const relegationCount = competition?.relegationCount ?? 0
 
   if (roundsLoading || groupsLoading) {
-    return <div className="flex justify-center py-10"><Loader /></div>
+    return (
+      <div className="flex justify-center py-10">
+        <Loader />
+      </div>
+    )
   }
 
   if (!groups.length) {
@@ -158,27 +199,27 @@ export default function GroupStandingsTab({ competitionType, competitionId, comp
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
-      {sortedGroups.map(group => {
-          const round = rounds.find(r => r.groupId === group.id)
-          if (!round) return null
-          return (
-            <GroupStandingCard
-              key={group.id}
-              group={group}
-              roundId={round.id}
-              enrollments={enrollments}
-              players={players}
-              pointsPerWin={pointsPerWin}
-              pointsPerLoss={pointsPerLoss}
-              promotionCount={promotionCount}
-              relegationCount={relegationCount}
-              isFirstGroup={group.position === firstPos}
-              isLastGroup={group.position === lastPos}
-              competitionType={competitionType}
-              competitionId={competitionId}
-            />
-          )
-        })}
+      {sortedGroups.map((group) => {
+        const round = rounds.find((r) => r.groupId === group.id)
+        if (!round) return null
+        return (
+          <GroupStandingCard
+            key={group.id}
+            group={group}
+            roundId={round.id}
+            enrollments={enrollments}
+            players={players}
+            pointsPerWin={pointsPerWin}
+            pointsPerLoss={pointsPerLoss}
+            promotionCount={promotionCount}
+            relegationCount={relegationCount}
+            isFirstGroup={group.position === firstPos}
+            isLastGroup={group.position === lastPos}
+            competitionType={competitionType}
+            competitionId={competitionId}
+          />
+        )
+      })}
     </div>
   )
 }

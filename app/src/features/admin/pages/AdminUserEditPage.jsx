@@ -45,10 +45,14 @@ export default function AdminUserEditPage() {
         const [userData, linked, free] = await Promise.all([
           getUserById(userId),
           playersRepository.query([where('authUid', '==', userId)]),
-          playersRepository.getAll().then(all => all.filter(p => !p.authUid)),
+          playersRepository.getAll().then((all) => all.filter((p) => !p.authUid)),
         ])
 
-        if (!userData) { setServerError('User not found.'); setLoading(false); return }
+        if (!userData) {
+          setServerError('User not found.')
+          setLoading(false)
+          return
+        }
 
         setForm({
           displayName: userData.displayName || '',
@@ -75,7 +79,10 @@ export default function AdminUserEditPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
     setSubmitting(true)
     setServerError(null)
     try {
@@ -83,7 +90,11 @@ export default function AdminUserEditPage() {
         displayName: form.displayName.trim(),
         role: form.role,
       })
-      showToast({ title: 'User updated', message: `${form.displayName.trim()} has been updated.`, variant: 'success' })
+      showToast({
+        title: 'User updated',
+        message: `${form.displayName.trim()} has been updated.`,
+        variant: 'success',
+      })
       navigate('/admin/users')
     } catch {
       setServerError('Failed to update user. Please try again.')
@@ -98,11 +109,15 @@ export default function AdminUserEditPage() {
     setLinkError(null)
     try {
       await playersRepository.update(selectedPlayerId, { authUid: userId })
-      const player = freePlayers.find(p => p.id === selectedPlayerId)
+      const player = freePlayers.find((p) => p.id === selectedPlayerId)
       setLinkedPlayer({ ...player, authUid: userId })
-      setFreePlayers(prev => prev.filter(p => p.id !== selectedPlayerId))
+      setFreePlayers((prev) => prev.filter((p) => p.id !== selectedPlayerId))
       setSelectedPlayerId('')
-      showToast({ title: 'Player linked', message: `${player.name} is now linked to this user.`, variant: 'success' })
+      showToast({
+        title: 'Player linked',
+        message: `${player.name} is now linked to this user.`,
+        variant: 'success',
+      })
     } catch {
       setLinkError('Failed to link player.')
     } finally {
@@ -116,9 +131,13 @@ export default function AdminUserEditPage() {
     setLinkError(null)
     try {
       await playersRepository.update(linkedPlayer.id, { authUid: null })
-      setFreePlayers(prev => [...prev, { ...linkedPlayer, authUid: null }])
+      setFreePlayers((prev) => [...prev, { ...linkedPlayer, authUid: null }])
       setLinkedPlayer(null)
-      showToast({ title: 'Player unlinked', message: 'Player has been unlinked from this user.', variant: 'info' })
+      showToast({
+        title: 'Player unlinked',
+        message: 'Player has been unlinked from this user.',
+        variant: 'info',
+      })
     } catch {
       setLinkError('Failed to unlink player.')
     } finally {
@@ -127,11 +146,11 @@ export default function AdminUserEditPage() {
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
-  const freePlayerOptions = freePlayers.map(p => ({ value: p.id, label: p.name }))
+  const freePlayerOptions = freePlayers.map((p) => ({ value: p.id, label: p.name }))
 
   return (
     <AppLayout>
@@ -145,10 +164,16 @@ export default function AdminUserEditPage() {
           <SectionTitle title="Edit User" subtitle="Update user details and role." />
         </div>
 
-        {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+        {serverError && (
+          <Alert variant="error" className="mb-6">
+            {serverError}
+          </Alert>
+        )}
 
         {loading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
         ) : (
           <div className="space-y-6">
             <Card>
@@ -158,7 +183,7 @@ export default function AdminUserEditPage() {
                   name="displayName"
                   placeholder="e.g. John Doe"
                   value={form.displayName}
-                  onChange={e => handleChange('displayName', e.target.value)}
+                  onChange={(e) => handleChange('displayName', e.target.value)}
                   error={errors.displayName}
                 />
                 <Input
@@ -175,7 +200,7 @@ export default function AdminUserEditPage() {
                   </label>
                   <Select
                     value={form.role}
-                    onChange={e => handleChange('role', e.target.value)}
+                    onChange={(e) => handleChange('role', e.target.value)}
                     options={ROLES}
                   />
                 </div>
@@ -195,8 +220,12 @@ export default function AdminUserEditPage() {
             <Card>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-text-light">Linked Player</p>
-                  <p className="mt-0.5 text-xs text-text-light">Each user can be linked to one player profile.</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-text-light">
+                    Linked Player
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-light">
+                    Each user can be linked to one player profile.
+                  </p>
                 </div>
 
                 {linkError && <Alert variant="error">{linkError}</Alert>}
@@ -221,7 +250,7 @@ export default function AdminUserEditPage() {
                     <div className="flex-1">
                       <Select
                         value={selectedPlayerId}
-                        onChange={e => setSelectedPlayerId(e.target.value)}
+                        onChange={(e) => setSelectedPlayerId(e.target.value)}
                         options={freePlayerOptions}
                         placeholder="Select a player..."
                       />

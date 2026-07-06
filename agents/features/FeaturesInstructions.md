@@ -17,6 +17,7 @@ Ovi fajlovi služe da LLM razume feature bez čitanja koda.
 3. Označi feature kao `[x]` u listi ispod
 
 ### Napomena
+
 Fajlovi su namenjeni LLM-u, ne ljudima — budi tehnički i konkretan.
 Fokus na: šta se čita/piše u Firestore, koja logika postoji, koja rola ima pristup.
 

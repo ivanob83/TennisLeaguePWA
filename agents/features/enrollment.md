@@ -23,6 +23,7 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 **Props:** `{ competitionId, competitionType: 'leagues'|'tournaments' }`
 
 **Logika:**
+
 - Real-time listener na `{competitionType}/{competitionId}/enrollments` za listu prijavljenih.
 - Na "Show list" — one-time fetch svih igrača iz `players` kolekcije.
 - Filtriranje: već prijavljeni igrači su isključeni iz liste (poređenje po `playerId`).
@@ -31,12 +32,12 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:**
 
-| Kolekcija | Operacija | Opis |
-|-----------|-----------|------|
+| Kolekcija                 | Operacija        | Opis                      |
+| ------------------------- | ---------------- | ------------------------- |
 | `{type}/{id}/enrollments` | read (real-time) | Lista prijavljenih igrača |
-| `players` | read (once) | Svi igrači za selekciju |
-| `{type}/{id}/enrollments` | create | Prijava igrača |
-| `{type}/{id}/enrollments` | delete | Uklanjanje igrača |
+| `players`                 | read (once)      | Svi igrači za selekciju   |
+| `{type}/{id}/enrollments` | create           | Prijava igrača            |
+| `{type}/{id}/enrollments` | delete           | Uklanjanje igrača         |
 
 ---
 
@@ -47,6 +48,7 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 **Props:** `{ competitionType, competitionId, competition }`
 
 **Logika:**
+
 - Učitava `enrollments`, `groups`, i `rounds` real-time.
 - Za round_robin/round_robin_knockout: prikazuje grupe sa `playerIds` nizom (null = prazna pozicija). Dodela igrača: upisuje se na prvi null slot u nizu, potom se ažuriraju svi `matches` u odgovarajućem round-u gde je `player1Position` ili `player2Position` jednak tom indeksu.
 - Za knockout: čita `competition.seededPlayerIds` niz; dodela na prvu null poziciju, ažurira knockout round match slotove.
@@ -55,14 +57,14 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:**
 
-| Kolekcija | Operacija | Opis |
-|-----------|-----------|------|
-| `{type}/{id}/enrollments` | read (real-time) | Prijavljeni igrači |
-| `{type}/{id}/groups` | read (real-time) | Grupe sa playerIds nizovima |
-| `{type}/{id}/rounds` | read (real-time) | Rounds za match slot ažuriranje |
-| `{type}/{id}/groups` | update | Postavljanje playerIds niza |
-| `leagues` / `tournaments` | update | Postavljanje `seededPlayerIds` (knockout) |
-| `{type}/{id}/rounds/{roundId}/matches` | read + update | Ažuriranje player1Id/player2Id po poziciji |
+| Kolekcija                              | Operacija        | Opis                                       |
+| -------------------------------------- | ---------------- | ------------------------------------------ |
+| `{type}/{id}/enrollments`              | read (real-time) | Prijavljeni igrači                         |
+| `{type}/{id}/groups`                   | read (real-time) | Grupe sa playerIds nizovima                |
+| `{type}/{id}/rounds`                   | read (real-time) | Rounds za match slot ažuriranje            |
+| `{type}/{id}/groups`                   | update           | Postavljanje playerIds niza                |
+| `leagues` / `tournaments`              | update           | Postavljanje `seededPlayerIds` (knockout)  |
+| `{type}/{id}/rounds/{roundId}/matches` | read + update    | Ažuriranje player1Id/player2Id po poziciji |
 
 ---
 
@@ -73,6 +75,7 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 **Props:** `{ competitionType, competitionId }`
 
 **Logika:**
+
 - One-time fetch rounds filtriranih po `type == 'round_robin'`.
 - One-time fetch enrollments (za prikaz imena igrača).
 - Za svaki round: one-time fetch matches iz `{type}/{id}/rounds/{roundId}/matches`.
@@ -81,12 +84,12 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:**
 
-| Kolekcija | Operacija | Opis |
-|-----------|-----------|------|
-| `{type}/{id}/rounds` | read (once, filter type=round_robin) | Lista round-robin rundi |
-| `{type}/{id}/enrollments` | read (once) | Imenovanje igrača |
-| `{type}/{id}/rounds/{roundId}/matches` | read (once) | Match slotovi po rundi |
-| `{type}/{id}/rounds/{roundId}/matches` | update | Zakazivanje meča (`scheduledAt`, `status`) |
+| Kolekcija                              | Operacija                            | Opis                                       |
+| -------------------------------------- | ------------------------------------ | ------------------------------------------ |
+| `{type}/{id}/rounds`                   | read (once, filter type=round_robin) | Lista round-robin rundi                    |
+| `{type}/{id}/enrollments`              | read (once)                          | Imenovanje igrača                          |
+| `{type}/{id}/rounds/{roundId}/matches` | read (once)                          | Match slotovi po rundi                     |
+| `{type}/{id}/rounds/{roundId}/matches` | update                               | Zakazivanje meča (`scheduledAt`, `status`) |
 
 ---
 
@@ -109,6 +112,7 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 **Props:** `{ competitionType, competitionId, competition }`
 
 **Logika:**
+
 - One-time fetch groups i round-robin rounds.
 - Za svaku grupu: one-time fetch matches iz odgovarajućeg round-a.
 - `computeStandings(matches, playerIds, pointsPerWin, pointsPerLoss)`: prolazi kroz `finished`/`walkover` mečeve, broji wins/losses, sets won/lost. Sortira po: points desc → wins desc → setsDiff desc.
@@ -117,12 +121,12 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:**
 
-| Kolekcija | Operacija | Opis |
-|-----------|-----------|------|
-| `{type}/{id}/rounds` | read (once, filter type=round_robin) | Rounds za matching sa grupama |
-| `{type}/{id}/groups` | read (once) | Grupe sa playerIds |
-| `{type}/{id}/enrollments` | read (once) | Imenovanje igrača |
-| `{type}/{id}/rounds/{roundId}/matches` | read (once) | Mečevi za standings kalkulaciju |
+| Kolekcija                              | Operacija                            | Opis                            |
+| -------------------------------------- | ------------------------------------ | ------------------------------- |
+| `{type}/{id}/rounds`                   | read (once, filter type=round_robin) | Rounds za matching sa grupama   |
+| `{type}/{id}/groups`                   | read (once)                          | Grupe sa playerIds              |
+| `{type}/{id}/enrollments`              | read (once)                          | Imenovanje igrača               |
+| `{type}/{id}/rounds/{roundId}/matches` | read (once)                          | Mečevi za standings kalkulaciju |
 
 ---
 
@@ -140,11 +144,11 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:**
 
-| Kolekcija | Operacija | Opis |
-|-----------|-----------|------|
-| `{type}/{id}/groups` | create | Jedna po grupi |
-| `{type}/{id}/rounds` | create | Jedan po grupi (RR) ili jedan (KO) |
-| `{type}/{id}/rounds/{roundId}/matches` | create | Svi match slotovi (null player IDs) |
+| Kolekcija                              | Operacija | Opis                                |
+| -------------------------------------- | --------- | ----------------------------------- |
+| `{type}/{id}/groups`                   | create    | Jedna po grupi                      |
+| `{type}/{id}/rounds`                   | create    | Jedan po grupi (RR) ili jedan (KO)  |
+| `{type}/{id}/rounds/{roundId}/matches` | create    | Svi match slotovi (null player IDs) |
 
 ---
 
@@ -155,6 +159,7 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 **Poziva se iz:** Delete akcija na `LeagueDetailPage` i `TournamentDetailPage`.
 
 **Redosled brisanja (bitan zbog Firestore subcollection semantike):**
+
 1. Sve matches u svakom round-u
 2. Sve rounds
 3. Sve groups

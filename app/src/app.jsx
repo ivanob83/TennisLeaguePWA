@@ -15,48 +15,75 @@ import { Loader } from './ui/index.js'
 
 // ─── Lazy pages ──────────────────────────────────────────────────────────────
 
-const HomePage                    = lazy(() => import('./features/home/pages/HomePage.jsx'))
-const LoginPage                   = lazy(() => import('./features/auth/pages/LoginPage.jsx'))
-const RegisterPage                = lazy(() => import('./features/auth/pages/RegisterPage.jsx'))
-const DashboardPage               = lazy(() => import('./features/dashboard/pages/DashboardPage.jsx'))
-const ProfilePage                 = lazy(() => import('./features/profile/pages/ProfilePage.jsx'))
-const UIShowcasePage              = lazy(() => import('./features/ui/pages/UIShowcasePage.jsx'))
-const CompetitionsPage            = lazy(() => import('./features/competitions/pages/CompetitionsPage.jsx'))
-const SeasonsPage                 = lazy(() => import('./features/seasons/pages/SeasonsPage.jsx'))
-const SeasonCreatePage            = lazy(() => import('./features/seasons/pages/SeasonCreatePage.jsx'))
-const SeasonEditPage              = lazy(() => import('./features/seasons/pages/SeasonEditPage.jsx'))
-const LeaguesPage                 = lazy(() => import('./features/leagues/pages/LeaguesPage.jsx'))
-const LeagueCreatePage            = lazy(() => import('./features/leagues/pages/LeagueCreatePage.jsx'))
-const LeagueEnrollPage            = lazy(() => import('./features/leagues/pages/LeagueEnrollPage.jsx'))
-const LeagueDetailPage            = lazy(() => import('./features/leagues/pages/LeagueDetailPage.jsx'))
-const LeagueEditPage              = lazy(() => import('./features/leagues/pages/LeagueEditPage.jsx'))
-const TournamentsPage             = lazy(() => import('./features/tournaments/pages/TournamentsPage.jsx'))
-const TournamentCreatePage        = lazy(() => import('./features/tournaments/pages/TournamentCreatePage.jsx'))
-const TournamentEnrollPage        = lazy(() => import('./features/tournaments/pages/TournamentEnrollPage.jsx'))
-const TournamentDetailPage        = lazy(() => import('./features/tournaments/pages/TournamentDetailPage.jsx'))
-const TournamentEditPage          = lazy(() => import('./features/tournaments/pages/TournamentEditPage.jsx'))
-const PlayersPage                 = lazy(() => import('./features/players/pages/PlayersPage.jsx'))
-const PlayerCreatePage            = lazy(() => import('./features/players/pages/PlayerCreatePage.jsx'))
-const PlayerEditPage              = lazy(() => import('./features/players/pages/PlayerEditPage.jsx'))
-const PlayerDetailPage            = lazy(() => import('./features/players/pages/PlayerDetailPage.jsx'))
-const PlayerConnectionRequestsPage = lazy(() => import('./features/players/pages/PlayerConnectionRequestsPage.jsx'))
-const MatchDetailPage             = lazy(() => import('./features/matches/pages/MatchDetailPage.jsx'))
-const RankingsPage                = lazy(() => import('./features/rankings/pages/RankingsPage.jsx'))
-const NewsPage                    = lazy(() => import('./features/news/pages/NewsPage.jsx'))
-const NewsCreatePage              = lazy(() => import('./features/news/pages/NewsCreatePage.jsx'))
-const NewsDetailPage              = lazy(() => import('./features/news/pages/NewsDetailPage.jsx'))
-const AdminUsersPage              = lazy(() => import('./features/admin/pages/AdminUsersPage.jsx'))
-const AdminUserEditPage           = lazy(() => import('./features/admin/pages/AdminUserEditPage.jsx'))
-const AdminUserCreatePage         = lazy(() => import('./features/admin/pages/AdminUserCreatePage.jsx'))
-const AdminSeedsPage              = lazy(() => import('./features/admin/pages/AdminSeedsPage.jsx'))
-const AdminDedupePlayersPage      = lazy(() => import('./features/admin/pages/AdminDedupePlayersPage.jsx'))
-const AdminFixTieredLeaguePage    = lazy(() => import('./features/admin/pages/AdminFixTieredLeaguePage.jsx'))
-const AdminOrphanMatchesPage      = lazy(() => import('./features/admin/pages/AdminOrphanMatchesPage.jsx'))
-const SeedPlayopen2022Page        = lazy(() => import('./features/admin/pages/SeedPlayopen2022Page.jsx'))
-const SeedPlayLiga2025Page        = lazy(() => import('./features/admin/pages/SeedPlayLiga2025Page.jsx'))
-const SeedPlayLiga2025Ciklus1Page = lazy(() => import('./features/admin/pages/SeedPlayLiga2025Ciklus1Page.jsx'))
-const SeedPlayLiga2025Ciklus2Page = lazy(() => import('./features/admin/pages/SeedPlayLiga2025Ciklus2Page.jsx'))
-const SeedPlayLiga2025Ciklus3Page = lazy(() => import('./features/admin/pages/SeedPlayLiga2025Ciklus3Page.jsx'))
+const HomePage = lazy(() => import('./features/home/pages/HomePage.jsx'))
+const LoginPage = lazy(() => import('./features/auth/pages/LoginPage.jsx'))
+const RegisterPage = lazy(() => import('./features/auth/pages/RegisterPage.jsx'))
+const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage.jsx'))
+const ProfilePage = lazy(() => import('./features/profile/pages/ProfilePage.jsx'))
+const UIShowcasePage = lazy(() => import('./features/ui/pages/UIShowcasePage.jsx'))
+const CompetitionsPage = lazy(() => import('./features/competitions/pages/CompetitionsPage.jsx'))
+const SeasonsPage = lazy(() => import('./features/seasons/pages/SeasonsPage.jsx'))
+const SeasonCreatePage = lazy(() => import('./features/seasons/pages/SeasonCreatePage.jsx'))
+const SeasonEditPage = lazy(() => import('./features/seasons/pages/SeasonEditPage.jsx'))
+const LeaguesPage = lazy(() => import('./features/leagues/pages/LeaguesPage.jsx'))
+const LeagueCreatePage = lazy(() => import('./features/leagues/pages/LeagueCreatePage.jsx'))
+const LeagueEnrollPage = lazy(() => import('./features/leagues/pages/LeagueEnrollPage.jsx'))
+const LeagueDetailPage = lazy(() => import('./features/leagues/pages/LeagueDetailPage.jsx'))
+const LeagueEditPage = lazy(() => import('./features/leagues/pages/LeagueEditPage.jsx'))
+const TournamentsPage = lazy(() => import('./features/tournaments/pages/TournamentsPage.jsx'))
+const TournamentCreatePage = lazy(
+  () => import('./features/tournaments/pages/TournamentCreatePage.jsx'),
+)
+const TournamentEnrollPage = lazy(
+  () => import('./features/tournaments/pages/TournamentEnrollPage.jsx'),
+)
+const TournamentDetailPage = lazy(
+  () => import('./features/tournaments/pages/TournamentDetailPage.jsx'),
+)
+const TournamentEditPage = lazy(() => import('./features/tournaments/pages/TournamentEditPage.jsx'))
+const PlayersPage = lazy(() => import('./features/players/pages/PlayersPage.jsx'))
+const PlayerCreatePage = lazy(() => import('./features/players/pages/PlayerCreatePage.jsx'))
+const PlayerEditPage = lazy(() => import('./features/players/pages/PlayerEditPage.jsx'))
+const PlayerDetailPage = lazy(() => import('./features/players/pages/PlayerDetailPage.jsx'))
+const PlayerConnectionRequestsPage = lazy(
+  () => import('./features/players/pages/PlayerConnectionRequestsPage.jsx'),
+)
+const MatchDetailPage = lazy(() => import('./features/matches/pages/MatchDetailPage.jsx'))
+const RankingsPage = lazy(() => import('./features/rankings/pages/RankingsPage.jsx'))
+const NewsPage = lazy(() => import('./features/news/pages/NewsPage.jsx'))
+const NewsCreatePage = lazy(() => import('./features/news/pages/NewsCreatePage.jsx'))
+const NewsDetailPage = lazy(() => import('./features/news/pages/NewsDetailPage.jsx'))
+const AdminUsersPage = lazy(() => import('./features/admin/pages/AdminUsersPage.jsx'))
+const AdminUserEditPage = lazy(() => import('./features/admin/pages/AdminUserEditPage.jsx'))
+const AdminUserCreatePage = lazy(() => import('./features/admin/pages/AdminUserCreatePage.jsx'))
+const AdminSeedsPage = lazy(() => import('./features/admin/pages/AdminSeedsPage.jsx'))
+const AdminDedupePlayersPage = lazy(
+  () => import('./features/admin/pages/AdminDedupePlayersPage.jsx'),
+)
+const AdminFixTieredLeaguePage = lazy(
+  () => import('./features/admin/pages/AdminFixTieredLeaguePage.jsx'),
+)
+const AdminOrphanMatchesPage = lazy(
+  () => import('./features/admin/pages/AdminOrphanMatchesPage.jsx'),
+)
+const AdminPendingApprovalsPage = lazy(
+  () => import('./features/admin/pages/AdminPendingApprovalsPage.jsx'),
+)
+const SeedPlayopen2022Page = lazy(() => import('./features/admin/pages/SeedPlayopen2022Page.jsx'))
+const SeedPlayLiga2025Page = lazy(() => import('./features/admin/pages/SeedPlayLiga2025Page.jsx'))
+const SeedPlayLiga2025Ciklus1Page = lazy(
+  () => import('./features/admin/pages/SeedPlayLiga2025Ciklus1Page.jsx'),
+)
+const SeedPlayLiga2025Ciklus2Page = lazy(
+  () => import('./features/admin/pages/SeedPlayLiga2025Ciklus2Page.jsx'),
+)
+const SeedPlayLiga2025Ciklus3Page = lazy(
+  () => import('./features/admin/pages/SeedPlayLiga2025Ciklus3Page.jsx'),
+)
+const SeedPlayLiga2026Ciklus2Page = lazy(
+  () => import('./features/admin/pages/SeedPlayLiga2026Ciklus2Page.jsx'),
+)
+const SchedulingPage = lazy(() => import('./features/scheduling/pages/SchedulingPage.jsx'))
 
 // ─── Fallback ────────────────────────────────────────────────────────────────
 
@@ -313,6 +340,14 @@ function App() {
               }
             />
             <Route
+              path="/admin/seed/play-liga-2026-ciklus2"
+              element={
+                <ProtectedRoute>
+                  <SeedPlayLiga2026Ciklus2Page />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/dedupe-players"
               element={
                 <ProtectedRoute>
@@ -333,6 +368,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminOrphanMatchesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/pending-approvals"
+              element={
+                <ProtectedRoute>
+                  <AdminPendingApprovalsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scheduling"
+              element={
+                <ProtectedRoute>
+                  <SchedulingPage />
                 </ProtectedRoute>
               }
             />

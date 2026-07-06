@@ -31,7 +31,10 @@ export default function TournamentEditPage() {
   const { tournamentId } = useParams()
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { data: tournament, loading: tournamentLoading } = useFirestoreDoc('tournaments', tournamentId)
+  const { data: tournament, loading: tournamentLoading } = useFirestoreDoc(
+    'tournaments',
+    tournamentId,
+  )
   const { data: seasons } = useFirestoreCollection('seasons', [orderBy('startDate', 'desc')])
   const [form, setForm] = useState(null)
   const [errors, setErrors] = useState({})
@@ -48,7 +51,8 @@ export default function TournamentEditPage() {
         seasonId: tournament.seasonId || '',
         format: tournament.format || '',
         numGroups: tournament.numGroups != null ? String(tournament.numGroups) : '',
-        playersPerGroup: tournament.playersPerGroup != null ? String(tournament.playersPerGroup) : '',
+        playersPerGroup:
+          tournament.playersPerGroup != null ? String(tournament.playersPerGroup) : '',
         startDate: tournament.startDate || '',
         endDate: tournament.endDate || '',
         rules: tournament.rules || '',
@@ -66,15 +70,17 @@ export default function TournamentEditPage() {
     if (needsGroups) {
       const ng = Number(form.numGroups)
       const ppg = Number(form.playersPerGroup)
-      if (!form.numGroups || Number.isNaN(ng) || ng < 1) e.numGroups = 'Enter number of groups (min 1)'
-      if (!form.playersPerGroup || Number.isNaN(ppg) || ppg < 2) e.playersPerGroup = 'Enter players per group (min 2)'
+      if (!form.numGroups || Number.isNaN(ng) || ng < 1)
+        e.numGroups = 'Enter number of groups (min 1)'
+      if (!form.playersPerGroup || Number.isNaN(ppg) || ppg < 2)
+        e.playersPerGroup = 'Enter players per group (min 2)'
     }
     if (!form.startDate) e.startDate = 'Start date is required'
     if (!form.endDate) e.endDate = 'End date is required'
     if (form.startDate && form.endDate && form.endDate <= form.startDate) {
       e.endDate = 'End date must be after start date'
     }
-    const selectedSeason = seasons.find(s => s.id === form.seasonId)
+    const selectedSeason = seasons.find((s) => s.id === form.seasonId)
     if (selectedSeason) {
       if (form.startDate && form.startDate < selectedSeason.startDate) {
         e.startDate = 'Start date must be within the selected season'
@@ -108,7 +114,10 @@ export default function TournamentEditPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
     setSubmitting(true)
     setServerError(null)
     try {
@@ -127,11 +136,15 @@ export default function TournamentEditPage() {
       const updatePromise = tournamentsRepository.update(tournamentId, payload)
       const result = await Promise.race([
         updatePromise.then(() => 'ok'),
-        new Promise(resolve => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
+        new Promise((resolve) => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
       ])
       if (result === 'timeout') {
         updatePromise.catch(() => {})
-        showToast({ title: 'Tournament updated', message: 'Saving in background.', variant: 'info' })
+        showToast({
+          title: 'Tournament updated',
+          message: 'Saving in background.',
+          variant: 'info',
+        })
       } else {
         showToast({ title: 'Tournament updated', message: 'Changes saved.', variant: 'success' })
       }
@@ -145,39 +158,49 @@ export default function TournamentEditPage() {
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
   if (tournamentLoading || !form) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
 
-  const seasonOptions = seasons.map(s => ({ value: s.id, label: s.name }))
+  const seasonOptions = seasons.map((s) => ({ value: s.id, label: s.name }))
   const needsGroups = form.format === 'round_robin' || form.format === 'round_robin_knockout'
 
   return (
     <AppLayout>
       <Container className="py-8">
         <div className="mb-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/tournaments/${tournamentId}`)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(`/tournaments/${tournamentId}`)}
+          >
             ← Back to Tournament
           </Button>
         </div>
         <SectionTitle title="Edit Tournament" subtitle={tournament?.name} />
         <div className="mt-8 max-w-lg">
-          {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
           <Card>
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 label="Tournament name"
                 name="name"
                 value={form.name}
-                onChange={e => handleChange('name', e.target.value)}
+                onChange={(e) => handleChange('name', e.target.value)}
                 error={errors.name}
               />
               <Select
@@ -186,7 +209,7 @@ export default function TournamentEditPage() {
                 placeholder="Select a season"
                 options={seasonOptions}
                 value={form.seasonId}
-                onChange={e => handleChange('seasonId', e.target.value)}
+                onChange={(e) => handleChange('seasonId', e.target.value)}
                 error={errors.seasonId}
               />
               <Select
@@ -195,7 +218,7 @@ export default function TournamentEditPage() {
                 placeholder="Select a format"
                 options={FORMAT_OPTIONS}
                 value={form.format}
-                onChange={e => handleChange('format', e.target.value)}
+                onChange={(e) => handleChange('format', e.target.value)}
                 error={errors.format}
               />
               {needsGroups && (
@@ -206,7 +229,7 @@ export default function TournamentEditPage() {
                     type="number"
                     min="1"
                     value={form.numGroups}
-                    onChange={e => handleChange('numGroups', e.target.value)}
+                    onChange={(e) => handleChange('numGroups', e.target.value)}
                     error={errors.numGroups}
                   />
                   <Input
@@ -215,7 +238,7 @@ export default function TournamentEditPage() {
                     type="number"
                     min="2"
                     value={form.playersPerGroup}
-                    onChange={e => handleChange('playersPerGroup', e.target.value)}
+                    onChange={(e) => handleChange('playersPerGroup', e.target.value)}
                     error={errors.playersPerGroup}
                   />
                 </div>
@@ -226,7 +249,7 @@ export default function TournamentEditPage() {
                   name="startDate"
                   type="date"
                   value={form.startDate}
-                  onChange={e => handleChange('startDate', e.target.value)}
+                  onChange={(e) => handleChange('startDate', e.target.value)}
                   error={errors.startDate}
                 />
                 <Input
@@ -234,7 +257,7 @@ export default function TournamentEditPage() {
                   name="endDate"
                   type="date"
                   value={form.endDate}
-                  onChange={e => handleChange('endDate', e.target.value)}
+                  onChange={(e) => handleChange('endDate', e.target.value)}
                   error={errors.endDate}
                 />
               </div>
@@ -242,7 +265,7 @@ export default function TournamentEditPage() {
                 label="Rules (optional)"
                 name="rules"
                 value={form.rules}
-                onChange={e => handleChange('rules', e.target.value)}
+                onChange={(e) => handleChange('rules', e.target.value)}
               />
               <ImageUpload
                 value={imageUrls}
@@ -256,7 +279,11 @@ export default function TournamentEditPage() {
                 <Button type="submit" loading={submitting} loadingLabel="Saving...">
                   Save changes
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => navigate(`/tournaments/${tournamentId}`)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate(`/tournaments/${tournamentId}`)}
+                >
                   Cancel
                 </Button>
               </div>

@@ -56,34 +56,34 @@ const PLAYERS = [
 // scores = [{ player1: X, player2: Y }] — one set
 
 const GROUP_A_MATCHES = [
-  { p1: 0,  p2: 1,  scores: [{ player1: 3, player2: 6 }], winnerIdx: 1  }, // Cabric vs Profa
-  { p1: 2,  p2: 3,  scores: [{ player1: 1, player2: 6 }], winnerIdx: 3  }, // Nikola A. vs Saja
-  { p1: 0,  p2: 2,  scores: [{ player1: 6, player2: 0 }], winnerIdx: 0  }, // Cabric vs Nikola A.
-  { p1: 1,  p2: 3,  scores: [{ player1: 3, player2: 6 }], winnerIdx: 3  }, // Profa vs Saja
-  { p1: 0,  p2: 3,  scores: [{ player1: 6, player2: 2 }], winnerIdx: 0  }, // Cabric vs Saja
-  { p1: 1,  p2: 2,  scores: [{ player1: 6, player2: 0 }], winnerIdx: 1  }, // Profa vs Nikola A.
+  { p1: 0, p2: 1, scores: [{ player1: 3, player2: 6 }], winnerIdx: 1 }, // Cabric vs Profa
+  { p1: 2, p2: 3, scores: [{ player1: 1, player2: 6 }], winnerIdx: 3 }, // Nikola A. vs Saja
+  { p1: 0, p2: 2, scores: [{ player1: 6, player2: 0 }], winnerIdx: 0 }, // Cabric vs Nikola A.
+  { p1: 1, p2: 3, scores: [{ player1: 3, player2: 6 }], winnerIdx: 3 }, // Profa vs Saja
+  { p1: 0, p2: 3, scores: [{ player1: 6, player2: 2 }], winnerIdx: 0 }, // Cabric vs Saja
+  { p1: 1, p2: 2, scores: [{ player1: 6, player2: 0 }], winnerIdx: 1 }, // Profa vs Nikola A.
 ]
 // Standings: Cabric 2W (net +7), Profa 2W (net +6), Saja 2W (net +4), Nikola A. 0W
 // Advancing: Cabric (1st), Profa (2nd)
 
 const GROUP_B_MATCHES = [
-  { p1: 4,  p2: 5,  scores: [{ player1: 0, player2: 6 }], winnerIdx: 5  }, // Dejan vs Suvacarevic
-  { p1: 6,  p2: 7,  scores: [{ player1: 6, player2: 5 }], winnerIdx: 6  }, // Aleksa vs Lazar
-  { p1: 4,  p2: 6,  scores: [{ player1: 7, player2: 6 }], winnerIdx: 4  }, // Dejan vs Aleksa
-  { p1: 5,  p2: 7,  scores: [{ player1: 6, player2: 0 }], winnerIdx: 5  }, // Suvacarevic vs Lazar
-  { p1: 4,  p2: 7,  scores: [{ player1: 2, player2: 6 }], winnerIdx: 7  }, // Dejan vs Lazar
-  { p1: 5,  p2: 6,  scores: [{ player1: 6, player2: 1 }], winnerIdx: 5  }, // Suvacarevic vs Aleksa
+  { p1: 4, p2: 5, scores: [{ player1: 0, player2: 6 }], winnerIdx: 5 }, // Dejan vs Suvacarevic
+  { p1: 6, p2: 7, scores: [{ player1: 6, player2: 5 }], winnerIdx: 6 }, // Aleksa vs Lazar
+  { p1: 4, p2: 6, scores: [{ player1: 7, player2: 6 }], winnerIdx: 4 }, // Dejan vs Aleksa
+  { p1: 5, p2: 7, scores: [{ player1: 6, player2: 0 }], winnerIdx: 5 }, // Suvacarevic vs Lazar
+  { p1: 4, p2: 7, scores: [{ player1: 2, player2: 6 }], winnerIdx: 7 }, // Dejan vs Lazar
+  { p1: 5, p2: 6, scores: [{ player1: 6, player2: 1 }], winnerIdx: 5 }, // Suvacarevic vs Aleksa
 ]
 // Standings: Suvacarevic 3W, Lazar 1W (net +3 in trio), Aleksa 1W, Dejan 1W (net -3)
 // Advancing: Suvacarevic (1st), Lazar (2nd)
 
 const GROUP_C_MATCHES = [
-  { p1: 8,  p2: 9,  scores: [{ player1: 6, player2: 4 }], winnerIdx: 8  }, // Stefan vs Nikola L.
+  { p1: 8, p2: 9, scores: [{ player1: 6, player2: 4 }], winnerIdx: 8 }, // Stefan vs Nikola L.
   { p1: 10, p2: 11, scores: [{ player1: 0, player2: 6 }], winnerIdx: 11 }, // Aleksandar J. vs Dule
-  { p1: 8,  p2: 10, scores: [{ player1: 4, player2: 6 }], winnerIdx: 10 }, // Stefan vs Aleksandar J.
-  { p1: 9,  p2: 11, scores: [{ player1: 3, player2: 6 }], winnerIdx: 11 }, // Nikola L. vs Dule
-  { p1: 8,  p2: 11, scores: [{ player1: 1, player2: 6 }], winnerIdx: 11 }, // Stefan vs Dule
-  { p1: 9,  p2: 10, scores: [{ player1: 0, player2: 6 }], winnerIdx: 10 }, // Nikola L. vs Aleksandar J.
+  { p1: 8, p2: 10, scores: [{ player1: 4, player2: 6 }], winnerIdx: 10 }, // Stefan vs Aleksandar J.
+  { p1: 9, p2: 11, scores: [{ player1: 3, player2: 6 }], winnerIdx: 11 }, // Nikola L. vs Dule
+  { p1: 8, p2: 11, scores: [{ player1: 1, player2: 6 }], winnerIdx: 11 }, // Stefan vs Dule
+  { p1: 9, p2: 10, scores: [{ player1: 0, player2: 6 }], winnerIdx: 10 }, // Nikola L. vs Aleksandar J.
 ]
 // Standings: Dule 3W, Aleksandar J. 2W, Stefan 1W, Nikola L. 0W
 // Advancing: Dule (1st), Aleksandar Jovanovic (2nd)
@@ -102,11 +102,38 @@ const GROUP_D_MATCHES = [
 // Knockout — SF and Final confirmed
 const KNOCKOUT_MATCHES = [
   // SF1: Cabric vs Dule — two sets, Dule wins
-  { label: 'SF1', p1Name: 'Cabric', p2Name: 'Dule', status: 'finished', scores: [{ player1: 0, player2: 6 }, { player1: 1, player2: 6 }], winnerName: 'Dule' },
+  {
+    label: 'SF1',
+    p1Name: 'Cabric',
+    p2Name: 'Dule',
+    status: 'finished',
+    scores: [
+      { player1: 0, player2: 6 },
+      { player1: 1, player2: 6 },
+    ],
+    winnerName: 'Dule',
+  },
   // SF2: Suvacarevic vs Andric — walkover, Suvacarevic wins
-  { label: 'SF2', p1Name: 'Suvacarevic', p2Name: 'Andric', status: 'walkover', scores: null, winnerName: 'Suvacarevic' },
+  {
+    label: 'SF2',
+    p1Name: 'Suvacarevic',
+    p2Name: 'Andric',
+    status: 'walkover',
+    scores: null,
+    winnerName: 'Suvacarevic',
+  },
   // Final: Dule vs Suvacarevic — two sets, Dule wins
-  { label: 'Final', p1Name: 'Dule', p2Name: 'Suvacarevic', status: 'finished', scores: [{ player1: 6, player2: 2 }, { player1: 7, player2: 6 }], winnerName: 'Dule' },
+  {
+    label: 'Final',
+    p1Name: 'Dule',
+    p2Name: 'Suvacarevic',
+    status: 'finished',
+    scores: [
+      { player1: 6, player2: 2 },
+      { player1: 7, player2: 6 },
+    ],
+    winnerName: 'Dule',
+  },
 ]
 
 // ─── Duplicate cleanup ─────────────────────────────────────────────────────────
@@ -122,7 +149,7 @@ async function removeDuplicatePlayers(log) {
     byName[key].push(p)
   }
 
-  const duplicateGroups = Object.values(byName).filter(g => g.length > 1)
+  const duplicateGroups = Object.values(byName).filter((g) => g.length > 1)
   if (duplicateGroups.length === 0) {
     log('No duplicate players found.')
     return 0
@@ -131,13 +158,13 @@ async function removeDuplicatePlayers(log) {
 
   log('Fetching all enrollments...')
   const enrollSnap = await getDocs(collectionGroup(db, 'enrollments'))
-  const enrolledIds = new Set(enrollSnap.docs.map(d => d.data().playerId).filter(Boolean))
+  const enrolledIds = new Set(enrollSnap.docs.map((d) => d.data().playerId).filter(Boolean))
   log(`${enrolledIds.size} enrolled player IDs found.`)
 
   let deleted = 0
   for (const group of duplicateGroups) {
-    const enrolled = group.filter(p => enrolledIds.has(p.id))
-    const notEnrolled = group.filter(p => !enrolledIds.has(p.id))
+    const enrolled = group.filter((p) => enrolledIds.has(p.id))
+    const notEnrolled = group.filter((p) => !enrolledIds.has(p.id))
 
     // Keep: enrolled ones (or if none enrolled, keep the first by creation order)
     const toDelete = enrolled.length > 0 ? notEnrolled : notEnrolled.slice(1)
@@ -154,13 +181,24 @@ async function removeDuplicatePlayers(log) {
 }
 
 // ─── Seeder ────────────────────────────────────────────────────────────────────
-async function createGroupWithMatches({ tid, groupsRepo, rRepo, name, position, playerDocs, playerSlice, groupMatches, roundNumber, groupName }) {
+async function createGroupWithMatches({
+  tid,
+  groupsRepo,
+  rRepo,
+  name,
+  position,
+  playerDocs,
+  playerSlice,
+  groupMatches,
+  roundNumber,
+  groupName,
+}) {
   const group = await groupsRepo.create({
     competitionId: tid,
     competitionType: 'tournament',
     name,
     position,
-    playerIds: playerSlice.map(p => p.id),
+    playerIds: playerSlice.map((p) => p.id),
   })
   const round = await rRepo.create({
     competitionId: tid,
@@ -221,22 +259,27 @@ async function runCleanup(log) {
 
 async function runSeed(userId, log) {
   log('Checking for existing data...')
-  const existingTournaments = await tournamentsRepository.query([where('name', '==', 'PLAYOPEN Jun 2022')])
+  const existingTournaments = await tournamentsRepository.query([
+    where('name', '==', 'PLAYOPEN Jun 2022'),
+  ])
   if (existingTournaments.length > 0) {
-    throw new Error('Tournament "PLAYOPEN Jun 2022" already exists. Delete it first before re-seeding.')
+    throw new Error(
+      'Tournament "PLAYOPEN Jun 2022" already exists. Delete it first before re-seeding.',
+    )
   }
 
   log('Creating season...')
   const existingSeasons = await seasonsRepository.query([where('name', '==', '2022')])
-  const season = existingSeasons.length > 0
-    ? existingSeasons[0]
-    : await seasonsRepository.create({
-    name: '2022',
-    startDate: '2022-01-01',
-    endDate: '2022-12-31',
-    status: 'completed',
-    organizerId: userId,
-  })
+  const season =
+    existingSeasons.length > 0
+      ? existingSeasons[0]
+      : await seasonsRepository.create({
+          name: '2022',
+          startDate: '2022-01-01',
+          endDate: '2022-12-31',
+          status: 'completed',
+          organizerId: userId,
+        })
 
   log('Creating tournament...')
   const tournament = await tournamentsRepository.create({
@@ -261,9 +304,10 @@ async function runSeed(userId, log) {
   const playerDocs = []
   for (const p of PLAYERS) {
     const existing = await playersRepository.query([where('name', '==', p.name)])
-    const doc = existing.length > 0
-      ? existing[0]
-      : await playersRepository.create({ name: p.name, email: null })
+    const doc =
+      existing.length > 0
+        ? existing[0]
+        : await playersRepository.create({ name: p.name, email: null })
     playerDocs.push(doc)
   }
 
@@ -283,16 +327,60 @@ async function runSeed(userId, log) {
   log('Creating Group A matches...')
   const groupsRepo = tournamentGroupsRepository(tid)
   const rRepo = roundsRepository('tournaments', tid)
-  await createGroupWithMatches({ tid, groupsRepo, rRepo, name: 'Group A', groupName: 'Group A', position: 1, playerDocs, playerSlice: playerDocs.slice(0, 4),  groupMatches: GROUP_A_MATCHES, roundNumber: 1 })
+  await createGroupWithMatches({
+    tid,
+    groupsRepo,
+    rRepo,
+    name: 'Group A',
+    groupName: 'Group A',
+    position: 1,
+    playerDocs,
+    playerSlice: playerDocs.slice(0, 4),
+    groupMatches: GROUP_A_MATCHES,
+    roundNumber: 1,
+  })
 
   log('Creating Group B matches...')
-  await createGroupWithMatches({ tid, groupsRepo, rRepo, name: 'Group B', groupName: 'Group B', position: 2, playerDocs, playerSlice: playerDocs.slice(4, 8),  groupMatches: GROUP_B_MATCHES, roundNumber: 2 })
+  await createGroupWithMatches({
+    tid,
+    groupsRepo,
+    rRepo,
+    name: 'Group B',
+    groupName: 'Group B',
+    position: 2,
+    playerDocs,
+    playerSlice: playerDocs.slice(4, 8),
+    groupMatches: GROUP_B_MATCHES,
+    roundNumber: 2,
+  })
 
   log('Creating Group C matches...')
-  await createGroupWithMatches({ tid, groupsRepo, rRepo, name: 'Group C', groupName: 'Group C', position: 3, playerDocs, playerSlice: playerDocs.slice(8, 12), groupMatches: GROUP_C_MATCHES, roundNumber: 3 })
+  await createGroupWithMatches({
+    tid,
+    groupsRepo,
+    rRepo,
+    name: 'Group C',
+    groupName: 'Group C',
+    position: 3,
+    playerDocs,
+    playerSlice: playerDocs.slice(8, 12),
+    groupMatches: GROUP_C_MATCHES,
+    roundNumber: 3,
+  })
 
   log('Creating Group D matches...')
-  await createGroupWithMatches({ tid, groupsRepo, rRepo, name: 'Group D', groupName: 'Group D', position: 4, playerDocs, playerSlice: playerDocs.slice(12, 16), groupMatches: GROUP_D_MATCHES, roundNumber: 4 })
+  await createGroupWithMatches({
+    tid,
+    groupsRepo,
+    rRepo,
+    name: 'Group D',
+    groupName: 'Group D',
+    position: 4,
+    playerDocs,
+    playerSlice: playerDocs.slice(12, 16),
+    groupMatches: GROUP_D_MATCHES,
+    roundNumber: 4,
+  })
 
   log('Creating knockout phase slots...')
   const roundKO = await rRepo.create({
@@ -307,9 +395,9 @@ async function runSeed(userId, log) {
   const mRepoKO = matchesRepository('tournaments', tid, roundKO.id)
   for (let i = 0; i < KNOCKOUT_MATCHES.length; i++) {
     const m = KNOCKOUT_MATCHES[i]
-    const p1 = m.p1Name ? playerDocs.find(p => p.name === m.p1Name) : null
-    const p2 = m.p2Name ? playerDocs.find(p => p.name === m.p2Name) : null
-    const winner = m.winnerName ? playerDocs.find(p => p.name === m.winnerName) : null
+    const p1 = m.p1Name ? playerDocs.find((p) => p.name === m.p1Name) : null
+    const p2 = m.p2Name ? playerDocs.find((p) => p.name === m.p2Name) : null
+    const winner = m.winnerName ? playerDocs.find((p) => p.name === m.winnerName) : null
     await mRepoKO.create({
       competitionId: tid,
       competitionType: 'tournament',
@@ -332,7 +420,7 @@ async function runSeed(userId, log) {
   }
 
   log('Calculating rankings...')
-  const enrollments = playerDocs.map(p => ({ playerId: p.id, playerName: p.name }))
+  const enrollments = playerDocs.map((p) => ({ playerId: p.id, playerName: p.name }))
   await recalculateRankings('tournaments', tid, enrollments)
 
   log('Done!')
@@ -349,7 +437,7 @@ export default function SeedPlayopen2022Page() {
   const [cleanupStatus, setCleanupStatus] = useState('idle') // idle | running | done | error
 
   function log(msg) {
-    setLogs(prev => [...prev, msg])
+    setLogs((prev) => [...prev, msg])
   }
 
   async function handleSeed() {
@@ -426,16 +514,14 @@ export default function SeedPlayopen2022Page() {
               <li>• SF2: Suvacarevic vs Andric → W/O — Suvacarevic</li>
               <li>• Final: Dule vs Suvacarevic → 6:2, 7:6 — Dule pobedio</li>
             </ul>
-            <p className="mt-3 text-xs text-amber-600">
-              Run only once.
-            </p>
+            <p className="mt-3 text-xs text-amber-600">Run only once.</p>
           </Card>
 
           <Card>
             <p className="mb-1 text-sm font-medium text-text">Cleanup duplicate players</p>
             <p className="mb-3 text-sm text-text-light">
-              Removes players with the same name that are not enrolled in any competition.
-              Keeps enrolled players; if none are enrolled, keeps the oldest.
+              Removes players with the same name that are not enrolled in any competition. Keeps
+              enrolled players; if none are enrolled, keeps the oldest.
             </p>
             <Button
               size="sm"
@@ -446,9 +532,7 @@ export default function SeedPlayopen2022Page() {
             >
               Remove duplicate players
             </Button>
-            {cleanupStatus === 'done' && (
-              <span className="ml-3 text-sm text-green-600">Done</span>
-            )}
+            {cleanupStatus === 'done' && <span className="ml-3 text-sm text-green-600">Done</span>}
             {cleanupStatus === 'error' && (
               <span className="ml-3 text-sm text-rose-600">Error — see log below</span>
             )}
@@ -457,8 +541,12 @@ export default function SeedPlayopen2022Page() {
           {logs.length > 0 && (
             <Card className="font-mono text-xs">
               {logs.map((l, i) => (
-                <div key={i} className={l.startsWith('Error') ? 'text-rose-600' : 'text-text-light'}>
-                  {l.startsWith('Done') ? '✓ ' : '→ '}{l}
+                <div
+                  key={i}
+                  className={l.startsWith('Error') ? 'text-rose-600' : 'text-text-light'}
+                >
+                  {l.startsWith('Done') ? '✓ ' : '→ '}
+                  {l}
                 </div>
               ))}
             </Card>
@@ -468,28 +556,44 @@ export default function SeedPlayopen2022Page() {
             {status === 'idle' && (
               <>
                 <Button onClick={handleSeed}>Run Seed</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
             {status === 'running' && (
-              <Button disabled loading loadingLabel="Running...">Running...</Button>
+              <Button disabled loading loadingLabel="Running...">
+                Running...
+              </Button>
             )}
             {status === 'done' && (
               <>
                 <Button variant="outline" onClick={() => navigate(`/tournaments/${tournamentId}`)}>
                   Open Tournament
                 </Button>
-                <Button variant="ghost" onClick={() => { setStatus('idle'); setLogs([]) }}>Re-seed</Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setStatus('idle')
+                    setLogs([])
+                  }}
+                >
+                  Re-seed
+                </Button>
                 <span className="self-center text-sm text-green-600">Seeded successfully</span>
               </>
             )}
             {status === 'error' && (
               <>
                 <Button onClick={handleSeed}>Retry</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
-            <Button variant="ghost" onClick={() => navigate(-1)}>Back</Button>
+            <Button variant="ghost" onClick={() => navigate(-1)}>
+              Back
+            </Button>
           </div>
         </div>
       </Container>

@@ -19,18 +19,18 @@ export default function RegisterPage() {
     displayName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  
+
   const navigate = useNavigate()
   const { loginWithGoogle } = useAuth()
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 
@@ -59,16 +59,16 @@ export default function RegisterPage() {
     try {
       // 1. Create Firebase Auth user
       const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        formData.email, 
-        formData.password
+        auth,
+        formData.email,
+        formData.password,
       )
-      
+
       const user = userCredential.user
 
       // 2. Update display name in Firebase Auth
       await updateProfile(user, {
-        displayName: formData.displayName
+        displayName: formData.displayName,
       })
 
       // 3. Create user document in Firestore (first user becomes superadmin)
@@ -83,7 +83,7 @@ export default function RegisterPage() {
       navigate('/dashboard')
     } catch (err) {
       console.error('Registration error:', err)
-      
+
       // User-friendly error messages
       if (err.code === 'auth/email-already-in-use') {
         setError('This email is already registered')
@@ -125,7 +125,9 @@ export default function RegisterPage() {
 
           {/* Error Message */}
           {error && (
-            <Alert variant="error" className="mb-6">{error}</Alert>
+            <Alert variant="error" className="mb-6">
+              {error}
+            </Alert>
           )}
 
           {/* Form */}
@@ -191,12 +193,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              loading={loading}
-              loadingLabel="Creating account..."
-            >
+            <Button type="submit" fullWidth loading={loading} loadingLabel="Creating account...">
               Sign Up
             </Button>
           </form>

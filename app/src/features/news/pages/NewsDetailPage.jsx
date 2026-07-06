@@ -33,7 +33,9 @@ export default function NewsDetailPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
@@ -56,7 +58,12 @@ export default function NewsDetailPage() {
             ← Back to News
           </Button>
           {isEditor && (
-            <Button variant="ghost" size="sm" className="text-rose-500 hover:text-rose-600" onClick={handleDelete}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-rose-500 hover:text-rose-600"
+              onClick={handleDelete}
+            >
               Delete
             </Button>
           )}

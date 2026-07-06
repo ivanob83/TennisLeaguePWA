@@ -28,10 +28,12 @@ CRUD za lige. Liga je takmičenje unutar sezone sa formatom `round_robin`, `knoc
 ## LeaguesPage — `/leagues`
 
 **Firestore:**
+
 - `seasons` — real-time, `orderBy('startDate', 'desc')` — za filter dropdown
 - `leagues` — real-time; filtrira po `seasonId` ako je izabrana sezona, `orderBy('createdAt', 'desc')`
 
 **Logika:**
+
 - Dropdown za filter po sezoni (opciono)
 - Editor vidi dugme `+ New League` i link `+ New Season`
 - Grid kartica (TournamentCard); svaka ima "View →" link ka detalju
@@ -43,17 +45,20 @@ CRUD za lige. Liga je takmičenje unutar sezone sa formatom `round_robin`, `knoc
 **Access:** editor+
 
 **Firestore:**
+
 - `seasons` — real-time, za dropdown
 - `leagues` — create (leaguesRepository.create)
 - Nakon create: `createCompetitionSlots(payload, league.id, 'leagues')` — generiše round + match slotove
 
 **Forma polja:**
+
 - `seasonId` (required), `name` (required), `format` (required)
 - Za `round_robin` / `round_robin_knockout`: `numGroups`, `playersPerGroup`, `pointsPerWin` (default 3), `pointsPerLoss` (default 0)
 - Za `knockout`: `numPlayers` (min 2, mora biti paran)
 - `rules` (optional)
 
 **Payload koji se čuva:**
+
 ```js
 { seasonId, name, format, numGroups, playersPerGroup, pointsPerWin, pointsPerLoss,
   numPlayers, seededPlayerIds (array of nulls za KO),
@@ -73,10 +78,12 @@ Checkbox "Tiered groups" otvara sekciju gde se za svaku grupu unosi `rankingMult
 **Access:** svi authenticated; tabovi "Setup" i "Draw" samo editor+
 
 **Firestore:**
+
 - `leagues/{leagueId}` — real-time doc
 - `seasons` — real-time kolekcija (za prikaz naziva sezone)
 
 **Tabovi (dinamički, zavisno od formata i role):**
+
 - `setup` — editor only; prikazuje format, sezonu, status, grupe, poene, pravila; dugme za Edit
 - `draw` — editor only; `EnrollmentManager` + `CompetitionDrawTab`
 - `group_matches` — samo za `round_robin` / `round_robin_knockout`; `GroupMatchesTab`
@@ -84,6 +91,7 @@ Checkbox "Tiered groups" otvara sekciju gde se za svaku grupu unosi `rankingMult
 - `knockout` — samo za `knockout` / `round_robin_knockout`; `KnockoutTab`
 
 **Delete:**
+
 - Dugme "Delete" vidljivo samo superadmin-u
 - Koristi `deleteCompetition(leagueId, 'leagues')` — briše enrollment, rounds, matches
 - Potvrda putem `ConfirmDialog`
@@ -96,6 +104,7 @@ Checkbox "Tiered groups" otvara sekciju gde se za svaku grupu unosi `rankingMult
 **Access:** editor+
 
 **Firestore:**
+
 - `leagues/{leagueId}` — real-time doc (za inicijalni load forme)
 - `seasons` — real-time kolekcija
 - `leagues/{leagueId}` — update (leaguesRepository.update)
@@ -116,11 +125,11 @@ Checkbox "Tiered groups" otvara sekciju gde se za svaku grupu unosi `rankingMult
 
 ## Firestore kolekcije
 
-| Kolekcija | Pristup | Napomena |
-|---|---|---|
-| `leagues` | read/write | osnovna CRUD kolekcija |
-| `seasons` | read | za dropdown i naziv |
-| `leagues/{id}/enrollments` | read/write | via EnrollmentManager |
-| `leagues/{id}/rounds` | read/write | via Draw/Matches tabovi |
-| `leagues/{id}/rounds/{rid}/matches` | read/write | via tabovi |
-| `leagues/{id}/rankings` | read/write | via rankingService |
+| Kolekcija                           | Pristup    | Napomena                |
+| ----------------------------------- | ---------- | ----------------------- |
+| `leagues`                           | read/write | osnovna CRUD kolekcija  |
+| `seasons`                           | read       | za dropdown i naziv     |
+| `leagues/{id}/enrollments`          | read/write | via EnrollmentManager   |
+| `leagues/{id}/rounds`               | read/write | via Draw/Matches tabovi |
+| `leagues/{id}/rounds/{rid}/matches` | read/write | via tabovi              |
+| `leagues/{id}/rankings`             | read/write | via rankingService      |

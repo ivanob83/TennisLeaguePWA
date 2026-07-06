@@ -2,7 +2,7 @@
 
 Version: 1.0  
 Status: Draft  
-Last updated: 2026-02-07  
+Last updated: 2026-02-07
 
 ---
 
@@ -11,11 +11,13 @@ Last updated: 2026-02-07
 This document defines the **domain model** of the Tennis League PWA.
 
 The domain model describes:
+
 - Core business concepts
 - Their responsibilities and relationships
 - Business rules and invariants
 
 This document is **technology-agnostic** and must not depend on:
+
 - UI frameworks (React)
 - APIs
 - Databases
@@ -51,80 +53,95 @@ These terms must not be reinterpreted or renamed at the implementation level.
 ## 3. Core Entities
 
 ### 3.1 League
+
 Represents a recreational tennis league. Runs throughout most or all of a season.
 
 **Responsibilities:**
+
 - Defines competition format and rules
 - Groups rounds and matches under a Season
 
 **Attributes:**
+
 - id
 - season_id
 - name
- - format: `round_robin` | `knockout` | `round_robin_knockout`
- - num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
- - players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
- - rules
- 
- **Invariants:**
- - A League belongs to exactly one Season.
- - Format determines which configuration fields are required.
- - Match slots for round-robin phases are auto-generated when all groups are fully assigned with players.
+- format: `round_robin` | `knockout` | `round_robin_knockout`
+- num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+- players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+- rules
+
+**Invariants:**
+
+- A League belongs to exactly one Season.
+- Format determines which configuration fields are required.
+- Match slots for round-robin phases are auto-generated when all groups are fully assigned with players.
 
 ---
 
 ### 3.1a Tournament
+
 Represents a recreational tennis tournament. Shorter time period than a league, but shares the same format options.
 
 **Responsibilities:**
+
 - Defines competition format and rules
 - Groups rounds and matches under a Season
 
 **Attributes:**
+
 - id
 - season_id
 - name
- - format: `round_robin` | `knockout` | `round_robin_knockout`
- - num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
- - players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
- - start_date
- - end_date
- - rules
- 
- **Invariants:**
- - A Tournament belongs to exactly one Season.
- - Tournament dates must fall within the parent Season's date range.
- - Match slots are auto-generated once all groups reach full player capacity.
+- format: `round_robin` | `knockout` | `round_robin_knockout`
+- num_groups (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+- players_per_group (required for `round_robin` and `round_robin_knockout`; null for pure knockout)
+- start_date
+- end_date
+- rules
+
+**Invariants:**
+
+- A Tournament belongs to exactly one Season.
+- Tournament dates must fall within the parent Season's date range.
+- Match slots are auto-generated once all groups reach full player capacity.
 
 ---
 
 ### 3.2 Season
+
 Represents a yearly competition period (e.g. "2025", "2026"). Top-level temporal container for all leagues and tournaments.
 
 **Responsibilities:**
+
 - Groups leagues and tournaments under a named yearly period
 - Defines overall time boundaries
 
 **Attributes:**
+
 - id
 - name (e.g. "2025", "2026 Spring")
 - start_date
 - end_date
 
 **Invariants:**
+
 - A Season can contain many Leagues and many Tournaments.
 - Seasons must not overlap in time (within the same application scope).
 
 ---
 
 ### 3.2a Group
+
 Represents a draw/group of players in a round-robin or hybrid competition.
 
 **Responsibilities:**
+
 - Holds the list of players assigned to this group
-- Acts as the source for auto-generating round-robin match slots (N players → N*(N-1)/2 match slots)
+- Acts as the source for auto-generating round-robin match slots (N players → N\*(N-1)/2 match slots)
 
 **Attributes:**
+
 - id
 - competition_id (league_id or tournament_id)
 - competition_type (`league` | `tournament`)
@@ -133,6 +150,7 @@ Represents a draw/group of players in a round-robin or hybrid competition.
 - player_ids (ordered list of players assigned to this group)
 
 **Invariants:**
+
 - A Group belongs to exactly one League or Tournament.
 - A player may appear in only one group per competition.
 - Knockout format has no groups.
@@ -141,33 +159,40 @@ Represents a draw/group of players in a round-robin or hybrid competition.
 ---
 
 ### 3.3 Round
+
 Represents a logical grouping of matches.
 
 **Responsibilities:**
+
 - Organizes matches within a League or Tournament
 
 **Attributes:**
- - id
- - number
- - date
- - competition_id (league_id or tournament_id)
- - type: `round_robin` | `knockout`
- - group_id (for round-robin rounds; null for knockout rounds)
+
+- id
+- number
+- date
+- competition_id (league_id or tournament_id)
+- type: `round_robin` | `knockout`
+- group_id (for round-robin rounds; null for knockout rounds)
 
 **Invariants:**
+
 - A Round belongs to exactly one League or Tournament.
 - Round numbers are unique within a League or Tournament.
 
 ---
 
 ### 3.4 Match
+
 Represents a single tennis match between two players.
 
 **Responsibilities:**
+
 - Holds match participants
 - Tracks match state and score
 
 **Attributes:**
+
 - id
 - player1_id
 - player2_id
@@ -175,6 +200,7 @@ Represents a single tennis match between two players.
 - status
 
 **Invariants:**
+
 - A Match must have exactly two distinct players or teams (doubles matches).
 - A Match belongs to one Round and one League or Tournament.
 - A score may only exist if the Match is finished.
@@ -182,13 +208,16 @@ Represents a single tennis match between two players.
 ---
 
 ### 3.5 Player
+
 Represents an individual participant.
 
 **Responsibilities:**
+
 - Participates in matches
 - Appears in rankings
 
 **Attributes:**
+
 - id
 - name
 - email
@@ -197,50 +226,62 @@ Represents an individual participant.
 - team_id
 
 **Invariants:**
+
 - A Player may participate in multiple Leagues or Tournaments.
 - A Player may belong to zero or one Team.
 
 ---
 
 ### 3.6 Team (Optional)
+
 Represents a group of players.
 
 **Responsibilities:**
+
 - Groups players for organizational or competitive purposes
 
 **Attributes:**
+
 - id
 - name
 - player_ids
 
 **Notes:**
+
 - Teams are optional and league-dependent.
 
 ---
 
 ### 3.7 Ranking
+
 Represents player ordering for a Season, League or Tournament.
 
 **Responsibilities:**
+
 - Calculates and stores player order
 
 **Attributes:**
+
 - id
 - season_id
 - player_list
 
 **Invariants:**
+
 - A Ranking reflects only finished matches.
 
 ---
 
 ### 3.8 News
+
 Represents announcements and updates.
 
 **Responsibilities:**
+
 - Communicates information to players and organizers
 
 **Attributes:**
+
 - id
 - title
 - content
@@ -249,12 +290,15 @@ Represents announcements and updates.
 ---
 
 ### 3.9 CompetitionPlayers
+
 Represents list of players inside of aggregate league or tournament.
 
 **Responsibilities:**
+
 - It is mapping match players slots with exact players
 
 **Attributes:**
+
 - id
 - position
 - player_id
@@ -271,6 +315,7 @@ The following concepts have no identity and are defined by value:
 - **SeasonPeriod**
 
 Value Objects:
+
 - Are immutable
 - Are compared by value, not identity
 
@@ -287,9 +332,9 @@ A Match can exist in one of the following states:
 - `disputed`
 
 ### Valid transitions:
+
 scheduled → in_progress → finished
 finished → disputed
-
 
 Invalid transitions are not allowed and must be rejected by the domain.
 
@@ -307,6 +352,7 @@ Invalid transitions are not allowed and must be rejected by the domain.
 ## 7. Domain Boundaries
 
 The domain model:
+
 - Does not handle persistence
 - Does not handle authentication
 - Does not know about notifications or UI

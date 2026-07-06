@@ -28,7 +28,7 @@ function parseMatchPath(path) {
 async function scanOrphanMatches(log) {
   log('Fetching all players...')
   const players = await playersRepository.getAll()
-  const validIds = new Set(players.map(p => p.id))
+  const validIds = new Set(players.map((p) => p.id))
   log(`Players loaded: ${players.length}`)
 
   log('Fetching enrollment names...')
@@ -70,7 +70,7 @@ async function scanOrphanMatches(log) {
 function OrphanMatchCard({ match, players, onFixed }) {
   const sorted = [...players].sort((a, b) => a.name.localeCompare(b.name))
   const [fixes, setFixes] = useState(() =>
-    Object.fromEntries(match.issues.map(i => [i.field, '']))
+    Object.fromEntries(match.issues.map((i) => [i.field, ''])),
   )
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState(null)
@@ -111,12 +111,18 @@ function OrphanMatchCard({ match, players, onFixed }) {
         <div className="min-w-0 flex-1 space-y-1">
           <p className="font-mono text-xs text-text-light break-all">{match.path}</p>
           <div className="flex flex-wrap gap-1">
-            <Badge variant="neutral" className="text-xs">{match.competitionType}</Badge>
-            <Badge variant="neutral" className="text-xs">{match.data.status ?? 'no status'}</Badge>
+            <Badge variant="neutral" className="text-xs">
+              {match.competitionType}
+            </Badge>
+            <Badge variant="neutral" className="text-xs">
+              {match.data.status ?? 'no status'}
+            </Badge>
           </div>
         </div>
         <Link to={detailPath} target="_blank" className="shrink-0">
-          <Button size="sm" variant="ghost">Otvori meč</Button>
+          <Button size="sm" variant="ghost">
+            Otvori meč
+          </Button>
         </Link>
       </div>
 
@@ -126,29 +132,41 @@ function OrphanMatchCard({ match, players, onFixed }) {
             <p className="text-xs font-medium text-text-light">{field}</p>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-rose-600">
-                {orphanName
-                  ? <><span className="font-medium">{orphanName}</span> <span className="font-mono text-rose-400">({orphanId})</span></>
-                  : <span className="font-mono">{orphanId}</span>
-                }
+                {orphanName ? (
+                  <>
+                    <span className="font-medium">{orphanName}</span>{' '}
+                    <span className="font-mono text-rose-400">({orphanId})</span>
+                  </>
+                ) : (
+                  <span className="font-mono">{orphanId}</span>
+                )}
                 <span className="ml-1 text-text-light">— ne postoji</span>
               </span>
               <span className="text-text-light text-xs">→</span>
               <select
                 className="flex-1 min-w-[180px] rounded border border-slate-200 px-2 py-1 text-sm text-text bg-white"
                 value={fixes[field]}
-                onChange={e => setFixes(prev => ({ ...prev, [field]: e.target.value }))}
+                onChange={(e) => setFixes((prev) => ({ ...prev, [field]: e.target.value }))}
               >
                 <option value="">— odaberi igrača —</option>
-                {sorted.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
+                {sorted.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
         ))}
         {error && <p className="text-xs text-rose-600">{error}</p>}
-        <Button type="submit" size="sm" variant="success" disabled={status === 'saving'}
-          loading={status === 'saving'} loadingLabel="Saving...">
+        <Button
+          type="submit"
+          size="sm"
+          variant="success"
+          disabled={status === 'saving'}
+          loading={status === 'saving'}
+          loadingLabel="Saving..."
+        >
           Popravi
         </Button>
       </form>
@@ -164,7 +182,9 @@ export default function AdminOrphanMatchesPage() {
   const [players, setPlayers] = useState([])
   const [fixedPaths, setFixedPaths] = useState(new Set())
 
-  function log(msg) { setLogs(prev => [...prev, msg]) }
+  function log(msg) {
+    setLogs((prev) => [...prev, msg])
+  }
 
   async function handleScan() {
     setScanStatus('scanning')
@@ -183,7 +203,7 @@ export default function AdminOrphanMatchesPage() {
   }
 
   function handleFixed(path) {
-    setFixedPaths(prev => new Set([...prev, path]))
+    setFixedPaths((prev) => new Set([...prev, path]))
   }
 
   if (!isSuperadmin) {
@@ -196,7 +216,7 @@ export default function AdminOrphanMatchesPage() {
     )
   }
 
-  const visible = orphans ? orphans.filter(o => !fixedPaths.has(o.path)) : null
+  const visible = orphans ? orphans.filter((o) => !fixedPaths.has(o.path)) : null
 
   return (
     <AppLayout>
@@ -211,14 +231,18 @@ export default function AdminOrphanMatchesPage() {
           <Card>
             <p className="text-sm text-text-light">
               Skenira sve mečeve i upoređuje <code>player1Id</code>, <code>player2Id</code> i{' '}
-              <code>winnerId</code> sa postojećim igračima. Za svaki orphan ID prikazuje
-              ime igrača iz enrollment podataka (ako postoji) i nudi select za zamenu.
+              <code>winnerId</code> sa postojećim igračima. Za svaki orphan ID prikazuje ime igrača
+              iz enrollment podataka (ako postoji) i nudi select za zamenu.
             </p>
           </Card>
 
           <div className="flex gap-3">
-            <Button onClick={handleScan} disabled={scanStatus === 'scanning'}
-              loading={scanStatus === 'scanning'} loadingLabel="Scanning...">
+            <Button
+              onClick={handleScan}
+              disabled={scanStatus === 'scanning'}
+              loading={scanStatus === 'scanning'}
+              loadingLabel="Scanning..."
+            >
               {scanStatus === 'idle' || scanStatus === 'error' ? 'Scan' : 'Re-scan'}
             </Button>
           </div>
@@ -226,12 +250,20 @@ export default function AdminOrphanMatchesPage() {
           {logs.length > 0 && (
             <Card className="font-mono text-xs max-h-40 overflow-y-auto">
               {logs.map((l, i) => (
-                <div key={i} className={
-                  l.startsWith('Error') ? 'text-rose-600' :
-                  l.includes('found: 0') ? 'text-green-600' :
-                  l.includes('found:') ? 'text-amber-600' :
-                  'text-text-light'
-                }>{l}</div>
+                <div
+                  key={i}
+                  className={
+                    l.startsWith('Error')
+                      ? 'text-rose-600'
+                      : l.includes('found: 0')
+                        ? 'text-green-600'
+                        : l.includes('found:')
+                          ? 'text-amber-600'
+                          : 'text-text-light'
+                  }
+                >
+                  {l}
+                </div>
               ))}
             </Card>
           )}
@@ -249,7 +281,7 @@ export default function AdminOrphanMatchesPage() {
               <p className="text-sm font-medium text-rose-600">
                 {visible.length} orphan {visible.length === 1 ? 'meč' : 'mečeva'} pronađeno:
               </p>
-              {visible.map(match => (
+              {visible.map((match) => (
                 <OrphanMatchCard
                   key={match.path}
                   match={match}

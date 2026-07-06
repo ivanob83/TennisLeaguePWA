@@ -1,232 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Top Player — Static Mockup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
-    }
-
-    .card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 4px;
-      padding: 1.75rem 2rem;
-      display: flex;
-      gap: 2rem;
-      align-items: flex-start;
-      max-width: 680px;
-      width: 100%;
-    }
-
-    @media (max-width: 520px) {
-      .card {
-        flex-direction: column;
-        align-items: center;
-        padding: 1.5rem;
-        gap: 1.25rem;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top Player — Static Mockup</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-      .info {
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 1.75rem 2rem;
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+        max-width: 680px;
         width: 100%;
       }
-    }
 
-    /* ── Avatar ── */
-    .avatar {
-      flex-shrink: 0;
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #033629;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      border: 3px solid #e5e7eb;
-    }
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+      @media (max-width: 520px) {
+        .card {
+          flex-direction: column;
+          align-items: center;
+          padding: 1.5rem;
+          gap: 1.25rem;
+        }
+        .info {
+          width: 100%;
+        }
+      }
 
-    /* ── Info side ── */
-    .info {
-      flex: 1;
-      min-width: 0;
-    }
+      /* ── Avatar ── */
+      .avatar {
+        flex-shrink: 0;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #033629;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        border: 3px solid #e5e7eb;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
 
-    .header-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 1.25rem;
-      margin-bottom: 1rem;
-    }
+      /* ── Info side ── */
+      .info {
+        flex: 1;
+        min-width: 0;
+      }
 
-    .rank-circle {
-      flex-shrink: 0;
-      width: 3.75rem;
-      height: 3.75rem;
-      border-radius: 50%;
-      background: #cc4e00;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.953rem;
-      font-weight: 800;
-      color: #fff;
-    }
+      .header-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+      }
 
-    .name-col {
-      flex: 1;
-      min-width: 0;
-    }
+      .rank-circle {
+        flex-shrink: 0;
+        width: 3.75rem;
+        height: 3.75rem;
+        border-radius: 50%;
+        background: #cc4e00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.953rem;
+        font-weight: 800;
+        color: #fff;
+      }
 
-    .name-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.625rem;
-      margin-bottom: 0.25rem;
-    }
+      .name-col {
+        flex: 1;
+        min-width: 0;
+      }
 
-    .player-name {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #242424;
-      line-height: 1.1;
-    }
+      .name-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.625rem;
+        margin-bottom: 0.25rem;
+      }
 
-    .rank-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9ca3af;
-    }
+      .player-name {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #242424;
+        line-height: 1.1;
+      }
 
-    .btn-profile {
-      display: inline-flex;
-      align-items: center;
-      height: 2.25rem;
-      padding: 0 1rem;
-      background: #033629;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      border-radius: 0;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: background 0.2s;
-    }
-    .btn-profile:hover { background: #022419; }
+      .rank-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+      }
 
-    /* ── Stats table ── */
-    .stats {
-      border-top: 1px solid #e5e7eb;
-      width: 100%;
-    }
+      .btn-profile {
+        display: inline-flex;
+        align-items: center;
+        height: 2.25rem;
+        padding: 0 1rem;
+        background: #033629;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        border-radius: 0;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s;
+      }
+      .btn-profile:hover {
+        background: #022419;
+      }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .stat-row:last-child { border-bottom: none; }
+      /* ── Stats table ── */
+      .stats {
+        border-top: 1px solid #e5e7eb;
+        width: 100%;
+      }
 
-    .stat-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9ca3af;
-    }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .stat-row:last-child {
+        border-bottom: none;
+      }
 
-    .stat-value {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #242424;
-    }
+      .stat-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+      }
 
-    .stat-value.highlight {
-      color: #cc4e00;
-    }
-  </style>
-</head>
-<body>
+      .stat-value {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #242424;
+      }
 
-  <div class="card">
+      .stat-value.highlight {
+        color: #cc4e00;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <!-- Avatar -->
+      <div class="avatar">
+        <!-- <img src="/media/avatars/{playerId}/200.webp" alt="Ivan Obradovic" /> -->
+        IO
+      </div>
 
-    <!-- Avatar -->
-    <div class="avatar">
-      <!-- <img src="/media/avatars/{playerId}/200.webp" alt="Ivan Obradovic" /> -->
-      IO
-    </div>
-
-    <!-- Info -->
-    <div class="info">
-
-      <div class="header-row">
-        <div class="rank-circle">8</div>
-        <div class="name-col">
-          <div class="name-row">
-            <span class="player-name">Ivan Obradovic</span>
+      <!-- Info -->
+      <div class="info">
+        <div class="header-row">
+          <div class="rank-circle">8</div>
+          <div class="name-col">
+            <div class="name-row">
+              <span class="player-name">Ivan Obradovic</span>
+            </div>
+            <div class="rank-label">All-time ranking</div>
           </div>
-          <div class="rank-label">All-time ranking</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-row">
+            <span class="stat-label">Ranking</span>
+            <span class="stat-value highlight">8</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Matches played</span>
+            <span class="stat-value">12</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Wins / Losses</span>
+            <span class="stat-value">4 / 8</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Sets won / lost</span>
+            <span class="stat-value">123 / 148</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Win rate</span>
+            <span class="stat-value">33%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Points</span>
+            <span class="stat-value highlight">502.5</span>
+          </div>
         </div>
       </div>
-
-      <div class="stats">
-        <div class="stat-row">
-          <span class="stat-label">Ranking</span>
-          <span class="stat-value highlight">8</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Matches played</span>
-          <span class="stat-value">12</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Wins / Losses</span>
-          <span class="stat-value">4 / 8</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Sets won / lost</span>
-          <span class="stat-value">123 / 148</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Win rate</span>
-          <span class="stat-value">33%</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Points</span>
-          <span class="stat-value highlight">502.5</span>
-        </div>
-      </div>
-
     </div>
-  </div>
-
-</body>
+  </body>
 </html>

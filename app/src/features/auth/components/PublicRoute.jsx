@@ -1,6 +1,6 @@
 /**
  * PublicRoute Component
- * 
+ *
  * Wrapper for routes that should redirect authenticated users.
  * For example, login/register pages should redirect to dashboard if already logged in.
  */

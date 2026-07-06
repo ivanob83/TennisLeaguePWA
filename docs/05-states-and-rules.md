@@ -2,7 +2,7 @@
 
 Version: 1.0  
 Status: Draft  
-Last updated: 2026-02-08  
+Last updated: 2026-02-08
 
 ---
 
@@ -17,13 +17,13 @@ It ensures that all flows, domain logic, and validations are consistent with the
 
 A **Match** can exist in one of the following states:
 
-| State          | Description                                   |
-|----------------|-----------------------------------------------|
-| `pending`    | Match is created but not scheduled              |
-| `scheduled`    | Match is planned but not started              |
-| `in_progress`  | Match has started                             |
-| `finished`     | Match is completed and score is recorded     |
-| `disputed`     | Result is contested and requires review      |
+| State         | Description                              |
+| ------------- | ---------------------------------------- |
+| `pending`     | Match is created but not scheduled       |
+| `scheduled`   | Match is planned but not started         |
+| `in_progress` | Match has started                        |
+| `finished`    | Match is completed and score is recorded |
+| `disputed`    | Result is contested and requires review  |
 
 ### 2.1 Valid Transitions
 
@@ -32,6 +32,7 @@ A **Match** can exist in one of the following states:
 - `finished` → `disputed`
 
 **Notes:**
+
 - Invalid transitions must be rejected by the domain.
 - Score can only be recorded when a match is `finished`.
 
@@ -42,25 +43,28 @@ A **Match** can exist in one of the following states:
 A **Season** has implicit lifecycle states:
 
 | State       | Description                                   |
-|------------|-----------------------------------------------|
+| ----------- | --------------------------------------------- |
 | `planned`   | Season defined but not started                |
-| `active`    | Current season where rounds and matches occur|
-| `completed` | All rounds finished, rankings finalized      |
+| `active`    | Current season where rounds and matches occur |
+| `completed` | All rounds finished, rankings finalized       |
 
 **Rules:**
+
 - Seasons cannot overlap other seasons.
-- Rounds can only be added in `planned` or `active` states. 
+- Rounds can only be added in `planned` or `active` states.
 
 ---
 
 ## 4. Player and Team Rules
 
 ### 4.1 Player
+
 - A player cannot play against themselves.
 - A player may belong to zero or one team.
 - Players can participate in multiple leagues or tournaments.
 
 ### 4.2 Team
+
 - Teams are optional and league-dependent.
 - Team membership is validated when scheduling matches.
 - Teams may persist across seasons if league allows.

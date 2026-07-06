@@ -11,9 +11,7 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
   const { isSuperadmin, isEditor, linkedPlayer } = useAuthContext()
   const [adminOpen, setAdminOpen] = useState(false)
 
-  const visibleAdminItems = adminNavItems.filter(item =>
-    !item.superadminOnly || isSuperadmin
-  )
+  const visibleAdminItems = adminNavItems.filter((item) => !item.superadminOnly || isSuperadmin)
 
   return (
     <MobilePanel open={open} side="right" title="Account" onClose={onClose}>
@@ -32,7 +30,9 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
                 fallbackClassName="text-xl font-black text-text"
               />
               <div className="min-w-0">
-                <p className="text-[0.68rem] font-bold uppercase tracking-[0.26em] text-secondary">Signed in as</p>
+                <p className="text-[0.68rem] font-bold uppercase tracking-[0.26em] text-secondary">
+                  Signed in as
+                </p>
                 <p className="mt-1 truncate text-lg font-black text-primary">
                   {linkedPlayer?.name || user?.displayName || user?.email}
                 </p>
@@ -56,12 +56,14 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setAdminOpen(o => !o)}
+                  onClick={() => setAdminOpen((o) => !o)}
                   className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-background-light"
                 >
                   <div className="flex items-center gap-3">
                     <ShieldCheck size={18} className="text-secondary shrink-0" />
-                    <span className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Admin</span>
+                    <span className="text-sm font-bold uppercase tracking-[0.14em] text-primary">
+                      Admin
+                    </span>
                   </div>
                   <ChevronDown
                     size={16}
@@ -71,7 +73,7 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
 
                 {adminOpen && (
                   <div className="ml-4 border-l border-gray-200 pl-2 space-y-0.5">
-                    {visibleAdminItems.map(item => (
+                    {visibleAdminItems.map((item) => (
                       <HeaderNavLink
                         key={item.to}
                         item={item}
@@ -103,7 +105,9 @@ export default function MobileAccountMenu({ open, onClose, isAuthenticated, user
             <span className="flex h-12 w-12 items-center justify-center bg-white border border-gray-200 text-primary shadow-sm mb-4">
               <UserCircle2 size={24} />
             </span>
-            <h3 className="text-lg font-black uppercase tracking-[0.08em] text-primary">Account access</h3>
+            <h3 className="text-lg font-black uppercase tracking-[0.08em] text-primary">
+              Account access
+            </h3>
             <p className="mt-2 text-sm leading-h text-text-light">
               Sign in to access your dashboard, profile and upcoming account features.
             </p>

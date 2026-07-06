@@ -84,13 +84,15 @@ const SAMPLE_TOURNAMENT = {
   name: 'Spring Clay Open 2026',
   season: 'Season 2026',
   status: 'in_progress',
-  image: 'https://images.prismic.io/fft-rg-commun-news/aX9jv90YXLCxVPWP_CarlosAlcaraz-Photocalltroph%C3%A9eOpend%27Australie2026-CorinneDubreuilFFT.JPG?auto=format%2Ccompress&rect=0%2C1%2C3000%2C1997&w=760&h=506',
+  image:
+    'https://images.prismic.io/fft-rg-commun-news/aX9jv90YXLCxVPWP_CarlosAlcaraz-Photocalltroph%C3%A9eOpend%27Australie2026-CorinneDubreuilFFT.JPG?auto=format%2Ccompress&rect=0%2C1%2C3000%2C1997&w=760&h=506',
 }
 
 const SAMPLE_NEWS = {
   category: 'WTA/ATP',
   title: 'Pegula makes a statement in Dubai',
-  image: "https://images.prismic.io/fft-rg-commun-news/aX9jv90YXLCxVPWP_CarlosAlcaraz-Photocalltroph%C3%A9eOpend%27Australie2026-CorinneDubreuilFFT.JPG?auto=format%2Ccompress&rect=0%2C1%2C3000%2C1997&w=760&h=506",
+  image:
+    'https://images.prismic.io/fft-rg-commun-news/aX9jv90YXLCxVPWP_CarlosAlcaraz-Photocalltroph%C3%A9eOpend%27Australie2026-CorinneDubreuilFFT.JPG?auto=format%2Ccompress&rect=0%2C1%2C3000%2C1997&w=760&h=506',
   author: 'League Organizer',
   publishedAt: '11 Mar 2026',
   readTime: '3 min read',
@@ -116,7 +118,11 @@ export default function UIShowcasePage() {
           eyebrow="Design System"
           title="UI Component Showcase"
           subtitle="Reference page for reusable primitives and domain cards."
-          action={<Button variant="secondary" size="sm">Preview State</Button>}
+          action={
+            <Button variant="secondary" size="sm">
+              Preview State
+            </Button>
+          }
         />
 
         <section className="space-y-4">
@@ -173,7 +179,10 @@ export default function UIShowcasePage() {
         </section>
 
         <section className="space-y-4">
-          <SectionTitle title="Cards" subtitle="Match, tournament, news, and player card variants." />
+          <SectionTitle
+            title="Cards"
+            subtitle="Match, tournament, news, and player card variants."
+          />
           <div className="grid gap-4 md:grid-cols-2">
             <MatchCard match={SAMPLE_MATCH_NOT_SCHEDULED} />
             <MatchCard match={SAMPLE_MATCH_SCHEDULED} />

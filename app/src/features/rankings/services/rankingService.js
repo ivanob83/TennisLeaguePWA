@@ -14,7 +14,7 @@ import { TOURNAMENT_POINTS, LEAGUE_POINTS } from '../config.js'
  */
 function normalizeSets(match) {
   if (match.sets?.length) return match.sets
-  if (match.scores?.length) return match.scores.map(s => ({ p1: s.player1, p2: s.player2 }))
+  if (match.scores?.length) return match.scores.map((s) => ({ p1: s.player1, p2: s.player2 }))
   return []
 }
 
@@ -38,9 +38,10 @@ function isPlayed(match) {
 export async function recalculateRankings(competitionType, competitionId, enrollments) {
   const cfg = competitionType === 'leagues' ? LEAGUE_POINTS : TOURNAMENT_POINTS
 
-  const groupsRepo = competitionType === 'leagues'
-    ? leagueGroupsRepository(competitionId)
-    : tournamentGroupsRepository(competitionId)
+  const groupsRepo =
+    competitionType === 'leagues'
+      ? leagueGroupsRepository(competitionId)
+      : tournamentGroupsRepository(competitionId)
   const groups = await groupsRepo.getAll()
   const groupMultiplierMap = {}
   for (const g of groups) {
@@ -48,14 +49,14 @@ export async function recalculateRankings(competitionType, competitionId, enroll
   }
 
   const rounds = await roundsRepository(competitionType, competitionId).getAll()
-  const groupRounds = rounds.filter(r => r.type === 'round_robin')
-  const knockoutRounds = rounds.filter(r => r.type === 'knockout')
+  const groupRounds = rounds.filter((r) => r.type === 'round_robin')
+  const knockoutRounds = rounds.filter((r) => r.type === 'knockout')
 
   const groupMatches = []
   for (const round of groupRounds) {
     const multiplier = groupMultiplierMap[round.groupId] ?? 1.0
     const matches = await matchesRepository(competitionType, competitionId, round.id).getAll()
-    groupMatches.push(...matches.filter(isPlayed).map(m => ({ ...m, _multiplier: multiplier })))
+    groupMatches.push(...matches.filter(isPlayed).map((m) => ({ ...m, _multiplier: multiplier })))
   }
 
   const knockoutMatches = []
@@ -82,7 +83,17 @@ export async function recalculateRankings(competitionType, competitionId, enroll
 
   function ensurePlayer(id) {
     if (!stats[id]) {
-      stats[id] = { playerId: id, playerName: id, wins: 0, losses: 0, setsWon: 0, setsLost: 0, matchesPlayed: 0, winRate: 0, points: 0 }
+      stats[id] = {
+        playerId: id,
+        playerName: id,
+        wins: 0,
+        losses: 0,
+        setsWon: 0,
+        setsLost: 0,
+        matchesPlayed: 0,
+        winRate: 0,
+        points: 0,
+      }
     }
   }
 
@@ -147,7 +158,7 @@ export async function recalculateRankings(competitionType, competitionId, enroll
   }
 
   // SF loser (3rd/4th) gets semifinal bonus
-  const sfMatches = knockoutMatches.filter(m => m.label?.startsWith('SF'))
+  const sfMatches = knockoutMatches.filter((m) => m.label?.startsWith('SF'))
   for (const match of sfMatches) {
     const { player1Id: p1, player2Id: p2, winnerId } = match
     if (!p1 || !p2 || !winnerId) continue
@@ -158,7 +169,7 @@ export async function recalculateRankings(competitionType, competitionId, enroll
   }
 
   // Final loser (runner-up) gets final bonus; winner gets winner bonus
-  const finalMatch = knockoutMatches.find(m => m.label === 'Final')
+  const finalMatch = knockoutMatches.find((m) => m.label === 'Final')
   if (finalMatch) {
     const { player1Id: p1, player2Id: p2, winnerId } = finalMatch
     if (p1 && p2 && winnerId) {
@@ -177,14 +188,13 @@ export async function recalculateRankings(competitionType, competitionId, enroll
   const existingSnap = await getDocs(collection(db, basePath))
   await Promise.all(
     existingSnap.docs
-      .filter(d => d.id !== d.data().playerId)
-      .map(d => deleteDoc(doc(db, basePath, d.id)))
+      .filter((d) => d.id !== d.data().playerId)
+      .map((d) => deleteDoc(doc(db, basePath, d.id))),
   )
 
   for (const entry of Object.values(stats)) {
-    const winRate = entry.matchesPlayed > 0
-      ? Math.round((entry.wins / entry.matchesPlayed) * 100)
-      : 0
+    const winRate =
+      entry.matchesPlayed > 0 ? Math.round((entry.wins / entry.matchesPlayed) * 100) : 0
     const docRef = doc(db, basePath, entry.playerId)
     await setDoc(docRef, { ...entry, winRate, updatedAt: new Date() }, { merge: true })
   }

@@ -16,7 +16,7 @@ function HeaderIconButton({ className, children, ...props }) {
       type="button"
       className={cn(
         'inline-flex h-11 w-11 items-center justify-center rounded-full border border-primary/12 bg-white text-primary shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background-light',
-        className
+        className,
       )}
       {...props}
     >
@@ -122,7 +122,14 @@ export default function Header() {
               <HeaderBrand />
               <div className="flex items-center gap-2">
                 {isAuthenticated ? (
-                  <AccountTrigger user={user} linkedPlayer={linkedPlayer} onClick={() => { setIsNavOpen(false); setIsAccountOpen(true) }} />
+                  <AccountTrigger
+                    user={user}
+                    linkedPlayer={linkedPlayer}
+                    onClick={() => {
+                      setIsNavOpen(false)
+                      setIsAccountOpen(true)
+                    }}
+                  />
                 ) : (
                   <Link
                     to="/login"
@@ -132,7 +139,10 @@ export default function Header() {
                   </Link>
                 )}
                 <HeaderIconButton
-                  onClick={() => { setIsAccountOpen(false); setIsNavOpen(true) }}
+                  onClick={() => {
+                    setIsAccountOpen(false)
+                    setIsNavOpen(true)
+                  }}
                   aria-label="Open main menu"
                   className="rounded-none border-primary"
                 >
@@ -150,11 +160,7 @@ export default function Header() {
             <nav className="absolute inset-0 flex h-full items-center justify-center gap-2 lg:gap-4 pointer-events-none">
               <div className="flex h-full items-center pointer-events-auto">
                 {desktopNavItems.map((item) => (
-                  <HeaderNavLink
-                    key={item.to}
-                    item={item}
-                    active={location.pathname === item.to}
-                  />
+                  <HeaderNavLink key={item.to} item={item} active={location.pathname === item.to} />
                 ))}
               </div>
             </nav>
@@ -168,7 +174,9 @@ export default function Header() {
                 >
                   <AccountTrigger user={user} linkedPlayer={linkedPlayer} interactive={false} />
                   <span className="max-w-[10rem] truncate text-left">
-                    <span className="block text-[0.68rem] font-bold uppercase tracking-[0.22em] text-secondary">Account</span>
+                    <span className="block text-[0.68rem] font-bold uppercase tracking-[0.22em] text-secondary">
+                      Account
+                    </span>
                     <span className="block text-sm font-semibold text-primary">
                       {linkedPlayer?.name || user?.displayName || user?.email}
                     </span>
@@ -187,17 +195,17 @@ export default function Header() {
         </div>
       </header>
 
-      <MobileNavMenu 
-        open={isNavOpen} 
-        onClose={() => setIsNavOpen(false)} 
-        isAuthenticated={isAuthenticated} 
+      <MobileNavMenu
+        open={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
+        isAuthenticated={isAuthenticated}
       />
 
-      <MobileAccountMenu 
-        open={isAccountOpen} 
-        onClose={() => setIsAccountOpen(false)} 
-        isAuthenticated={isAuthenticated} 
-        user={user} 
+      <MobileAccountMenu
+        open={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+        isAuthenticated={isAuthenticated}
+        user={user}
         onLogout={handleLogout}
       />
     </>

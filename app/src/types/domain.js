@@ -21,7 +21,7 @@ export const USER_ROLES = {
   SUPERADMIN: 'superadmin',
   EDITOR: 'editor',
   PLAYER: 'player',
-};
+}
 
 /**
  * Role permissions matrix
@@ -54,7 +54,7 @@ export const ROLE_PERMISSIONS = {
     canPlayMatches: true,
     canCreateLeagues: false,
   },
-};
+}
 
 /**
  * @typedef {Object} User
@@ -269,7 +269,7 @@ export const ROLE_PERMISSIONS = {
  * @returns {boolean} True if user has the role
  */
 export function hasRole(user, role) {
-  return user?.roles?.includes(role) || user?.primaryRole === role;
+  return user?.roles?.includes(role) || user?.primaryRole === role
 }
 
 /**
@@ -279,14 +279,14 @@ export function hasRole(user, role) {
  * @returns {boolean} True if user has permission
  */
 export function hasPermission(user, permission) {
-  const primaryPerms = ROLE_PERMISSIONS[user?.primaryRole] || {};
-  if (primaryPerms[permission]) return true;
+  const primaryPerms = ROLE_PERMISSIONS[user?.primaryRole] || {}
+  if (primaryPerms[permission]) return true
 
   // Check additional roles
-  for (const role of (user?.roles || [])) {
-    if (ROLE_PERMISSIONS[role]?.[permission]) return true;
+  for (const role of user?.roles || []) {
+    if (ROLE_PERMISSIONS[role]?.[permission]) return true
   }
-  return false;
+  return false
 }
 
 // Export empty object to make this a module

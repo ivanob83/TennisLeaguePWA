@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import AppLayout from '../../../layouts/AppLayout.jsx'
-import {
-  SectionTitle,
-  Container,
-  Card,
-  Input,
-  Button,
-  Alert,
-  Loader,
-} from '../../../ui/index.js'
+import { SectionTitle, Container, Card, Input, Button, Alert, Loader } from '../../../ui/index.js'
 import { seasonsRepository } from '../../../infrastructure/firestore.js'
 import { useFirestoreDoc } from '../../../hooks/useFirestore.js'
 import { useToast } from '../../../context/ToastContext.jsx'
@@ -50,7 +42,10 @@ export default function SeasonEditPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
     setSubmitting(true)
     setServerError(null)
     try {
@@ -62,7 +57,7 @@ export default function SeasonEditPage() {
       const updatePromise = seasonsRepository.update(seasonId, payload)
       const result = await Promise.race([
         updatePromise.then(() => 'ok'),
-        new Promise(resolve => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
+        new Promise((resolve) => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
       ])
       if (result === 'timeout') {
         updatePromise.catch(() => {})
@@ -80,14 +75,16 @@ export default function SeasonEditPage() {
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
   if (seasonLoading || !form) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
@@ -102,7 +99,11 @@ export default function SeasonEditPage() {
         </div>
         <SectionTitle title="Edit Season" subtitle={season?.name} />
         <div className="mt-8 max-w-lg">
-          {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
           <Card>
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input
@@ -110,7 +111,7 @@ export default function SeasonEditPage() {
                 name="name"
                 placeholder="e.g. 2026 or 2026 Spring"
                 value={form.name}
-                onChange={e => handleChange('name', e.target.value)}
+                onChange={(e) => handleChange('name', e.target.value)}
                 error={errors.name}
               />
               <div className="grid grid-cols-2 gap-4">
@@ -119,7 +120,7 @@ export default function SeasonEditPage() {
                   name="startDate"
                   type="date"
                   value={form.startDate}
-                  onChange={e => handleChange('startDate', e.target.value)}
+                  onChange={(e) => handleChange('startDate', e.target.value)}
                   error={errors.startDate}
                 />
                 <Input
@@ -127,7 +128,7 @@ export default function SeasonEditPage() {
                   name="endDate"
                   type="date"
                   value={form.endDate}
-                  onChange={e => handleChange('endDate', e.target.value)}
+                  onChange={(e) => handleChange('endDate', e.target.value)}
                   error={errors.endDate}
                 />
               </div>

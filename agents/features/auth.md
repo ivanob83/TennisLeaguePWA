@@ -14,6 +14,7 @@ Firebase autentikacija sa email/password i Google OAuth. Upravljanje rolama i ro
 ## Stranice
 
 ### LoginPage — `/login`
+
 - Email + password forma
 - "Sign in with Google" dugme
 - Redirect na `/dashboard` po uspešnom loginu
@@ -21,6 +22,7 @@ Firebase autentikacija sa email/password i Google OAuth. Upravljanje rolama i ro
 - Fallback za displayName: `email.split('@')[0]` ako nema displayName
 
 ### RegisterPage — `/register`
+
 - Polja: Display Name, Email, Password, Confirm Password
 - Validacija: password match, min 6 chars, required fields
 - Firebase error mapping: `auth/email-already-in-use`, `auth/invalid-email`, `auth/weak-password`
@@ -38,12 +40,16 @@ Firebase autentikacija sa email/password i Google OAuth. Upravljanje rolama i ro
 ## Components
 
 ### ProtectedRoute
+
 Wrapper za rute koje zahtevaju autentikaciju.
+
 - Prikazuje loading spinner dok se proverava auth state
 - Redirect na `/login` ako nije autentikovan
 
 ### PublicRoute
+
 Wrapper za login/register stranice.
+
 - Redirect na `/dashboard` (konfigurabilan prop `redirectTo`) ako je već ulogovan
 
 ---
@@ -53,6 +59,7 @@ Wrapper za login/register stranice.
 Globalni auth state. Dostupan via `useAuthContext()`.
 
 **State koji eksponuje:**
+
 ```js
 {
   user,           // Firebase Auth objekat
@@ -68,6 +75,7 @@ Globalni auth state. Dostupan via `useAuthContext()`.
 ```
 
 **Flow pri loginu:**
+
 1. `onAuthStateChanged()` detektuje Firebase user
 2. `loadProfile(uid)` — fetchuje Firestore dokument
 3. Ako dokument ne postoji → auto-kreira ga (Google OAuth flow)
@@ -80,17 +88,18 @@ Globalni auth state. Dostupan via `useAuthContext()`.
 
 Firestore kolekcija: `users`
 
-| Funkcija | Opis |
-|---|---|
-| `createUser(uid, data)` | Kreira dokument sa `serverTimestamp()` |
-| `getUserById(uid)` | Fetch po UID |
-| `updateUser(uid, updates)` | Parcijalni update |
-| `userExists(uid)` | Boolean check |
-| `isFirstUser()` | `limit(1)` query — da li je kolekcija prazna |
-| `getAllUsers()` | Svi useri, order by `createdAt ASC` |
-| `updateUserRole(uid, role)` | Menja rolu |
+| Funkcija                    | Opis                                         |
+| --------------------------- | -------------------------------------------- |
+| `createUser(uid, data)`     | Kreira dokument sa `serverTimestamp()`       |
+| `getUserById(uid)`          | Fetch po UID                                 |
+| `updateUser(uid, updates)`  | Parcijalni update                            |
+| `userExists(uid)`           | Boolean check                                |
+| `isFirstUser()`             | `limit(1)` query — da li je kolekcija prazna |
+| `getAllUsers()`             | Svi useri, order by `createdAt ASC`          |
+| `updateUserRole(uid, role)` | Menja rolu                                   |
 
 **Dokument struktura:**
+
 ```js
 {
   uid: string,        // = document ID = Firebase Auth UID
@@ -107,11 +116,11 @@ Firestore kolekcija: `users`
 
 ## Role sistem
 
-| Rola | `isSuperadmin` | `isEditor` |
-|---|---|---|
-| `player` | false | false |
-| `editor` | false | true |
-| `superadmin` | true | true |
+| Rola         | `isSuperadmin` | `isEditor` |
+| ------------ | -------------- | ---------- |
+| `player`     | false          | false      |
+| `editor`     | false          | true       |
+| `superadmin` | true           | true       |
 
 Checks su client-side u komponentama via `useAuthContext()`.
 
@@ -119,7 +128,7 @@ Checks su client-side u komponentama via `useAuthContext()`.
 
 ## Firestore kolekcije
 
-| Kolekcija | Operacija |
-|---|---|
-| `users` | create, read, update |
+| Kolekcija | Operacija                     |
+| --------- | ----------------------------- |
+| `users`   | create, read, update          |
 | `players` | read (`where authUid == uid`) |

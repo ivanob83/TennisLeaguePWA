@@ -17,12 +17,14 @@ npm run backup
 ```
 
 Šta radi:
+
 - Listuje sve top-level kolekcije.
 - Rekurzivno spušta sve dokumente + sve subkolekcije.
 - Serijalizuje `Timestamp`, `GeoPoint`, `DocumentReference` u prepoznatljive `__type` markere.
 - Piše u `backups/backup-YYYY-MM-DDTHH-MM-SS.json`.
 
 Output primer:
+
 ```
 Dumping /leagues ... 12 docs
 Dumping /players ... 84 docs
@@ -31,7 +33,9 @@ Done. 412 docs total → backups/backup-2026-05-04T11-32-17-701.json
 ```
 
 ### Rotacija
+
 Ručna. Backup fajlovi se gomilaju u `backups/`. Obriši stare fajlove kad treba:
+
 ```bash
 ls -t backups/*.json | tail -n +6 | xargs rm   # zadrži poslednjih 5
 ```
@@ -56,16 +60,19 @@ npm run restore -- backups/<file>.json --yes
 ```
 
 ### Šta restore RADI
+
 - `set()` na svaki put → **overwrite** postojećeg dokumenta na istoj putanji.
 - Rekurzivno restore-uje subkolekcije.
 - Vraća `Timestamp`/`GeoPoint`/`DocumentReference` iz `__type` markera u native Firestore tipove.
 
 ### Šta restore NE RADI
+
 - **Ne briše** dokumente koji postoje u Firestore-u a nisu u dump-u. Restore je merge-style overwrite, ne mirror.
 - Ne dira Auth users, Storage fajlove, Security Rules. Samo Firestore podaci.
 - Nema atomičnost preko cele restore operacije. Ako padne u sredini, parcijalan restore — ponovi.
 
 ### Selektivni rollback (npr. samo lige)
+
 ```bash
 # 1. preview
 npm run restore -- backups/backup-...json --collection leagues --dry-run
@@ -77,7 +84,9 @@ npm run restore -- backups/backup-...json --collection leagues
 Subkolekcije se nose **automatski** sa root dokumentom (ugnježdene su u dump fajlu pod `subcollections`). Nema potrebe da listaš `enrollments`/`groups`/`rounds`/`rankings` posebno.
 
 ### Ručna inspekcija pre restore-a
+
 Backup je čitljiv JSON:
+
 ```bash
 jq '.collections.leagues[] | {id, playersPerGroup: .data.playersPerGroup}' backups/backup-...json
 ```

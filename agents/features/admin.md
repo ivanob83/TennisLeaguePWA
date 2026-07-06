@@ -14,6 +14,7 @@ Administracija korisnika, rola i seed podataka. Sve stranice zahtevaju `superadm
 ## Stranice
 
 ### AdminUsersPage — `/admin/users`
+
 Tabela svih korisnika sa inline upravljanjem rolama.
 
 - Listuje sve korisnike (name, email, rola, datum kreiranja)
@@ -29,24 +30,28 @@ Tabela svih korisnika sa inline upravljanjem rolama.
 ---
 
 ### AdminUserEditPage — `/admin/users/:userId/edit`
+
 Detaljna izmena korisnika + linkovanje sa player profilom.
 
 **User sekcija:**
+
 - Edituje `displayName` (required)
 - Email je read-only
 - Menja rolu
 
 **Player linking sekcija:**
+
 - Korisnik može biti linkovano sa tačno jednim playerom
 - Dropdown prikazuje playere koji nemaju `authUid`
 - Link: `playersRepository.update(playerId, { authUid: userId })`
 - Unlink: `playersRepository.update(playerId, { authUid: null })`
 
 **Firestore queries:**
+
 ```js
 getUserById(userId)
-playersRepository.query([where('authUid', '==', userId)])   // linked player
-playersRepository.query([where('authUid', '==', null)])     // free players
+playersRepository.query([where('authUid', '==', userId)]) // linked player
+playersRepository.query([where('authUid', '==', null)]) // free players
 ```
 
 Sve tri query-je izvršava paralelno sa `Promise.all`.
@@ -54,6 +59,7 @@ Sve tri query-je izvršava paralelno sa `Promise.all`.
 ---
 
 ### AdminUserCreatePage — `/admin/users/create`
+
 Kreiranje novog korisnika od strane admina.
 
 - Polja: Display Name, Email, Password, Rola (default: player)
@@ -69,6 +75,7 @@ Kreiranje novog korisnika od strane admina.
 ---
 
 ### AdminSeedsPage — `/admin/seed`
+
 Hub stranica za seed operacije. Nema direktnih Firestore upita.
 
 - Lista dostupnih seedova sa imenom, opisom i tagovima
@@ -78,9 +85,11 @@ Hub stranica za seed operacije. Nema direktnih Firestore upita.
 ---
 
 ### SeedPlayopen2022Page — `/admin/seed/playopen-2022`
+
 Jednosmerni seeder za istorijski turnir PLAYOPEN Jun 2022.
 
 **Šta kreira:**
+
 - 1 sezona: "2022" (completed)
 - 1 turnir: "PLAYOPEN Jun 2022" (format: `round_robin_knockout`)
 - 16 igrača
@@ -88,12 +97,14 @@ Jednosmerni seeder za istorijski turnir PLAYOPEN Jun 2022.
 - 2 polufinala + 1 finale
 
 **Zaštita od duplikata:**
+
 ```js
 const existing = await tournamentsRepository.query([where('name', '==', 'PLAYOPEN Jun 2022')])
 if (existing.length > 0) throw new Error('Already exists. Delete first.')
 ```
 
 **UI:**
+
 - Real-time log izvršavanja
 - 3 dugmeta: "Run Seed" / "Delete & Re-seed" / "Retry"
 - Link ka kreiranom turniru po završetku
@@ -104,13 +115,13 @@ if (existing.length > 0) throw new Error('Already exists. Delete first.')
 
 ## Firestore kolekcije
 
-| Kolekcija | Operacija |
-|---|---|
-| `users` | read, update, create |
-| `players` | read, update |
-| `seasons` | create |
-| `tournaments` | create, query |
-| `leagues/{id}/enrollments`, `tournaments/{id}/enrollments` | create |
-| `*/groups` | create |
-| `*/rounds` | create |
-| `*/rounds/*/matches` | create |
+| Kolekcija                                                  | Operacija            |
+| ---------------------------------------------------------- | -------------------- |
+| `users`                                                    | read, update, create |
+| `players`                                                  | read, update         |
+| `seasons`                                                  | create               |
+| `tournaments`                                              | create, query        |
+| `leagues/{id}/enrollments`, `tournaments/{id}/enrollments` | create               |
+| `*/groups`                                                 | create               |
+| `*/rounds`                                                 | create               |
+| `*/rounds/*/matches`                                       | create               |

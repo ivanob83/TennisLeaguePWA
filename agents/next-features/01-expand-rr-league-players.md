@@ -62,6 +62,7 @@ Ulaz: `leagueId`, `newPlayersPerGroup`.
 ### Pairs delta — tačna formula
 
 Novi parovi su:
+
 - Stari igrač × novi: `oldSize * delta` parova → (i ∈ [1..oldSize], j ∈ [oldSize+1..newSize])
 - Novi × novi: `C(delta, 2)` parova → (i, j ∈ [oldSize+1..newSize], i<j)
 
@@ -70,6 +71,7 @@ Ukupno = `oldSize*delta + delta*(delta-1)/2`. Za 8→10: `8*2 + 1 = 17`. ✓
 ## Implementacija
 
 ### Novi servis
+
 `app/src/features/enrollment/services/expandRoundRobin.js`
 
 ```js
@@ -86,8 +88,7 @@ export async function expandRoundRobinLeague(leagueId, newPlayersPerGroup) {
   if (!['round_robin', 'round_robin_knockout'].includes(league.format))
     throw new Error('Only round-robin formats supported')
   const oldSize = league.playersPerGroup
-  if (newPlayersPerGroup <= oldSize)
-    throw new Error(`newPlayersPerGroup must be > ${oldSize}`)
+  if (newPlayersPerGroup <= oldSize) throw new Error(`newPlayersPerGroup must be > ${oldSize}`)
   if (['completed', 'archived'].includes(league.status))
     throw new Error('Cannot expand completed/archived league')
 
@@ -110,7 +111,10 @@ export async function expandRoundRobinLeague(leagueId, newPlayersPerGroup) {
       if (i > oldSize || j > oldSize) newPairs.push([i, j])
 
   for (const group of groups) {
-    const padded = [...group.playerIds, ...Array(newPlayersPerGroup - group.playerIds.length).fill(null)]
+    const padded = [
+      ...group.playerIds,
+      ...Array(newPlayersPerGroup - group.playerIds.length).fill(null),
+    ]
     await groupsRepo.update(group.id, { playerIds: padded })
 
     const round = allRounds.find((r) => r.type === 'round_robin' && r.groupId === group.id)
@@ -131,8 +135,8 @@ export async function expandRoundRobinLeague(leagueId, newPlayersPerGroup) {
           status: 'not_scheduled',
           scheduledAt: null,
           generated: true,
-        })
-      )
+        }),
+      ),
     )
   }
 }
@@ -143,6 +147,7 @@ export async function expandRoundRobinLeague(leagueId, newPlayersPerGroup) {
 Mesto: `LeagueDetailPage` Setup tab (samo editor+, samo za RR formate, samo `status ∈ draft|active`).
 
 Dugme: **"Expand groups (add player slots)"** → otvara `Modal` sa:
+
 - Read-only: trenutni `numGroups`, trenutni `playersPerGroup`
 - Input: `newPlayersPerGroup` (number, min = oldSize+1)
 - Preview: "Will create X new match slots per group, Y total."
@@ -152,19 +157,20 @@ Dugme: **"Expand groups (add player slots)"** → otvara `Modal` sa:
 Komponenta nova: `app/src/features/leagues/components/ExpandGroupsDialog.jsx`.
 
 ### Toast/feedback
+
 Success: "Expanded groups to N players. M new match slots created."
 Error: prikaz error.message (npr. "Knockout phase already generated; expansion blocked").
 
 ## Šta NE diramo
 
-| Šta | Zašto |
-|---|---|
-| Postojeći matches (status, scheduledAt, sets, winnerId, pendingSets) | Strogi zahtev korisnika — bez `update` na njima |
-| `numGroups` | Druga operacija; menjanje broja grupa zahteva premapiranje grupa i nije aditivno |
-| Postojeći enrollments | Lista prijavljenih ostaje; novi se dodaju kroz EnrollmentManager kao i pre |
-| Postojeći `playerIds` slotovi u grupama | Samo append nulls na kraj |
-| `tierMultipliers` | Ostaje isti po grupi (već u group dokumentu kao `rankingMultiplier`) |
-| Rankings | `recalculateRankings` ne treba zvati — nijedan finished meč nije promenjen |
+| Šta                                                                  | Zašto                                                                            |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Postojeći matches (status, scheduledAt, sets, winnerId, pendingSets) | Strogi zahtev korisnika — bez `update` na njima                                  |
+| `numGroups`                                                          | Druga operacija; menjanje broja grupa zahteva premapiranje grupa i nije aditivno |
+| Postojeći enrollments                                                | Lista prijavljenih ostaje; novi se dodaju kroz EnrollmentManager kao i pre       |
+| Postojeći `playerIds` slotovi u grupama                              | Samo append nulls na kraj                                                        |
+| `tierMultipliers`                                                    | Ostaje isti po grupi (već u group dokumentu kao `rankingMultiplier`)             |
+| Rankings                                                             | `recalculateRankings` ne treba zvati — nijedan finished meč nije promenjen       |
 
 ## Edge cases
 
@@ -195,6 +201,7 @@ Error: prikaz error.message (npr. "Knockout phase already generated; expansion b
 - Authorization: superadmin ili editor? Predlog: editor+.
 
 ## Odgovori
+
 - round robin trenutno bez knockout sistem sa promotions/demotion per group
 - nema dodavanja grupa samo prosirenje
 - super admi za sada

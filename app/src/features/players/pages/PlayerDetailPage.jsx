@@ -67,14 +67,18 @@ export default function PlayerDetailPage() {
                       className="h-24 w-24 border border-slate-200"
                     />
                     <div className="text-center">
-                      <h2 className="font-heading text-lg font-semibold text-text">{player.name}</h2>
-                      {player.email && (
-                        <p className="text-sm text-text-light">{player.email}</p>
-                      )}
+                      <h2 className="font-heading text-lg font-semibold text-text">
+                        {player.name}
+                      </h2>
+                      {player.email && <p className="text-sm text-text-light">{player.email}</p>}
                       {player.authUid ? (
-                        <Badge variant="finished" className="mt-2">Linked user</Badge>
+                        <Badge variant="finished" className="mt-2">
+                          Linked user
+                        </Badge>
                       ) : (
-                        <Badge variant="neutral" className="mt-2">No account linked</Badge>
+                        <Badge variant="neutral" className="mt-2">
+                          No account linked
+                        </Badge>
                       )}
                     </div>
                   </div>
@@ -90,7 +94,9 @@ export default function PlayerDetailPage() {
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
                         <p className="text-2xl font-bold text-primary">—</p>
-                        <p className="text-xs uppercase tracking-wide text-text-light">Matches played</p>
+                        <p className="text-xs uppercase tracking-wide text-text-light">
+                          Matches played
+                        </p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-primary">—</p>

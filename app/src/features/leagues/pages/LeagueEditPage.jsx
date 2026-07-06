@@ -64,8 +64,10 @@ export default function LeagueEditPage() {
     if (needsGroups) {
       const ng = Number(form.numGroups)
       const ppg = Number(form.playersPerGroup)
-      if (!form.numGroups || Number.isNaN(ng) || ng < 1) e.numGroups = 'Enter number of groups (min 1)'
-      if (!form.playersPerGroup || Number.isNaN(ppg) || ppg < 2) e.playersPerGroup = 'Enter players per group (min 2)'
+      if (!form.numGroups || Number.isNaN(ng) || ng < 1)
+        e.numGroups = 'Enter number of groups (min 1)'
+      if (!form.playersPerGroup || Number.isNaN(ppg) || ppg < 2)
+        e.playersPerGroup = 'Enter players per group (min 2)'
     }
     return e
   }
@@ -92,7 +94,10 @@ export default function LeagueEditPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
     setSubmitting(true)
     setServerError(null)
     try {
@@ -109,7 +114,7 @@ export default function LeagueEditPage() {
       const updatePromise = leaguesRepository.update(leagueId, payload)
       const result = await Promise.race([
         updatePromise.then(() => 'ok'),
-        new Promise(resolve => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
+        new Promise((resolve) => setTimeout(() => resolve('timeout'), SUBMIT_TIMEOUT_MS)),
       ])
       if (result === 'timeout') {
         updatePromise.catch(() => {})
@@ -127,19 +132,21 @@ export default function LeagueEditPage() {
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
   if (leagueLoading || !form) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
 
-  const seasonOptions = seasons.map(s => ({ value: s.id, label: s.name }))
+  const seasonOptions = seasons.map((s) => ({ value: s.id, label: s.name }))
   const needsGroups = form.format === 'round_robin' || form.format === 'round_robin_knockout'
 
   return (
@@ -152,14 +159,18 @@ export default function LeagueEditPage() {
         </div>
         <SectionTitle title="Edit League" subtitle={league?.name} />
         <div className="mt-8 max-w-lg">
-          {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
           <Card>
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 label="League name"
                 name="name"
                 value={form.name}
-                onChange={e => handleChange('name', e.target.value)}
+                onChange={(e) => handleChange('name', e.target.value)}
                 error={errors.name}
               />
               <Select
@@ -168,7 +179,7 @@ export default function LeagueEditPage() {
                 placeholder="Select a season"
                 options={seasonOptions}
                 value={form.seasonId}
-                onChange={e => handleChange('seasonId', e.target.value)}
+                onChange={(e) => handleChange('seasonId', e.target.value)}
                 error={errors.seasonId}
               />
               <Select
@@ -177,7 +188,7 @@ export default function LeagueEditPage() {
                 placeholder="Select a format"
                 options={FORMAT_OPTIONS}
                 value={form.format}
-                onChange={e => handleChange('format', e.target.value)}
+                onChange={(e) => handleChange('format', e.target.value)}
                 error={errors.format}
               />
               {needsGroups && (
@@ -188,7 +199,7 @@ export default function LeagueEditPage() {
                     type="number"
                     min="1"
                     value={form.numGroups}
-                    onChange={e => handleChange('numGroups', e.target.value)}
+                    onChange={(e) => handleChange('numGroups', e.target.value)}
                     error={errors.numGroups}
                   />
                   <Input
@@ -197,7 +208,7 @@ export default function LeagueEditPage() {
                     type="number"
                     min="2"
                     value={form.playersPerGroup}
-                    onChange={e => handleChange('playersPerGroup', e.target.value)}
+                    onChange={(e) => handleChange('playersPerGroup', e.target.value)}
                     error={errors.playersPerGroup}
                   />
                 </div>
@@ -206,7 +217,7 @@ export default function LeagueEditPage() {
                 label="Rules (optional)"
                 name="rules"
                 value={form.rules}
-                onChange={e => handleChange('rules', e.target.value)}
+                onChange={(e) => handleChange('rules', e.target.value)}
               />
               <ImageUpload
                 value={imageUrls}
@@ -220,7 +231,11 @@ export default function LeagueEditPage() {
                 <Button type="submit" loading={submitting} loadingLabel="Saving...">
                   Save changes
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => navigate(`/leagues/${leagueId}`)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate(`/leagues/${leagueId}`)}
+                >
                   Cancel
                 </Button>
               </div>

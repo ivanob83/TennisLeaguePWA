@@ -47,7 +47,11 @@ export default function PlayerEditPage() {
     async function load() {
       try {
         const player = await playersRepository.getById(playerId)
-        if (!player) { setServerError('Player not found.'); setLoading(false); return }
+        if (!player) {
+          setServerError('Player not found.')
+          setLoading(false)
+          return
+        }
         setName(player.name || '')
         setAvatarUrls(player.avatarUrls || null)
       } catch {
@@ -80,7 +84,10 @@ export default function PlayerEditPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!name.trim()) { setNameError('Player name is required'); return }
+    if (!name.trim()) {
+      setNameError('Player name is required')
+      return
+    }
     setNameError(null)
     setSubmitting(true)
     setServerError(null)
@@ -89,7 +96,11 @@ export default function PlayerEditPage() {
         name: name.trim(),
         avatarUrls: avatarUrls || null,
       })
-      showToast({ title: 'Player updated', message: `${name.trim()} has been saved.`, variant: 'success' })
+      showToast({
+        title: 'Player updated',
+        message: `${name.trim()} has been saved.`,
+        variant: 'success',
+      })
       navigate('/players')
     } catch {
       setServerError('Failed to update player. Please try again.')
@@ -103,10 +114,16 @@ export default function PlayerEditPage() {
       <Container className="py-8">
         <SectionTitle title="Edit Player" subtitle="Update player details." />
         <div className="mt-8 max-w-lg">
-          {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
 
           {loading ? (
-            <div className="flex justify-center py-16"><Loader /></div>
+            <div className="flex justify-center py-16">
+              <Loader />
+            </div>
           ) : (
             <Card>
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -115,7 +132,10 @@ export default function PlayerEditPage() {
                   name="name"
                   placeholder="e.g. Novak Djokovic"
                   value={name}
-                  onChange={e => { setName(e.target.value); if (nameError) setNameError(null) }}
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    if (nameError) setNameError(null)
+                  }}
                   error={nameError}
                 />
 

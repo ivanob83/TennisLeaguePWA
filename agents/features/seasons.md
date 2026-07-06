@@ -20,6 +20,7 @@ CRUD sezona. Sezona je kontejner za lige i turnire. Mora se kreirati pre nego š
 ## SeasonsPage — `/seasons`
 
 **Firestore (real-time):**
+
 - `seasons` — `orderBy('startDate', 'desc')`
 
 **UI:** Grid kartica; svaka prikazuje naziv i opseg datuma. Editor vidi edit ikonu, superadmin vidi delete ikonu.
@@ -33,6 +34,7 @@ CRUD sezona. Sezona je kontejner za lige i turnire. Mora se kreirati pre nego š
 **Access:** editor+
 
 **Firestore:**
+
 - `seasonsRepository.create({ name, startDate, endDate, createdBy: user.uid, status: 'active' })`
 - Timeout pattern (2.5s): ako Firestore kasni, UI se deblokira sa info toast
 
@@ -47,6 +49,7 @@ CRUD sezona. Sezona je kontejner za lige i turnire. Mora se kreirati pre nego š
 ## SeasonEditPage — `/seasons/:seasonId/edit`
 
 **Firestore:**
+
 - `seasons/{seasonId}` — real-time doc (initial load forme)
 - `seasonsRepository.update(seasonId, { name, startDate, endDate })` — write
 - Timeout pattern (2.5s)
@@ -59,11 +62,12 @@ CRUD sezona. Sezona je kontejner za lige i turnire. Mora se kreirati pre nego š
 
 ## Firestore kolekcije
 
-| Kolekcija | Pristup | Napomena |
-|---|---|---|
+| Kolekcija | Pristup           | Napomena          |
+| --------- | ----------------- | ----------------- |
 | `seasons` | read/write/delete | seasonsRepository |
 
 **Seasons dokument:**
+
 ```js
 {
   name: string,

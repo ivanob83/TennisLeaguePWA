@@ -30,41 +30,138 @@ import { recalculateRankings } from '../../rankings/services/rankingService.js'
 const PLAYERS = [
   // Group A (indices 0–3)
   { name: 'Aleksandar Jovanovic', existing: true },
-  { name: 'Vuk Sebek',            existing: false },
-  { name: 'Ivan Suvacarevic',     existing: true },
-  { name: 'Ivan Blagojevic',      existing: false },
+  { name: 'Vuk Sebek', existing: false },
+  { name: 'Ivan Suvacarevic', existing: true },
+  { name: 'Ivan Blagojevic', existing: false },
   // Group B (indices 4–7)
-  { name: 'Marko Cvetkovski',     existing: false },
-  { name: 'Jovica Mijailovic',    existing: false },
-  { name: 'Miljan Milenkovic',    existing: false },
-  { name: 'Ivan Obradovic',       existing: true },
+  { name: 'Marko Cvetkovski', existing: false },
+  { name: 'Jovica Mijailovic', existing: false },
+  { name: 'Miljan Milenkovic', existing: false },
+  { name: 'Ivan Obradovic', existing: true },
 ]
 
 // Group A — 6 matches across 3 rounds
 const GROUP_A_MATCHES = [
   // Round 1
-  { p1: 0, p2: 1, scores: [{ player1: 6, player2: 3 }, { player1: 6, player2: 1 }], winnerIdx: 0 }, // Jovanovic vs Sebek
-  { p1: 2, p2: 3, scores: [{ player1: 7, player2: 5 }, { player1: 6, player2: 1 }], winnerIdx: 2 }, // Suvacarevic vs Blagojevic
+  {
+    p1: 0,
+    p2: 1,
+    scores: [
+      { player1: 6, player2: 3 },
+      { player1: 6, player2: 1 },
+    ],
+    winnerIdx: 0,
+  }, // Jovanovic vs Sebek
+  {
+    p1: 2,
+    p2: 3,
+    scores: [
+      { player1: 7, player2: 5 },
+      { player1: 6, player2: 1 },
+    ],
+    winnerIdx: 2,
+  }, // Suvacarevic vs Blagojevic
   // Round 2
-  { p1: 0, p2: 2, scores: [{ player1: 6, player2: 2 }, { player1: 6, player2: 2 }], winnerIdx: 0 }, // Jovanovic vs Suvacarevic
-  { p1: 1, p2: 3, scores: [{ player1: 6, player2: 3 }, { player1: 6, player2: 2 }], winnerIdx: 1 }, // Sebek vs Blagojevic
+  {
+    p1: 0,
+    p2: 2,
+    scores: [
+      { player1: 6, player2: 2 },
+      { player1: 6, player2: 2 },
+    ],
+    winnerIdx: 0,
+  }, // Jovanovic vs Suvacarevic
+  {
+    p1: 1,
+    p2: 3,
+    scores: [
+      { player1: 6, player2: 3 },
+      { player1: 6, player2: 2 },
+    ],
+    winnerIdx: 1,
+  }, // Sebek vs Blagojevic
   // Round 3
-  { p1: 0, p2: 3, scores: [{ player1: 7, player2: 5 }, { player1: 6, player2: 1 }], winnerIdx: 0 }, // Jovanovic vs Blagojevic
-  { p1: 1, p2: 2, scores: [{ player1: 6, player2: 1 }, { player1: 6, player2: 3 }], winnerIdx: 1 }, // Sebek vs Suvacarevic
+  {
+    p1: 0,
+    p2: 3,
+    scores: [
+      { player1: 7, player2: 5 },
+      { player1: 6, player2: 1 },
+    ],
+    winnerIdx: 0,
+  }, // Jovanovic vs Blagojevic
+  {
+    p1: 1,
+    p2: 2,
+    scores: [
+      { player1: 6, player2: 1 },
+      { player1: 6, player2: 3 },
+    ],
+    winnerIdx: 1,
+  }, // Sebek vs Suvacarevic
 ]
 // Standings: Jovanovic 3W, Sebek 2W, Suvacarevic 1W, Blagojevic 0W
 
 // Group B — 6 matches across 3 rounds
 const GROUP_B_MATCHES = [
   // Round 1
-  { p1: 4, p2: 5, scores: [{ player1: 6, player2: 2 }, { player1: 6, player2: 3 }], winnerIdx: 4 }, // Cvetkovski vs Mijailovic
-  { p1: 6, p2: 7, scores: [{ player1: 6, player2: 3 }, { player1: 6, player2: 2 }], winnerIdx: 6 }, // Milenkovic vs Obradovic
+  {
+    p1: 4,
+    p2: 5,
+    scores: [
+      { player1: 6, player2: 2 },
+      { player1: 6, player2: 3 },
+    ],
+    winnerIdx: 4,
+  }, // Cvetkovski vs Mijailovic
+  {
+    p1: 6,
+    p2: 7,
+    scores: [
+      { player1: 6, player2: 3 },
+      { player1: 6, player2: 2 },
+    ],
+    winnerIdx: 6,
+  }, // Milenkovic vs Obradovic
   // Round 2
-  { p1: 4, p2: 6, scores: [{ player1: 7, player2: 5 }, { player1: 7, player2: 5 }], winnerIdx: 4 }, // Cvetkovski vs Milenkovic
-  { p1: 5, p2: 7, scores: [{ player1: 6, player2: 2 }, { player1: 6, player2: 0 }], winnerIdx: 5 }, // Mijailovic vs Obradovic
+  {
+    p1: 4,
+    p2: 6,
+    scores: [
+      { player1: 7, player2: 5 },
+      { player1: 7, player2: 5 },
+    ],
+    winnerIdx: 4,
+  }, // Cvetkovski vs Milenkovic
+  {
+    p1: 5,
+    p2: 7,
+    scores: [
+      { player1: 6, player2: 2 },
+      { player1: 6, player2: 0 },
+    ],
+    winnerIdx: 5,
+  }, // Mijailovic vs Obradovic
   // Round 3
-  { p1: 4, p2: 7, scores: [{ player1: 6, player2: 1 }, { player1: 6, player2: 3 }], winnerIdx: 4 }, // Cvetkovski vs Obradovic
-  { p1: 5, p2: 6, scores: [{ player1: 6, player2: 2 }, { player1: 4, player2: 6 }, { player1: 10, player2: 3 }], winnerIdx: 5 }, // Mijailovic vs Milenkovic (super tiebreak)
+  {
+    p1: 4,
+    p2: 7,
+    scores: [
+      { player1: 6, player2: 1 },
+      { player1: 6, player2: 3 },
+    ],
+    winnerIdx: 4,
+  }, // Cvetkovski vs Obradovic
+  {
+    p1: 5,
+    p2: 6,
+    scores: [
+      { player1: 6, player2: 2 },
+      { player1: 4, player2: 6 },
+      { player1: 10, player2: 3 },
+    ],
+    winnerIdx: 5,
+  }, // Mijailovic vs Milenkovic (super tiebreak)
 ]
 // Standings: Cvetkovski 3W, Mijailovic 2W, Milenkovic 1W, Obradovic 0W
 
@@ -75,7 +172,17 @@ const KNOCKOUT_MATCHES = [
   // SF2: Cvetkovski vs Sebek → Cvetkovski wins
   { label: 'SF2', p1: 4, p2: 1, scores: null, winnerIdx: 4, status: 'finished' },
   // Final: Jovanovic vs Cvetkovski → Jovanovic wins 6-0 6-0
-  { label: 'Final', p1: 0, p2: 4, scores: [{ player1: 6, player2: 0 }, { player1: 6, player2: 0 }], winnerIdx: 0, status: 'finished' },
+  {
+    label: 'Final',
+    p1: 0,
+    p2: 4,
+    scores: [
+      { player1: 6, player2: 0 },
+      { player1: 6, player2: 0 },
+    ],
+    winnerIdx: 0,
+    status: 'finished',
+  },
 ]
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -111,13 +218,23 @@ async function findOrCreatePlayer(fullName, isExisting, log) {
   return await playersRepository.create({ name: fullName, email: null })
 }
 
-async function createGroupWithMatches({ lid, groupsRepo, rRepo, name, position, playerDocs, playerSlice, groupMatches, roundNumber }) {
+async function createGroupWithMatches({
+  lid,
+  groupsRepo,
+  rRepo,
+  name,
+  position,
+  playerDocs,
+  playerSlice,
+  groupMatches,
+  roundNumber,
+}) {
   const group = await groupsRepo.create({
     competitionId: lid,
     competitionType: 'league',
     name,
     position,
-    playerIds: playerSlice.map(p => p.id),
+    playerIds: playerSlice.map((p) => p.id),
   })
   const round = await rRepo.create({
     competitionId: lid,
@@ -178,15 +295,16 @@ async function runSeed(userId, log) {
 
   log('Resolving season 2025...')
   const existingSeasons = await seasonsRepository.query([where('name', '==', '2025')])
-  const season = existingSeasons.length > 0
-    ? existingSeasons[0]
-    : await seasonsRepository.create({
-        name: '2025',
-        startDate: '2025-01-01',
-        endDate: '2025-12-31',
-        status: 'active',
-        organizerId: userId,
-      })
+  const season =
+    existingSeasons.length > 0
+      ? existingSeasons[0]
+      : await seasonsRepository.create({
+          name: '2025',
+          startDate: '2025-01-01',
+          endDate: '2025-12-31',
+          status: 'active',
+          organizerId: userId,
+        })
 
   log('Creating league...')
   const league = await leaguesRepository.create({
@@ -231,10 +349,30 @@ async function runSeed(userId, log) {
   log('Creating Group A...')
   const groupsRepo = leagueGroupsRepository(lid)
   const rRepo = roundsRepository('leagues', lid)
-  await createGroupWithMatches({ lid, groupsRepo, rRepo, name: 'Group A', position: 1, playerDocs, playerSlice: playerDocs.slice(0, 4), groupMatches: GROUP_A_MATCHES, roundNumber: 1 })
+  await createGroupWithMatches({
+    lid,
+    groupsRepo,
+    rRepo,
+    name: 'Group A',
+    position: 1,
+    playerDocs,
+    playerSlice: playerDocs.slice(0, 4),
+    groupMatches: GROUP_A_MATCHES,
+    roundNumber: 1,
+  })
 
   log('Creating Group B...')
-  await createGroupWithMatches({ lid, groupsRepo, rRepo, name: 'Group B', position: 2, playerDocs, playerSlice: playerDocs.slice(4, 8), groupMatches: GROUP_B_MATCHES, roundNumber: 2 })
+  await createGroupWithMatches({
+    lid,
+    groupsRepo,
+    rRepo,
+    name: 'Group B',
+    position: 2,
+    playerDocs,
+    playerSlice: playerDocs.slice(4, 8),
+    groupMatches: GROUP_B_MATCHES,
+    roundNumber: 2,
+  })
 
   log('Creating knockout phase...')
   const roundKO = await rRepo.create({
@@ -271,7 +409,7 @@ async function runSeed(userId, log) {
   }
 
   log('Calculating rankings...')
-  const enrollments = playerDocs.map(p => ({ playerId: p.id, playerName: p.name }))
+  const enrollments = playerDocs.map((p) => ({ playerId: p.id, playerName: p.name }))
   await recalculateRankings('leagues', lid, enrollments)
 
   log('Done!')
@@ -288,7 +426,7 @@ export default function SeedPlayLiga2025Page() {
   const [leagueId, setLeagueId] = useState(null)
 
   function log(msg) {
-    setLogs(prev => [...prev, msg])
+    setLogs((prev) => [...prev, msg])
   }
 
   async function handleSeed() {
@@ -344,12 +482,16 @@ export default function SeedPlayLiga2025Page() {
               <li>• Season: 2025 (kreira ako ne postoji)</li>
               <li>• Tournament: PLAYOFF 2025 (Round Robin + Knockout)</li>
               <li>• Group A: Aleksandar Jovanovic, Vuk Sebek, Ivan Suvacarevic, Ivan Blagojevic</li>
-              <li>• Group B: Marko Cvetkovski, Jovica Mijailovic, Miljan Milenkovic, Ivan Obradovic</li>
+              <li>
+                • Group B: Marko Cvetkovski, Jovica Mijailovic, Miljan Milenkovic, Ivan Obradovic
+              </li>
               <li>• 12 mečeva grupne faze (sve završeno)</li>
               <li>• SF1: Mijailovic vs Jovanovic → Jovanovic</li>
               <li>• SF2: Cvetkovski vs Sebek → Cvetkovski</li>
               <li>• Final: Jovanovic vs Cvetkovski → 6:0, 6:0 → Jovanovic</li>
-              <li className="text-amber-600">• Postojeći igrači se traže po imenu — novi se kreiraju</li>
+              <li className="text-amber-600">
+                • Postojeći igrači se traže po imenu — novi se kreiraju
+              </li>
             </ul>
             <p className="mt-3 text-xs text-amber-600">Run only once.</p>
           </Card>
@@ -357,8 +499,18 @@ export default function SeedPlayLiga2025Page() {
           {logs.length > 0 && (
             <Card className="font-mono text-xs">
               {logs.map((l, i) => (
-                <div key={i} className={l.startsWith('Error') ? 'text-rose-600' : l.startsWith('Warning') ? 'text-amber-600' : 'text-text-light'}>
-                  {l.startsWith('Done') ? '✓ ' : '→ '}{l}
+                <div
+                  key={i}
+                  className={
+                    l.startsWith('Error')
+                      ? 'text-rose-600'
+                      : l.startsWith('Warning')
+                        ? 'text-amber-600'
+                        : 'text-text-light'
+                  }
+                >
+                  {l.startsWith('Done') ? '✓ ' : '→ '}
+                  {l}
                 </div>
               ))}
             </Card>
@@ -368,28 +520,44 @@ export default function SeedPlayLiga2025Page() {
             {status === 'idle' && (
               <>
                 <Button onClick={handleSeed}>Run Seed</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
             {status === 'running' && (
-              <Button disabled loading loadingLabel="Running...">Running...</Button>
+              <Button disabled loading loadingLabel="Running...">
+                Running...
+              </Button>
             )}
             {status === 'done' && (
               <>
                 <Button variant="outline" onClick={() => navigate(`/leagues/${leagueId}`)}>
                   Open League
                 </Button>
-                <Button variant="ghost" onClick={() => { setStatus('idle'); setLogs([]) }}>Re-seed</Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setStatus('idle')
+                    setLogs([])
+                  }}
+                >
+                  Re-seed
+                </Button>
                 <span className="self-center text-sm text-green-600">Seeded successfully</span>
               </>
             )}
             {status === 'error' && (
               <>
                 <Button onClick={handleSeed}>Retry</Button>
-                <Button variant="outline" onClick={handleCleanupAndSeed}>Reset & Continue</Button>
+                <Button variant="outline" onClick={handleCleanupAndSeed}>
+                  Reset & Continue
+                </Button>
               </>
             )}
-            <Button variant="ghost" onClick={() => navigate(-1)}>Back</Button>
+            <Button variant="ghost" onClick={() => navigate(-1)}>
+              Back
+            </Button>
           </div>
         </div>
       </Container>

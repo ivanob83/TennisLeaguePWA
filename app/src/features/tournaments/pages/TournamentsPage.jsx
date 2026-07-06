@@ -15,7 +15,11 @@ import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 
 function formatDate(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 export default function TournamentsPage() {
@@ -27,7 +31,10 @@ export default function TournamentsPage() {
   const tournamentConstraints = selectedSeasonId
     ? [where('seasonId', '==', selectedSeasonId), orderBy('startDate', 'asc')]
     : [orderBy('startDate', 'desc')]
-  const { data: tournaments, loading } = useFirestoreCollection('tournaments', tournamentConstraints)
+  const { data: tournaments, loading } = useFirestoreCollection(
+    'tournaments',
+    tournamentConstraints,
+  )
   const seasonNameById = Object.fromEntries(seasons.map((season) => [season.id, season.name]))
 
   const canManage = isEditor
@@ -38,15 +45,21 @@ export default function TournamentsPage() {
         <SectionTitle
           title="Tournaments"
           subtitle="Short-format competitions within a season."
-          action={canManage && <Button size="sm" onClick={() => navigate('/tournaments/create')}>+ New Tournament</Button>}
+          action={
+            canManage && (
+              <Button size="sm" onClick={() => navigate('/tournaments/create')}>
+                + New Tournament
+              </Button>
+            )
+          }
         />
         <div className="mb-6 mt-8 flex flex-wrap items-center gap-4">
           <div className="w-48">
             <Select
               placeholder="All seasons"
-              options={seasons.map(s => ({ value: s.id, label: s.name }))}
+              options={seasons.map((s) => ({ value: s.id, label: s.name }))}
               value={selectedSeasonId}
-              onChange={e => setSelectedSeasonId(e.target.value)}
+              onChange={(e) => setSelectedSeasonId(e.target.value)}
             />
           </div>
           {canManage && (
@@ -57,19 +70,25 @@ export default function TournamentsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
         ) : tournaments.length === 0 ? (
           <div className="py-16 text-center text-text-light">
-            {selectedSeasonId ? 'No tournaments in this season yet.' : 'No tournaments created yet.'}
+            {selectedSeasonId
+              ? 'No tournaments in this season yet.'
+              : 'No tournaments created yet.'}
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {tournaments.map(t => (
+            {tournaments.map((t) => (
               <div key={t.id} className="space-y-2">
                 <TournamentCard
                   tournament={{
                     ...t,
-                    season: seasonNameById[t.seasonId] || `${formatDate(t.startDate)} - ${formatDate(t.endDate)}`,
+                    season:
+                      seasonNameById[t.seasonId] ||
+                      `${formatDate(t.startDate)} - ${formatDate(t.endDate)}`,
                     status: t.format,
                   }}
                 />

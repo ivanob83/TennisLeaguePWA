@@ -20,12 +20,12 @@ service cloud.firestore {
     }
 
     // True if the current user is one of the two players in the match (via linked authUid on player doc)
-    function isMatchPlayer(match) {
+    function isMatchPlayer(matchData) {
       return isAuthenticated() &&
-        match.player1Id != null && match.player2Id != null &&
+        matchData.player1Id != null && matchData.player2Id != null &&
         (
-          get(/databases/$(database)/documents/players/$(match.player1Id)).data.authUid == request.auth.uid ||
-          get(/databases/$(database)/documents/players/$(match.player2Id)).data.authUid == request.auth.uid
+          get(/databases/$(database)/documents/players/$(matchData.player1Id)).data.authUid == request.auth.uid ||
+          get(/databases/$(database)/documents/players/$(matchData.player2Id)).data.authUid == request.auth.uid
         );
     }
 
@@ -135,6 +135,13 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
       allow update, delete: if isEditor();
+    }
+
+    // Player availability — editor only (admin entry flow).
+    // Player self-service (feature #04) will relax create rules later.
+    match /playerAvailability/{id} {
+      allow read: if isEditor();
+      allow create, update, delete: if isEditor();
     }
   }
 }

@@ -12,6 +12,7 @@ Use Conventional Commits:
 - test: tests only
 
 Examples:
+
 - feat: add match results form
 - fix: prevent self-match creation
 - docs: update MVP scope

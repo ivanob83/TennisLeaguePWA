@@ -11,16 +11,24 @@ import { cn } from '../../../utils.js'
  * @param {string} label  - label under the rank number, e.g. "All-time ranking" or "Play Liga 2025"
  * @param {string} className
  */
-export default function TopPlayerCard({ entry, player, rank = 1, label = 'All-time ranking', className }) {
+export default function TopPlayerCard({
+  entry,
+  player,
+  rank = 1,
+  label = 'All-time ranking',
+  className,
+}) {
   if (!entry) return null
 
-  const winRate = entry.matchesPlayed > 0
-    ? Math.round((entry.wins / entry.matchesPlayed) * 100)
-    : 0
+  const winRate = entry.matchesPlayed > 0 ? Math.round((entry.wins / entry.matchesPlayed) * 100) : 0
 
   return (
-    <div className={cn('border border-slate-200 bg-white flex gap-6 sm:gap-8 p-6 flex-col sm:flex-row sm:items-start', className)}>
-
+    <div
+      className={cn(
+        'border border-slate-200 bg-white flex gap-6 sm:gap-8 p-6 flex-col sm:flex-row sm:items-start',
+        className,
+      )}
+    >
       {/* Avatar */}
       <Avatar
         urls={player?.avatarUrls || null}
@@ -32,7 +40,6 @@ export default function TopPlayerCard({ entry, player, rank = 1, label = 'All-ti
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-
         {/* Name row + rank circle */}
         <div className="flex items-start gap-4 mb-1">
           {/* Rank circle */}
@@ -72,7 +79,9 @@ function StatRow({ label, value, highlight }) {
       <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-text-lighter">
         {label}
       </span>
-      <span className={cn('font-heading text-sm font-bold', highlight ? 'text-secondary' : 'text-text')}>
+      <span
+        className={cn('font-heading text-sm font-bold', highlight ? 'text-secondary' : 'text-text')}
+      >
         {value}
       </span>
     </div>

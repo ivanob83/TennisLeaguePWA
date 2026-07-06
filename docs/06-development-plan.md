@@ -38,6 +38,7 @@ Status: ✅ COMPLETED
 - ✅ PWA manifest structure ready
 
 **Deliverables:**
+
 - Clean React + Firebase starter project
 - Firebase security rules template (07-firebase-schema.md)
 - Repository abstraction ready for implementation
@@ -51,6 +52,7 @@ Status: ✅ COMPLETED
 **Goal:** Set up authentication and foundation for domain entities
 
 **Frontend Tasks:**
+
 - ✅ Create login/register pages with Firebase Auth
 - ✅ Add AuthContext provider to entire app
 - ✅ Create protected routes (ProtectedRoute component - redirect to login if not authenticated)
@@ -63,6 +65,7 @@ Status: ✅ COMPLETED
 - ✅ Google profile photo display in Header component
 
 **Backend Tasks (Firestore):**
+
 - ✅ Create Firestore user document on Firebase Auth signup (via userRepository)
 - ✅ Implement userRepository (createUser, getUserById, updateUser, userExists)
 - ✅ Document Firestore security rules deployment process (08-firebase-deployment.md)
@@ -70,15 +73,18 @@ Status: ✅ COMPLETED
 - 📋 Set custom claims (role: player | editor | superadmin) - deferred to Sprint 2
 
 **Domain Layer:**
+
 - ✅ Implement domain entity types (Player, League, Season, Match, etc.) with JSDoc
 - ✅ Domain types file created (app/js/types/domain.js)
 - 📋 Domain validation services - deferred to Sprint 2 (implemented per-feature)
 
 **Testing:**
+
 - 📋 Auth flow integration tests - deferred to Sprint 5 (testing sprint)
 - 📋 User profile CRUD tests - deferred to Sprint 5
 
 **Completed Deliverables:**
+
 - ✅ Login/register working (Firebase Auth integration)
 - ✅ Google Authentication (Sign in/Sign up with Google)
 - ✅ Auto-create Firestore user document on Google sign-in
@@ -94,6 +100,7 @@ Status: ✅ COMPLETED
 - ✅ Google authentication setup guide (09-google-auth-setup.md)
 
 **Deferred Items:**
+
 - 📋 Firebase security rules deployment (manual step - requires Firebase project setup)
 - 📋 Role-based access control setup (custom claims via Admin SDK - Sprint 2)
 - 📋 Comprehensive testing suite (Sprint 5)
@@ -108,6 +115,7 @@ Status: ✅ COMPLETED
 **Goal:** Create a cohesive design system inspired by Roland Garros visual identity
 
 **Completed Tasks:**
+
 - ✅ Custom tennis league color palette defined
   - ✅ Primary: `#033629` (Deep forest green)
   - ✅ Secondary: `#cc4e00` (Burnt orange - clay court accent)
@@ -137,6 +145,7 @@ Status: ✅ COMPLETED
   - ✅ Better error handling and logging
 
 **Remaining Tasks (Execution Checklist):**
+
 - 📋 Tailwind design tokens (keep current color palette as source of truth)
   - ✅ Add exactly 2 font families (heading + body)
   - ✅ Add spacing tokens for section/card/form rhythm
@@ -159,6 +168,7 @@ Status: ✅ COMPLETED
   - ✅ Refactor `DashboardPage`, `HomePage`, `ProfilePage`
 
 **Execution Order:**
+
 1. Tailwind tokens (fonts/spacing/elevation)
 2. Core primitives (`SectionTitle`, `Button`, form fields, `Card` base)
 3. Domain cards (`MatchCard`, `TournamentCard`, `NewsCard`, `PlayerCard`) + badges
@@ -166,6 +176,7 @@ Status: ✅ COMPLETED
 5. Incremental adoption across existing pages
 
 **Design System Reference:**
+
 - Clay court orange/terracotta color palette
 - Athletic typography (bold headlines, clean body text)
 - Card-based layouts with flat surfaces (no rounded corners, no drop shadows)
@@ -175,11 +186,13 @@ Status: ✅ COMPLETED
 - Smooth animations and transitions
 
 **Typography:**
+
 - Heading font: Bold, athletic sans-serif (similar to Montserrat/Poppins)
 - Body font: Clean, readable sans-serif (Inter/Open Sans)
 - Constraint: use max 2 font families in Tailwind config for Sprint 1.5
 
 **Study Reference:**
+
 - [Roland Garros Website](https://www.rolandgarros.com)
 - Extract color codes from screenshots
 - Analyze card layouts and spacing patterns
@@ -194,12 +207,14 @@ Status: ✅ COMPLETED
 **Goal:** Admin can manage players, create seasons, configure leagues/tournaments with draw structure, assign players to groups, and have match slots auto-generated
 
 **Domain Model Recap:**
+
 - **Season** = top-level yearly container (e.g. "2025", "2026"); all competitions live inside a season
 - **League** = competition spanning most/all of a season; format: `round_robin` | `knockout` | `round_robin_knockout`
 - **Tournament** = shorter self-contained competition within a season; same format options
 - **Group** = sub-division of players ("Group A", "Group B") within RR or hybrid competitions; knockout has no groups, just a seeded player list
 
 **Creation Order (strict prerequisite chain):**
+
 1. Admin creates **Players** (player profiles must exist in the system before competitions can be set up)
 2. Admin creates a **Season** (must exist before creating any competition)
 3. Admin creates a **League** or **Tournament** (must select an existing season)
@@ -212,6 +227,7 @@ Status: ✅ COMPLETED
 > Players must exist in the system before they can be assigned to any competition draw.
 
 **Frontend Tasks:**
+
 - ✅ Player creation form: name, email, optional avatar upload
 - ✅ Player list page (admin view): name, avatar, linked status
 - ✅ Player list accessible from main navigation
@@ -222,12 +238,14 @@ Status: ✅ COMPLETED
 - ✅ Player detail page: stats placeholder, competition history placeholder
 
 **Backend Tasks (Firestore):**
+
 - ✅ Implement `PlayerRepository` (CRUD — top-level `players` collection)
 - ✅ Player documents separate from Firebase Auth user documents
   - ✅ `authUid` field on player document: null if unlinked, uid if linked
 - ✅ Connection request flow (user requests link → admin approves)
 
 **Domain Layer:**
+
 - Player name required; email must be unique across players
 - Player creation does not require a Firebase Auth account
 
@@ -236,15 +254,17 @@ Status: ✅ COMPLETED
 ### Part B — Season & Competition Setup
 
 **UX Flow (per competition):**
+
 1. **Season** — Admin creates a season first (name, start date, end date). A season must exist before any league or tournament can be created.
 2. **Create competition** — Choose season (from existing list), name, format, rules. For `round_robin` or `round_robin_knockout`: also set number of groups and players per group. For `knockout`: only player count needed.
 3. **Tab 1 — Setup**: View/edit competition config after creation.
 4. **Tab 2 — Draw**: Assign players to groups (RR/hybrid: drag or select players per group) or set seeded player order for the bracket (knockout: ordered list of players).
-5. **Tab 3 — Group Matches**: Shows auto-generated round-robin match slots per group. Slots appear automatically once a group reaches `players_per_group` capacity (N players → N*(N-1)/2 match slots). Visible only for `round_robin` and `round_robin_knockout` formats.
+5. **Tab 3 — Group Matches**: Shows auto-generated round-robin match slots per group. Slots appear automatically once a group reaches `players_per_group` capacity (N players → N\*(N-1)/2 match slots). Visible only for `round_robin` and `round_robin_knockout` formats.
 6. **Tab 4 — Knockout**: Shows auto-generated knockout bracket slots from the seeded list (1 vs N, 2 vs N-1, etc.). Visible for `knockout` and `round_robin_knockout` formats.
 7. Match slots from Tab 3 and Tab 4 become the input for Sprint 3's match scheduling and results workflow.
 
 **Frontend Tasks:**
+
 - ✅ Season creation form (name, start date, end date)
 - ✅ Season list view
 - ✅ Season edit form
@@ -262,29 +282,32 @@ Status: ✅ COMPLETED
   - ✅ **Tab 2 — Draw**:
     - ✅ `round_robin` / `round_robin_knockout`: assign players to groups (select); shows player count vs `players_per_group` target per group
     - ✅ `knockout`: manage ordered seed list (select players, generate slots)
-  - ✅ **Tab 3 — Group Matches** *(visible for `round_robin` and `round_robin_knockout` only)*: shows auto-generated match pair slots per group; slots appear when group is full; each slot shows player1 vs player2 with status badge
-  - ✅ **Tab 4 — Knockout** *(visible for `knockout` and `round_robin_knockout` only)*: shows auto-generated knockout bracket; first-round matchups generated from seed order
+  - ✅ **Tab 3 — Group Matches** _(visible for `round_robin` and `round_robin_knockout` only)_: shows auto-generated match pair slots per group; slots appear when group is full; each slot shows player1 vs player2 with status badge
+  - ✅ **Tab 4 — Knockout** _(visible for `knockout` and `round_robin_knockout` only)_: shows auto-generated knockout bracket; first-round matchups generated from seed order
 
 **Backend Tasks (Firestore):**
+
 - ✅ Implement `SeasonRepository` (CRUD — top-level `seasons` collection)
 - ✅ Implement `LeagueRepository` (CRUD — stores `season_id`, format, `num_groups`, `players_per_group`)
 - ✅ Implement `TournamentRepository` (CRUD — stores `season_id`, date range, format config)
 - ✅ Implement `GroupRepository` (subcollection under each competition: `leagues/{id}/groups`, `tournaments/{id}/groups`)
 - ✅ Implement enrollment subcollection (`leagues/{id}/enrollments`, `tournaments/{id}/enrollments`)
 - ✅ **Match slot auto-generation** (triggered client-side when group player list reaches capacity):
-  - ✅ RR group of N players → write N*(N-1)/2 match documents with status `not_scheduled`
+  - ✅ RR group of N players → write N\*(N-1)/2 match documents with status `not_scheduled`
   - ✅ Knockout seeded list → write first-round bracket match documents (1 vs N, 2 vs N-1, etc.)
 - ✅ Firestore real-time listeners for league/tournament/group/match-slot updates
 
 **Domain Layer:**
+
 - ✅ Format validation (`round_robin`, `knockout`, `round_robin_knockout` only)
 - ✅ `num_groups` + `players_per_group` required for RR/hybrid; forbidden (null) for pure knockout
 - ✅ Tournament date validation (within parent season date range)
 - ✅ Player uniqueness per group (a player may appear in only one group per competition)
-- ✅ Match slot generation: group of N → N*(N-1)/2 slots; correct pair enumeration
+- ✅ Match slot generation: group of N → N\*(N-1)/2 slots; correct pair enumeration
 - ✅ Knockout bracket generation: ordered seed list → first-round matchups (seed 1 vs seed N, seed 2 vs seed N-1, etc.)
 
 **Testing:**
+
 - 📋 Player CRUD (create, read, update, list) — deferred to Sprint 5
 - 📋 Season CRUD — deferred to Sprint 5
 - 📋 League/Tournament CRUD with format + group config validation — deferred to Sprint 5
@@ -295,6 +318,7 @@ Status: ✅ COMPLETED
 - 📋 Knockout bracket generation: correct bracket pairings from seed order — deferred to Sprint 5
 
 **Deliverables:**
+
 - ✅ Admin can create and manage player profiles
 - ✅ Admin can create a season
 - ✅ Admin can create a league or tournament (must select an existing season)
@@ -302,7 +326,6 @@ Status: ✅ COMPLETED
 - ✅ Group Matches tab shows auto-generated match slots when group is full
 - ✅ Knockout tab shows auto-generated bracket from seed list
 - ✅ Competition lists filterable by season
-
 
 ---
 
@@ -315,6 +338,7 @@ Status: ✅ COMPLETED
 > Match slots (RR pairs + knockout bracket) are already written to Firestore at the end of Sprint 2 — they exist with status `not_scheduled`. Sprint 3 picks up from there: assign dates/times to slots, record scores, and transition statuses.
 
 **Frontend Tasks:**
+
 - ✅ Match scheduling: organizer assigns date/time inline on Group Matches / Knockout tab (Schedule / Reschedule toggle)
 - ✅ Match list view per competition (Matches tab on detail page, filter by status: all / not_scheduled / scheduled / finished)
 - ✅ Match detail page: show players, scheduled time, scores, status (`/:competitionType/:competitionId/rounds/:roundId/matches/:matchId`)
@@ -322,23 +346,27 @@ Status: ✅ COMPLETED
 - ✅ Winner auto-determined from set count on score submit
 
 **Backend Tasks (Firestore):**
+
 - ✅ `matchesRepository` update: patches `scheduledAt`, `status`, `sets`, `winnerId`, `finishedAt` on existing match documents
 - ✅ Real-time listeners for match list within a competition (via `useFirestoreCollection` on rounds + matches subcollections)
 - ✅ Permission check (client-side): only editor+ or linked matched player can schedule / submit scores
 
 **Domain Layer:**
+
 - ✅ Match status transitions: `not_scheduled → scheduled → finished`
 - ✅ Score validation: at least 1 set, whole non-negative numbers, no draw sets
 - ✅ Winner auto-determined by sets won count
 - ✅ On match finish: ranking stub called (`onMatchFinished` in `matchService.js`) — Sprint 4 plugs in real recalculation
 
 **Testing:**
+
 - 📋 Schedule a match slot (date assigned, status → scheduled) — deferred to Sprint 5
 - 📋 Score entry (valid and invalid sets) — deferred to Sprint 5
 - 📋 State transitions: full path not_scheduled → finished — deferred to Sprint 5
 - 📋 Permission check: unrelated player cannot edit scores — deferred to Sprint 5
 
 **Deliverables:**
+
 - ✅ Organizer can schedule any auto-generated match slot (inline on Group Matches / Knockout tab)
 - ✅ Players and organizers can record match scores (per set, winner auto-resolved)
 - ✅ Match status tracked in real-time in Firestore
@@ -353,6 +381,7 @@ Status: ✅ COMPLETED
 **Goal:** Automatic ranking updates, announcements, and offline capability
 
 **Frontend Tasks:**
+
 - ✅ Rankings page (`/rankings`) — select competition type + competition, view ranked table (MP/W/L/Sets/Win%)
 - 📋 Ranking trending view — deferred (post-MVP)
 - ✅ News feed page (`/news`) — chronological list of articles, links to detail
@@ -363,6 +392,7 @@ Status: ✅ COMPLETED
 - ✅ SW registered in `main.jsx` on `load` event
 
 **Backend Tasks (Firestore):**
+
 - ✅ `rankingsRepository` already exported from `infrastructure/firestore.js`
 - ✅ `newsRepository` already exported from `infrastructure/firestore.js`
 - ✅ Real-time listener for rankings via `useFirestoreCollection` on subcollection path
@@ -370,21 +400,25 @@ Status: ✅ COMPLETED
 - 📋 FCM push notifications — deferred (post-MVP)
 
 **Domain Layer:**
+
 - ✅ `recalculateRankings(competitionType, competitionId, enrollments)` — reads all finished matches across all rounds, tallies W/L/sets, upserts per-player ranking docs via `setDoc(..., { merge: true })`
 - ✅ Ranking auto-triggered: `approveScores` calls `onMatchFinished` which fires `recalculateRankings` asynchronously (non-blocking)
 - ✅ News validation: title + content required on form submit
 
 **Offline:**
+
 - ✅ Firestore offline persistence (configured in Sprint 0 via `persistentLocalCache`)
 - ✅ Service worker caches app shell (network-first for navigation, cache-first for static assets)
 - 📋 Background sync for queued mutations — deferred
 
 **Testing:**
+
 - 📋 Ranking recalculation — deferred to Sprint 5
 - 📋 News CRUD — deferred to Sprint 5
 - 📋 Offline read/write — deferred to Sprint 5
 
 **Deliverables:**
+
 - ✅ Rankings auto-update when a match result is approved
 - ✅ News feed visible to all authenticated users; organizers can create/delete
 - ✅ App installable as PWA (manifest + SW in place)
@@ -397,6 +431,7 @@ Status: ✅ COMPLETED
 **Goal:** Polish, testing, and production readiness
 
 **Frontend Tasks:**
+
 - Accessibility audit (WCAG 2.1 AA compliance)
 - UI polish (mobile responsiveness, dark mode)
 - Error handling and user feedback (toast notifications)
@@ -404,29 +439,34 @@ Status: ✅ COMPLETED
 - Browser testing (Chrome, Firefox, Safari, Edge)
 
 **Backend Tasks (Firestore):**
+
 - Firestore security rules audit
 - Query performance optimization (add composite indexes if needed)
 - Backup strategy documentation
 - Rate limiting and quota monitoring
 
 **Domain Layer:**
+
 - Edge case handling (walkovers, postponements)
 - Dispute resolution workflow (organizer override)
 - Input validation comprehensive review
 
 **Testing:**
+
 - Unit tests: domain services (ranking, match validation)
 - Integration tests: auth, league creation, match workflows
 - E2E tests: full user flows (signup → join season → record result)
 - Offline sync testing
 
 **Documentation:**
+
 - Deployment guide (Firebase setup, Vercel hosting)
 - User guide (player and organizer workflows)
 - Admin guide (Firebase management)
 - API/Firestore schema finalization
 
 **Deliverables:**
+
 - MVP ready for release
 - Production Firestore project configured
 - Deployment automated via CI/CD
@@ -437,6 +477,7 @@ Status: ✅ COMPLETED
 ## Open Items
 
 ### Technical Decisions
+
 - **Design System:** Implement Roland Garros-inspired visual identity with terra cotta palette, athletic typography, and card-based layouts (Sprint 1.5)
 - **Ranking recalculation:** Client-side on match finish? Or Cloud Function trigger?
 - **Notifications:** FCM for push notifications or in-app only for MVP?
@@ -444,6 +485,7 @@ Status: ✅ COMPLETED
 - **Offline conflict resolution:** How to handle concurrent match score edits from multiple devices?
 
 ### Future Enhancements (Post-MVP)
+
 - Tennis-specific icons (racket, ball, trophy, court) and status indicators
 - Loading animations (tennis ball bounce, court draw, etc.) and skeleton loaders
 - Design system documentation (`10-design-system.md`)
@@ -459,33 +501,36 @@ Status: ✅ COMPLETED
 
 ## Tech Stack (Updated v2.1)
 
-| Layer | Technology | Version | Purpose |
-|-------|-----------|---------|---------|
-| **Frontend** | React | 19.2.4 | UI components and views |
-| **Routing** | React Router | 7.0.0 | Client-side navigation |
-| **Styling** | Tailwind CSS | 3.4.17 | Utility-first CSS + Roland Garros theme |
-| **Build Tool** | Vite | 7.0.7 | Fast bundler and dev server |
-| **Backend/DB** | Firebase (Firestore) | 11.0.0 | Real-time NoSQL database |
-| **Authentication** | Firebase Auth | included | Email/password + Google OAuth |
-| **Notifications** | Firebase Cloud Messaging | included | Push notifications (future) |
-| **Deployment** | Vercel (frontend) + Firebase (backend) | N/A | Hosting and serverless |
-| **PWA** | Service Workers | included | Offline support + installability |
+| Layer              | Technology                             | Version  | Purpose                                 |
+| ------------------ | -------------------------------------- | -------- | --------------------------------------- |
+| **Frontend**       | React                                  | 19.2.4   | UI components and views                 |
+| **Routing**        | React Router                           | 7.0.0    | Client-side navigation                  |
+| **Styling**        | Tailwind CSS                           | 3.4.17   | Utility-first CSS + Roland Garros theme |
+| **Build Tool**     | Vite                                   | 7.0.7    | Fast bundler and dev server             |
+| **Backend/DB**     | Firebase (Firestore)                   | 11.0.0   | Real-time NoSQL database                |
+| **Authentication** | Firebase Auth                          | included | Email/password + Google OAuth           |
+| **Notifications**  | Firebase Cloud Messaging               | included | Push notifications (future)             |
+| **Deployment**     | Vercel (frontend) + Firebase (backend) | N/A      | Hosting and serverless                  |
+| **PWA**            | Service Workers                        | included | Offline support + installability        |
 
 ---
 
 ## Development Setup
 
 ### Prerequisites
+
 - Node.js 18+
 - npm 9+
 - Firebase account (free tier sufficient for MVP)
 
 ### Installation
+
 ```bash
 npm install
 ```
 
 ### Development Commands
+
 ```bash
 npm run dev          # Start Vite dev server (http://localhost:5173)
 npm run build        # Build for production (dist/)
@@ -495,12 +540,14 @@ npm run format:fix   # Fix formatting automatically
 ```
 
 ### Environment Setup
+
 1. Copy `.env.example` to `.env`
 2. Get Firebase credentials from [Firebase Console](https://console.firebase.google.com)
 3. Fill in `VITE_FIREBASE_*` values in `.env`
 4. Restart dev server
 
 ### Project Structure
+
 ```
 app/js/
 ├── main.jsx              # Vite entry point
@@ -516,6 +563,7 @@ app/js/
 ```
 
 ### Key Practices
+
 - **Domain layer:** Implement business logic in `services/` (independent of UI/DB)
 - **Firestore access:** Use repositories in `lib/firestore.js`
 - **Real-time data:** Use `useFirestore` and `useFirestoreDoc` hooks
@@ -527,6 +575,7 @@ app/js/
 ## Migration Notes (From Laravel to Firebase)
 
 **Why Firebase?**
+
 - No backend server needed (reduces hosting complexity)
 - Built-in offline support (PWA-friendly)
 - Real-time listeners (sync across devices instantly)
@@ -534,8 +583,9 @@ app/js/
 - Free tier generous for MVP
 
 **Major Changes:**
+
 - Server-side routes → Client-side routes (React Router)
-- Laravel models/Eloquent → Firestore repositories  
+- Laravel models/Eloquent → Firestore repositories
 - Request/response cycle → Real-time listeners
 - Session management → Firebase Auth tokens
 - Database migrations → Firestore collections (manual setup)

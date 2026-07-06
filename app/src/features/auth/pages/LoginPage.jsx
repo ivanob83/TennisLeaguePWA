@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  
+
   const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
 
@@ -61,7 +61,9 @@ export default function LoginPage() {
 
           {/* Error Message */}
           {error && (
-            <Alert variant="error" className="mb-6">{error}</Alert>
+            <Alert variant="error" className="mb-6">
+              {error}
+            </Alert>
           )}
 
           {/* Form */}
@@ -94,12 +96,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              loading={loading}
-              loadingLabel="Signing in..."
-            >
+            <Button type="submit" fullWidth loading={loading} loadingLabel="Signing in...">
               Sign In
             </Button>
           </form>

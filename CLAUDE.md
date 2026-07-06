@@ -24,6 +24,7 @@ Pre nego što tražiš po kodu, uvek prvo proveri `agents/features/` fajlove. Sv
 - `agents/features/<feature>.md` — detalji za konkretan feature
 
 Redosled istraživanja:
+
 1. Pročitaj odgovarajući `agents/features/<feature>.md`
 2. Tek ako informacija nedostaje ili je nejasna — čitaj kod direktno
 
@@ -96,6 +97,7 @@ For real-time listeners use the hooks in `hooks/useFirestore.js` (`useFirestoreC
 ### Auth & roles
 
 `AuthContext` (`features/auth/context/AuthContext.jsx`) loads the Firestore user profile after `onAuthStateChanged`. It exposes:
+
 - `user` — Firebase Auth object
 - `profile` — Firestore `users/{uid}` document
 - `isAuthenticated`, `isSuperadmin`, `isEditor`
@@ -110,16 +112,16 @@ Route guards: `ProtectedRoute` (requires auth), `PublicRoute` (redirects away if
 All shared primitives live in `ui/` and are barrel-exported from `ui/index.js`.
 
 **Page layout pattern** — every page follows this structure:
+
 ```jsx
 <AppLayout>
   <Container className="py-8">
     <SectionTitle title="..." subtitle="..." action={<Button>...</Button>} />
-    <div className="mt-8">
-      {/* page content */}
-    </div>
+    <div className="mt-8">{/* page content */}</div>
   </Container>
 </AppLayout>
 ```
+
 - `Container` = `mx-auto max-w-7xl px-6`
 - `SectionTitle` renders a full-width `border-b border-slate-200` with an accent underline bar (`bg-secondary`), title left, optional `action` node right
 - For create/form pages use `<div className="mt-8 max-w-lg">` inside Container to constrain the form
@@ -129,6 +131,7 @@ All shared primitives live in `ui/` and are barrel-exported from `ui/index.js`.
 ### Navigation
 
 `navigation/config.js` exports three groups used by the header/menus:
+
 - `primaryNavItems` — shown to all authenticated users
 - `createNavItems` — editor+ only (create shortcuts)
 - `adminNavItems` — editor+ with `superadminOnly` flag for Users link

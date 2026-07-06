@@ -10,7 +10,9 @@ function ToastItem({ toast, onDismiss }) {
   }
 
   return (
-    <div className={`border px-4 py-3 shadow-sm ${variantStyles[toast.variant] || variantStyles.info}`}>
+    <div
+      className={`border px-4 py-3 shadow-sm ${variantStyles[toast.variant] || variantStyles.info}`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold">{toast.title}</p>
@@ -36,19 +38,22 @@ export function ToastProvider({ children }) {
     setToasts((current) => current.filter((toast) => toast.id !== id))
   }, [])
 
-  const showToast = useCallback(({ title, message = '', variant = 'info', duration = 3500 }) => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const showToast = useCallback(
+    ({ title, message = '', variant = 'info', duration = 3500 }) => {
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    setToasts((current) => [...current, { id, title, message, variant }])
+      setToasts((current) => [...current, { id, title, message, variant }])
 
-    if (duration > 0) {
-      window.setTimeout(() => {
-        dismissToast(id)
-      }, duration)
-    }
+      if (duration > 0) {
+        window.setTimeout(() => {
+          dismissToast(id)
+        }, duration)
+      }
 
-    return id
-  }, [dismissToast])
+      return id
+    },
+    [dismissToast],
+  )
 
   const value = useMemo(() => ({ showToast, dismissToast }), [showToast, dismissToast])
 

@@ -33,15 +33,21 @@ export default function LeaguesPage() {
         <SectionTitle
           title="Leagues"
           subtitle="Tennis leagues organised by season."
-          action={canManage && <Button size="sm" onClick={() => navigate('/leagues/create')}>+ New League</Button>}
+          action={
+            canManage && (
+              <Button size="sm" onClick={() => navigate('/leagues/create')}>
+                + New League
+              </Button>
+            )
+          }
         />
         <div className="mb-6 mt-8 flex flex-wrap items-center gap-4">
           <div className="w-48">
             <Select
               placeholder="All seasons"
-              options={seasons.map(s => ({ value: s.id, label: s.name }))}
+              options={seasons.map((s) => ({ value: s.id, label: s.name }))}
               value={selectedSeasonId}
-              onChange={e => setSelectedSeasonId(e.target.value)}
+              onChange={(e) => setSelectedSeasonId(e.target.value)}
             />
           </div>
           {canManage && (
@@ -52,14 +58,16 @@ export default function LeaguesPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
         ) : leagues.length === 0 ? (
           <div className="py-16 text-center text-text-light">
             {selectedSeasonId ? 'No leagues in this season yet.' : 'No leagues created yet.'}
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {leagues.map(league => (
+            {leagues.map((league) => (
               <div key={league.id} className="space-y-2">
                 <TournamentCard
                   tournament={{

@@ -2,20 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { enrichPlayersWithUserNames } from '../../../infrastructure/enrichPlayers.js'
 import AppLayout from '../../../layouts/AppLayout.jsx'
-import {
-  Container,
-  SectionTitle,
-  Card,
-  Badge,
-  Loader,
-  Select,
-  Button,
-} from '../../../ui/index.js'
+import { Container, SectionTitle, Card, Badge, Loader, Select, Button } from '../../../ui/index.js'
 import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
 import Avatar from '../../../ui/Avatar.jsx'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { useToast } from '../../../context/ToastContext.jsx'
-import { tournamentEnrollmentRepository, leagueEnrollmentRepository } from '../../../infrastructure/firestore.js'
+import {
+  tournamentEnrollmentRepository,
+  leagueEnrollmentRepository,
+} from '../../../infrastructure/firestore.js'
 import { recalculateRankings } from '../services/rankingService.js'
 import { db } from '../../../infrastructure/firebase.js'
 import TopPlayerCard from '../components/TopPlayerCard.jsx'
@@ -26,42 +21,44 @@ function RankingRows({ sorted, playersById }) {
     const player = playersById?.[entry.playerId]
     const displayName = player?.name || entry.playerName
     return (
-    <tr
-      key={entry.playerId ?? entry.playerName}
-      className="border-b border-slate-100 last:border-0 hover:bg-background-light"
-    >
-      <td className="py-2.5 pr-4">
-        {idx === 0 ? (
-          <span className="font-bold text-secondary">1</span>
-        ) : (
-          <span className="text-text-light">{idx + 1}</span>
-        )}
-      </td>
-      <td className="py-2.5 pr-4">
-        <div className="flex items-center gap-2">
-          <Avatar
-            urls={player?.avatarUrls || null}
-            src={player?.avatarUrl || null}
-            name={displayName}
-            sizeHint={80}
-            className="h-7 w-7 text-xs"
-          />
-          <span className="font-medium text-text">
-            {displayName}
-            {idx === 0 && entry.matchesPlayed > 0 && (
-              <Badge variant="finished" className="ml-2">Leader</Badge>
-            )}
-          </span>
-        </div>
-      </td>
-      <td className="py-2.5 pr-4 text-center text-text-light">{entry.matchesPlayed}</td>
-      <td className="py-2.5 pr-4 text-center font-semibold text-primary">{entry.wins}</td>
-      <td className="py-2.5 pr-4 text-center text-text-light">{entry.losses}</td>
-      <td className="py-2.5 pr-4 text-center text-text-light">
-        {entry.setsWon}/{entry.setsLost}
-      </td>
-      <td className="py-2.5 text-center font-bold text-secondary">{entry.points ?? 0}</td>
-    </tr>
+      <tr
+        key={entry.playerId ?? entry.playerName}
+        className="border-b border-slate-100 last:border-0 hover:bg-background-light"
+      >
+        <td className="py-2.5 pr-4">
+          {idx === 0 ? (
+            <span className="font-bold text-secondary">1</span>
+          ) : (
+            <span className="text-text-light">{idx + 1}</span>
+          )}
+        </td>
+        <td className="py-2.5 pr-4">
+          <div className="flex items-center gap-2">
+            <Avatar
+              urls={player?.avatarUrls || null}
+              src={player?.avatarUrl || null}
+              name={displayName}
+              sizeHint={80}
+              className="h-7 w-7 text-xs"
+            />
+            <span className="font-medium text-text">
+              {displayName}
+              {idx === 0 && entry.matchesPlayed > 0 && (
+                <Badge variant="finished" className="ml-2">
+                  Leader
+                </Badge>
+              )}
+            </span>
+          </div>
+        </td>
+        <td className="py-2.5 pr-4 text-center text-text-light">{entry.matchesPlayed}</td>
+        <td className="py-2.5 pr-4 text-center font-semibold text-primary">{entry.wins}</td>
+        <td className="py-2.5 pr-4 text-center text-text-light">{entry.losses}</td>
+        <td className="py-2.5 pr-4 text-center text-text-light">
+          {entry.setsWon}/{entry.setsLost}
+        </td>
+        <td className="py-2.5 text-center font-bold text-secondary">{entry.points ?? 0}</td>
+      </tr>
     )
   })
 }
@@ -101,18 +98,26 @@ function mergeRankings(rankings) {
     }
   }
 
-  return Object.values(byName).map(entry => ({
+  return Object.values(byName).map((entry) => ({
     ...entry,
     winRate: entry.matchesPlayed > 0 ? Math.round((entry.wins / entry.matchesPlayed) * 100) : 0,
   }))
 }
 
+function setRatio(entry) {
+  const won = entry.setsWon ?? 0
+  const lost = entry.setsLost ?? 0
+  const total = won + lost
+  return total > 0 ? won / total : 0
+}
+
 function sortRankings(rankings) {
   return [...rankings].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points
+    const ratioDiff = setRatio(b) - setRatio(a)
+    if (ratioDiff !== 0) return ratioDiff
     if (b.wins !== a.wins) return b.wins - a.wins
-    if (b.winRate !== a.winRate) return b.winRate - a.winRate
-    return b.setsWon - a.setsWon
+    return (b.setsWon ?? 0) - (a.setsWon ?? 0)
   })
 }
 
@@ -120,8 +125,8 @@ function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }
   const [rankings, setRankings] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const leagueIds = leagues.map(l => l.id).join(',')
-  const tournamentIds = tournaments.map(t => t.id).join(',')
+  const leagueIds = leagues.map((l) => l.id).join(',')
+  const tournamentIds = tournaments.map((t) => t.id).join(',')
 
   useEffect(() => {
     if (listsLoading) return
@@ -129,8 +134,8 @@ function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }
     async function fetchAll() {
       setLoading(true)
       const allCompetitions = [
-        ...leagues.map(c => ({ type: 'leagues', id: c.id })),
-        ...tournaments.map(c => ({ type: 'tournaments', id: c.id })),
+        ...leagues.map((c) => ({ type: 'leagues', id: c.id })),
+        ...tournaments.map((c) => ({ type: 'tournaments', id: c.id })),
       ]
 
       const aggregated = {}
@@ -138,10 +143,28 @@ function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }
       for (const comp of allCompetitions) {
         const snapshot = await getDocs(collection(db, `${comp.type}/${comp.id}/rankings`))
         for (const docSnap of snapshot.docs) {
-          const { playerId, playerName, points = 0, wins = 0, losses = 0, matchesPlayed = 0, setsWon = 0, setsLost = 0 } = docSnap.data()
+          const {
+            playerId,
+            playerName,
+            points = 0,
+            wins = 0,
+            losses = 0,
+            matchesPlayed = 0,
+            setsWon = 0,
+            setsLost = 0,
+          } = docSnap.data()
           if (!playerId) continue
           if (!aggregated[playerId]) {
-            aggregated[playerId] = { playerId, playerName, points: 0, wins: 0, losses: 0, matchesPlayed: 0, setsWon: 0, setsLost: 0 }
+            aggregated[playerId] = {
+              playerId,
+              playerName,
+              points: 0,
+              wins: 0,
+              losses: 0,
+              matchesPlayed: 0,
+              setsWon: 0,
+              setsLost: 0,
+            }
           }
           aggregated[playerId].points += points
           aggregated[playerId].wins += wins
@@ -157,15 +180,22 @@ function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }
     }
 
     fetchAll()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leagueIds, tournamentIds, listsLoading])
 
-  if (loading) return <div className="flex justify-center py-8"><Loader /></div>
+  if (loading)
+    return (
+      <div className="flex justify-center py-8">
+        <Loader />
+      </div>
+    )
 
   if (!rankings.length) {
     return (
       <Card>
-        <p className="text-sm text-text-light">No rankings yet. Rankings are calculated automatically when matches are approved.</p>
+        <p className="text-sm text-text-light">
+          No rankings yet. Rankings are calculated automatically when matches are approved.
+        </p>
       </Card>
     )
   }
@@ -200,7 +230,12 @@ function RankingTable({ competitionType, competitionId, playersById }) {
   const rankingsPath = `${competitionType}/${competitionId}/rankings`
   const { data: rankings, loading } = useFirestoreCollection(rankingsPath)
 
-  if (loading) return <div className="flex justify-center py-8"><Loader /></div>
+  if (loading)
+    return (
+      <div className="flex justify-center py-8">
+        <Loader />
+      </div>
+    )
 
   if (!rankings.length) {
     return (
@@ -252,7 +287,7 @@ export default function RankingsPage() {
   useEffect(() => {
     if (leaguesLoading || seasonsLoading || !leagues.length || selectedId) return
     const seasonStartById = Object.fromEntries(
-      seasons.map(s => [s.id, s.startDate ? new Date(s.startDate) : new Date(0)])
+      seasons.map((s) => [s.id, s.startDate ? new Date(s.startDate) : new Date(0)]),
     )
     const best = [...leagues].sort((a, b) => {
       const ta = seasonStartById[a.seasonId] ?? new Date(0)
@@ -271,7 +306,10 @@ export default function RankingsPage() {
   const enrichedKeyRef = useRef('')
   useEffect(() => {
     if (!players.length) return
-    const key = players.map(p => p.id).sort().join(',')
+    const key = players
+      .map((p) => p.id)
+      .sort()
+      .join(',')
     if (key === enrichedKeyRef.current) return
     enrichedKeyRef.current = key
     enrichPlayersWithUserNames(players).then(setPlayersById)
@@ -281,10 +319,10 @@ export default function RankingsPage() {
   const { data: competitionRankings } = useFirestoreCollection(rankingsPath)
 
   const competitionTop = rankingsPath
-    ? sortRankings(mergeRankings(competitionRankings))[0] ?? null
+    ? (sortRankings(mergeRankings(competitionRankings))[0] ?? null)
     : null
   const competitionTopPlayer = competitionTop
-    ? playersById[competitionTop.playerId] ?? null
+    ? (playersById[competitionTop.playerId] ?? null)
     : null
 
   const topEntry = view === 'alltime' ? alltimeTop : competitionTop
@@ -293,12 +331,17 @@ export default function RankingsPage() {
   async function handleRecalculate() {
     setRecalculating(true)
     try {
-      const enrollRepo = view === 'tournaments'
-        ? tournamentEnrollmentRepository(selectedId)
-        : leagueEnrollmentRepository(selectedId)
+      const enrollRepo =
+        view === 'tournaments'
+          ? tournamentEnrollmentRepository(selectedId)
+          : leagueEnrollmentRepository(selectedId)
       const enrollments = await enrollRepo.getAll()
       await recalculateRankings(view, selectedId, enrollments)
-      showToast({ title: 'Rankings updated', message: 'Recalculated successfully.', variant: 'success' })
+      showToast({
+        title: 'Rankings updated',
+        message: 'Recalculated successfully.',
+        variant: 'success',
+      })
     } catch (err) {
       showToast({ title: 'Failed', message: err.message, variant: 'error' })
     } finally {
@@ -314,10 +357,11 @@ export default function RankingsPage() {
 
   const competitions = view === 'leagues' ? leagues : tournaments
   const competitionsLoading = view === 'leagues' ? leaguesLoading : tournamentsLoading
-  const competitionOptions = competitions.map(c => ({ value: c.id, label: c.name }))
-  const topLabel = view === 'alltime'
-    ? 'All-time ranking'
-    : competitions.find(c => c.id === selectedId)?.name ?? 'Competition ranking'
+  const competitionOptions = competitions.map((c) => ({ value: c.id, label: c.name }))
+  const topLabel =
+    view === 'alltime'
+      ? 'All-time ranking'
+      : (competitions.find((c) => c.id === selectedId)?.name ?? 'Competition ranking')
 
   function handleViewChange(e) {
     setView(e.target.value)
@@ -329,18 +373,11 @@ export default function RankingsPage() {
   return (
     <AppLayout>
       <Container className="py-8">
-        <SectionTitle
-          title="Rankings"
-          subtitle="Current standings per competition"
-        />
+        <SectionTitle title="Rankings" subtitle="Current standings per competition" />
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <div className="w-44">
-            <Select
-              options={typeOptions}
-              value={view}
-              onChange={handleViewChange}
-            />
+            <Select options={typeOptions} value={view} onChange={handleViewChange} />
           </div>
           {view !== 'alltime' && (
             <div className="w-64">
@@ -351,7 +388,7 @@ export default function RankingsPage() {
                   placeholder="Select competition"
                   options={competitionOptions}
                   value={selectedId}
-                  onChange={e => setSelectedId(e.target.value)}
+                  onChange={(e) => setSelectedId(e.target.value)}
                 />
               )}
             </div>
@@ -377,13 +414,22 @@ export default function RankingsPage() {
 
         <div className="mt-6">
           {view === 'alltime' ? (
-            <AllTimeRankingTable leagues={leagues} tournaments={tournaments} listsLoading={listsLoading} playersById={playersById} />
+            <AllTimeRankingTable
+              leagues={leagues}
+              tournaments={tournaments}
+              listsLoading={listsLoading}
+              playersById={playersById}
+            />
           ) : !selectedId ? (
             <Card>
               <p className="text-sm text-text-light">Select a competition to view rankings.</p>
             </Card>
           ) : (
-            <RankingTable competitionType={view} competitionId={selectedId} playersById={playersById} />
+            <RankingTable
+              competitionType={view}
+              competitionId={selectedId}
+              playersById={playersById}
+            />
           )}
         </div>
       </Container>

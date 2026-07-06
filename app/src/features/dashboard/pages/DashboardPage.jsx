@@ -25,44 +25,39 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <Container className="py-section">
-        <SectionTitle
-          title="Dashboard"
-          subtitle={`Welcome back, ${user?.email || 'User'}!`}
-        />
+        <SectionTitle title="Dashboard" subtitle={`Welcome back, ${user?.email || 'User'}!`} />
         <div className="mt-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Leagues</CardTitle>
+                <CardDescription>View and manage your leagues</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-primary">0</p>
+              </CardContent>
+            </Card>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Leagues</CardTitle>
-              <CardDescription>View and manage your leagues</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">0</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming Matches</CardTitle>
+                <CardDescription>Your scheduled matches</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-primary">0</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming Matches</CardTitle>
-              <CardDescription>Your scheduled matches</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">0</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Ranking</CardTitle>
-              <CardDescription>Your current position</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">-</p>
-            </CardContent>
-          </Card>
-        </div>
-
+            <Card>
+              <CardHeader>
+                <CardTitle>Ranking</CardTitle>
+                <CardDescription>Your current position</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-primary">-</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="mt-8">

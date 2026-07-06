@@ -1,13 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import {
-  Alert,
-  Badge,
-  Button,
-  Card,
-  Loader,
-  Select,
-} from '../../../ui/index.js'
+import { Alert, Badge, Button, Card, Loader, Select } from '../../../ui/index.js'
 import { useFirestoreCollection } from '../../../hooks/useFirestore.js'
 import {
   leagueGroupsRepository,
@@ -24,9 +17,10 @@ import {
  * Assigning a player to position N updates all match slots for that position.
  */
 export default function CompetitionDrawTab({ competitionType, competitionId, competition }) {
-  const groupsRepo = competitionType === 'leagues'
-    ? leagueGroupsRepository(competitionId)
-    : tournamentGroupsRepository(competitionId)
+  const groupsRepo =
+    competitionType === 'leagues'
+      ? leagueGroupsRepository(competitionId)
+      : tournamentGroupsRepository(competitionId)
   const competitionRepo = competitionType === 'leagues' ? leaguesRepository : tournamentsRepository
 
   const enrollmentPath = `${competitionType}/${competitionId}/enrollments`
@@ -41,25 +35,26 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
   const [working, setWorking] = useState(false)
   const [error, setError] = useState(null)
 
-  const isGroupBased = competition?.format === 'round_robin' || competition?.format === 'round_robin_knockout'
+  const isGroupBased =
+    competition?.format === 'round_robin' || competition?.format === 'round_robin_knockout'
 
   // All player IDs currently assigned to any group position
   const assignedPlayerIds = useMemo(() => {
-    const ids = groups.flatMap(g => (g.playerIds || []).filter(Boolean))
+    const ids = groups.flatMap((g) => (g.playerIds || []).filter(Boolean))
     return new Set(ids)
   }, [groups])
 
   const availableForGroups = useMemo(
-    () => enrollments.filter(en => !assignedPlayerIds.has(en.playerId)),
-    [enrollments, assignedPlayerIds]
+    () => enrollments.filter((en) => !assignedPlayerIds.has(en.playerId)),
+    [enrollments, assignedPlayerIds],
   )
 
   const seedList = competition?.seededPlayerIds || []
-  const seedablePlayers = enrollments.filter(en => !seedList.includes(en.playerId))
+  const seedablePlayers = enrollments.filter((en) => !seedList.includes(en.playerId))
 
   function playerLabel(playerId) {
     if (!playerId) return 'BYE'
-    const en = enrollments.find(e => e.playerId === playerId)
+    const en = enrollments.find((e) => e.playerId === playerId)
     return en?.playerName || en?.playerEmail || playerId
   }
 
@@ -69,8 +64,10 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
     const allMatches = await mRepo.getAll()
     const updates = []
     for (const match of allMatches) {
-      if (match.player1Position === position) updates.push(mRepo.update(match.id, { player1Id: playerId }))
-      if (match.player2Position === position) updates.push(mRepo.update(match.id, { player2Id: playerId }))
+      if (match.player1Position === position)
+        updates.push(mRepo.update(match.id, { player1Id: playerId }))
+      if (match.player2Position === position)
+        updates.push(mRepo.update(match.id, { player2Id: playerId }))
     }
     await Promise.all(updates)
   }
@@ -91,9 +88,9 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
       const nextPlayerIds = [...playerIds]
       nextPlayerIds[emptyIdx] = selected
       await groupsRepo.update(group.id, { playerIds: nextPlayerIds })
-      setGroupSelectState(prev => ({ ...prev, [group.id]: '' }))
+      setGroupSelectState((prev) => ({ ...prev, [group.id]: '' }))
 
-      const round = rounds.find(r => r.groupId === group.id)
+      const round = rounds.find((r) => r.groupId === group.id)
       if (round) await updateMatchSlots(round.id, emptyIdx + 1, selected)
     } catch {
       setError('Failed to assign player to group.')
@@ -110,7 +107,7 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
       nextPlayerIds[idx] = null
       await groupsRepo.update(group.id, { playerIds: nextPlayerIds })
 
-      const round = rounds.find(r => r.groupId === group.id)
+      const round = rounds.find((r) => r.groupId === group.id)
       if (round) await updateMatchSlots(round.id, idx + 1, null)
     } catch {
       setError('Failed to remove player from group.')
@@ -128,9 +125,9 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
       const next = [...seedList]
       next[emptyIdx] = playerId
       await competitionRepo.update(competitionId, { seededPlayerIds: next })
-      setGroupSelectState(prev => ({ ...prev, knockout: '' }))
+      setGroupSelectState((prev) => ({ ...prev, knockout: '' }))
 
-      const round = rounds.find(r => r.type === 'knockout')
+      const round = rounds.find((r) => r.type === 'knockout')
       if (round) await updateMatchSlots(round.id, emptyIdx + 1, playerId)
     } catch {
       setError('Failed to assign player to seed position.')
@@ -147,7 +144,7 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
       next[idx] = null
       await competitionRepo.update(competitionId, { seededPlayerIds: next })
 
-      const round = rounds.find(r => r.type === 'knockout')
+      const round = rounds.find((r) => r.type === 'knockout')
       if (round) await updateMatchSlots(round.id, idx + 1, null)
     } catch {
       setError('Failed to remove player from seed list.')
@@ -157,7 +154,11 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
   }
 
   if (enrollmentsLoading || groupsLoading) {
-    return <div className="flex justify-center py-10"><Loader /></div>
+    return (
+      <div className="flex justify-center py-10">
+        <Loader />
+      </div>
+    )
   }
 
   return (
@@ -175,7 +176,7 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
         groups
           .slice()
           .sort((a, b) => (a.position || 0) - (b.position || 0))
-          .map(group => {
+          .map((group) => {
             const playerIds = group.playerIds || []
             const filled = playerIds.filter(Boolean).length
             const total = playerIds.length
@@ -192,10 +193,15 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
 
                 <div className="mb-3 space-y-1.5">
                   {playerIds.map((playerId, idx) => (
-                    <div key={idx} className="flex items-center justify-between border border-slate-200 px-3 py-2">
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between border border-slate-200 px-3 py-2"
+                    >
                       <div className="flex items-center gap-2">
                         <span className="w-5 text-xs text-text-light">{idx + 1}</span>
-                        <span className={`text-sm ${playerId ? 'text-text' : 'italic text-text-light'}`}>
+                        <span
+                          className={`text-sm ${playerId ? 'text-text' : 'italic text-text-light'}`}
+                        >
                           {playerLabel(playerId)}
                         </span>
                       </div>
@@ -220,12 +226,12 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
                       className="flex-1"
                       placeholder="Select player to assign"
                       value={groupSelectState[group.id] || ''}
-                      options={availableForGroups.map(en => ({
+                      options={availableForGroups.map((en) => ({
                         value: en.playerId,
                         label: en.playerName || en.playerEmail,
                       }))}
-                      onChange={e =>
-                        setGroupSelectState(prev => ({ ...prev, [group.id]: e.target.value }))
+                      onChange={(e) =>
+                        setGroupSelectState((prev) => ({ ...prev, [group.id]: e.target.value }))
                       }
                     />
                     <Button
@@ -243,11 +249,16 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
           })
       ) : (
         <Card>
-          <h4 className="mb-3 font-heading text-sm font-semibold text-text">Seeded Positions (Knockout)</h4>
+          <h4 className="mb-3 font-heading text-sm font-semibold text-text">
+            Seeded Positions (Knockout)
+          </h4>
 
           <div className="mb-4 space-y-1.5">
             {seedList.map((playerId, idx) => (
-              <div key={idx} className="flex items-center justify-between border border-slate-200 px-3 py-2">
+              <div
+                key={idx}
+                className="flex items-center justify-between border border-slate-200 px-3 py-2"
+              >
                 <div className="flex items-center gap-2">
                   <span className="w-5 text-xs text-text-light">{idx + 1}</span>
                   <span className={`text-sm ${playerId ? 'text-text' : 'italic text-text-light'}`}>
@@ -269,18 +280,18 @@ export default function CompetitionDrawTab({ competitionType, competitionId, com
             ))}
           </div>
 
-          {seedList.some(id => id === null) && (
+          {seedList.some((id) => id === null) && (
             <div className="flex gap-3">
               <Select
                 className="flex-1"
                 placeholder="Select player"
-                options={seedablePlayers.map(en => ({
+                options={seedablePlayers.map((en) => ({
                   value: en.playerId,
                   label: en.playerName || en.playerEmail,
                 }))}
                 value={groupSelectState.knockout || ''}
-                onChange={e =>
-                  setGroupSelectState(prev => ({ ...prev, knockout: e.target.value }))
+                onChange={(e) =>
+                  setGroupSelectState((prev) => ({ ...prev, knockout: e.target.value }))
                 }
               />
               <Button

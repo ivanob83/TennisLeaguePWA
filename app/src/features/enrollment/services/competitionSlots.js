@@ -20,9 +20,7 @@ function groupName(pos) {
 
 function rrPairs(n) {
   const pairs = []
-  for (let i = 1; i <= n; i++)
-    for (let j = i + 1; j <= n; j++)
-      pairs.push([i, j])
+  for (let i = 1; i <= n; i++) for (let j = i + 1; j <= n; j++) pairs.push([i, j])
   return pairs
 }
 
@@ -31,9 +29,10 @@ export async function createCompetitionSlots(competition, competitionId, competi
   const isRR = competition.format === 'round_robin' || competition.format === 'round_robin_knockout'
   const isKO = competition.format === 'knockout'
 
-  const groupsRepo = competitionType === 'leagues'
-    ? leagueGroupsRepository(competitionId)
-    : tournamentGroupsRepository(competitionId)
+  const groupsRepo =
+    competitionType === 'leagues'
+      ? leagueGroupsRepository(competitionId)
+      : tournamentGroupsRepository(competitionId)
   const rRepo = roundsRepository(competitionType, competitionId)
 
   if (isRR) {
@@ -75,8 +74,8 @@ export async function createCompetitionSlots(competition, competitionId, competi
             status: 'not_scheduled',
             scheduledAt: null,
             generated: true,
-          })
-        )
+          }),
+        ),
       )
     }
   }
@@ -111,8 +110,8 @@ export async function createCompetitionSlots(competition, competitionId, competi
           status: 'not_scheduled',
           scheduledAt: null,
           generated: true,
-        })
-      )
+        }),
+      ),
     )
   }
 }

@@ -64,15 +64,18 @@ function formatDateTime(val) {
   if (!val) return '—'
   const d = val?.toDate ? val.toDate() : new Date(val)
   return d.toLocaleString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 
 function toLocalDatetimeValue(val) {
   if (!val) return ''
   const d = val?.toDate ? val.toDate() : new Date(val)
-  const pad = n => String(n).padStart(2, '0')
+  const pad = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
@@ -85,10 +88,17 @@ function SetsTable({ sets, player1Name, player2Name, pending = false }) {
         <span>{player2Name}</span>
       </div>
       {sets.map((set, i) => (
-        <div key={i} className="grid grid-cols-3 gap-3 border-b border-slate-100 py-1.5 text-sm last:border-0">
+        <div
+          key={i}
+          className="grid grid-cols-3 gap-3 border-b border-slate-100 py-1.5 text-sm last:border-0"
+        >
           <span className="text-text-light">Set {i + 1}</span>
-          <span className={`font-semibold ${set.p1 > set.p2 ? 'text-primary' : 'text-text'}`}>{set.p1}</span>
-          <span className={`font-semibold ${set.p2 > set.p1 ? 'text-primary' : 'text-text'}`}>{set.p2}</span>
+          <span className={`font-semibold ${set.p1 > set.p2 ? 'text-primary' : 'text-text'}`}>
+            {set.p1}
+          </span>
+          <span className={`font-semibold ${set.p2 > set.p1 ? 'text-primary' : 'text-text'}`}>
+            {set.p2}
+          </span>
         </div>
       ))}
     </div>
@@ -100,10 +110,11 @@ function matchResultSummary(match) {
   if (isWalkover) return { sets: 'W/O', detail: null }
   const rawSets = match.sets?.length
     ? match.sets
-    : match.scores?.map(s => ({ p1: s.player1, p2: s.player2 })) || []
+    : match.scores?.map((s) => ({ p1: s.player1, p2: s.player2 })) || []
   if (!rawSets.length) return null
-  let p1sets = 0, p2sets = 0
-  const parts = rawSets.map(s => {
+  let p1sets = 0,
+    p2sets = 0
+  const parts = rawSets.map((s) => {
     const p1 = Number(s.p1 ?? s.player1 ?? 0)
     const p2 = Number(s.p2 ?? s.player2 ?? 0)
     if (p1 > p2) p1sets++
@@ -113,19 +124,24 @@ function matchResultSummary(match) {
   return { sets: `${p1sets}:${p2sets}`, detail: `(${parts.join('  ')})` }
 }
 
-function CompareBar({ v1, v2, label, format = v => v }) {
+function CompareBar({ v1, v2, label, format = (v) => v }) {
   const total = (v1 || 0) + (v2 || 0)
   const p1pct = total > 0 ? Math.round(((v1 || 0) / total) * 100) : 50
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between gap-2 text-sm">
         <span className="w-12 text-left font-semibold text-text">{format(v1 ?? 0)}</span>
-        <span className="flex-1 text-center text-xs font-medium uppercase tracking-wide text-text-light">{label}</span>
+        <span className="flex-1 text-center text-xs font-medium uppercase tracking-wide text-text-light">
+          {label}
+        </span>
         <span className="w-12 text-right font-semibold text-text">{format(v2 ?? 0)}</span>
       </div>
       <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-100">
         <div className="bg-primary transition-all duration-500" style={{ width: `${p1pct}%` }} />
-        <div className="bg-secondary transition-all duration-500" style={{ width: `${100 - p1pct}%` }} />
+        <div
+          className="bg-secondary transition-all duration-500"
+          style={{ width: `${100 - p1pct}%` }}
+        />
       </div>
     </div>
   )
@@ -142,7 +158,10 @@ export default function MatchDetailPage() {
 
   const { data: match, loading: matchLoading } = useFirestoreDoc(matchPath, matchId)
   const { data: round } = useFirestoreDoc(`${competitionType}/${competitionId}/rounds`, roundId)
-  const { data: group } = useFirestoreDoc(`${competitionType}/${competitionId}/groups`, round?.groupId)
+  const { data: group } = useFirestoreDoc(
+    `${competitionType}/${competitionId}/groups`,
+    round?.groupId,
+  )
   const { data: enrollments } = useFirestoreCollection(enrollmentPath)
 
   const [matchPlayers, setMatchPlayers] = useState({})
@@ -169,15 +188,25 @@ export default function MatchDetailPage() {
     if (!match) return
     setScheduledAt(toLocalDatetimeValue(match.scheduledAt))
     // Pre-fill score form from pending, finished sets, or seeded scores
-    const existingSets = match.pendingSets || match.sets
-      || match.scores?.map(s => ({ p1: s.player1, p2: s.player2 }))
-    if (existingSets?.length) setSets(existingSets.map(s => ({ p1: String(s.p1 ?? s.player1 ?? ''), p2: String(s.p2 ?? s.player2 ?? '') })))
+    const existingSets =
+      match.pendingSets ||
+      match.sets ||
+      match.scores?.map((s) => ({ p1: s.player1, p2: s.player2 }))
+    if (existingSets?.length)
+      setSets(
+        existingSets.map((s) => ({
+          p1: String(s.p1 ?? s.player1 ?? ''),
+          p2: String(s.p2 ?? s.player2 ?? ''),
+        })),
+      )
     async function loadPlayers() {
       const ids = [match.player1Id, match.player2Id].filter(Boolean)
-      const results = await Promise.all(ids.map(id => playersRepository.getById(id)))
+      const results = await Promise.all(ids.map((id) => playersRepository.getById(id)))
       const enriched = await enrichPlayersWithUserNames(results.filter(Boolean))
       const map = {}
-      ids.forEach((id, i) => { map[id] = enriched[id] ?? results[i] })
+      ids.forEach((id, i) => {
+        map[id] = enriched[id] ?? results[i]
+      })
       setMatchPlayers(map)
       setRepairP1(match.player1Id ?? '')
       setRepairP2(match.player2Id ?? '')
@@ -196,24 +225,39 @@ export default function MatchDetailPage() {
           getDocs(query(collectionGroup(db, 'matches'), where('player2Id', '==', playerId))),
         ])
         return {
-          asP1: asP1Snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(m => PLAYED.has(m.status)),
-          asP2: asP2Snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(m => PLAYED.has(m.status)),
+          asP1: asP1Snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter((m) => PLAYED.has(m.status)),
+          asP2: asP2Snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter((m) => PLAYED.has(m.status)),
         }
       }
       function computeStats(playerId, { asP1, asP2 }) {
-        let wins = 0, losses = 0
+        let wins = 0,
+          losses = 0
         for (const m of [...asP1, ...asP2]) {
           if (!m.winnerId) continue
-          if (m.winnerId === playerId) wins++; else losses++
+          if (m.winnerId === playerId) wins++
+          else losses++
         }
         const matchesPlayed = wins + losses
-        return { wins, losses, matchesPlayed, winRate: matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0 }
+        return {
+          wins,
+          losses,
+          matchesPlayed,
+          winRate: matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0,
+        }
       }
       try {
         const [p1m, p2m] = await Promise.all([fetchMatches(p1), fetchMatches(p2)])
-        const h2hMatches = [...p1m.asP1.filter(m => m.player2Id === p2), ...p1m.asP2.filter(m => m.player1Id === p2)]
+        const h2hMatches = [
+          ...p1m.asP1.filter((m) => m.player2Id === p2),
+          ...p1m.asP2.filter((m) => m.player1Id === p2),
+        ]
         setPlayerStats({ [p1]: computeStats(p1, p1m), [p2]: computeStats(p2, p2m) })
-        let p1wins = 0, p2wins = 0
+        let p1wins = 0,
+          p2wins = 0
         for (const m of h2hMatches) {
           if (m.winnerId === p1) p1wins++
           else if (m.winnerId === p2) p2wins++
@@ -229,17 +273,21 @@ export default function MatchDetailPage() {
 
   function playerName(id) {
     if (!id) return 'BYE'
-    const en = enrollments.find(e => e.playerId === id)
+    const en = enrollments.find((e) => e.playerId === id)
     return matchPlayers[id]?.name || en?.playerName || en?.playerEmail || id
   }
 
   const isMatchedPlayer =
     user &&
-    ((matchPlayers[match?.player1Id]?.authUid === user.uid) ||
-     (matchPlayers[match?.player2Id]?.authUid === user.uid))
+    (matchPlayers[match?.player1Id]?.authUid === user.uid ||
+      matchPlayers[match?.player2Id]?.authUid === user.uid)
 
   const canSchedule = isEditor && match?.status !== 'pending_approval'
-  const canScore = (isEditor || isMatchedPlayer) && match?.status !== 'finished' && match?.status !== 'walkover' && match?.status !== 'pending_approval'
+  const canScore =
+    (isEditor || isMatchedPlayer) &&
+    match?.status !== 'finished' &&
+    match?.status !== 'walkover' &&
+    match?.status !== 'pending_approval'
   const isFinished = match?.status === 'finished' || match?.status === 'walkover'
   const isPendingApproval = match?.status === 'pending_approval'
 
@@ -247,7 +295,11 @@ export default function MatchDetailPage() {
     setWalkoverSaving(true)
     try {
       await setWalkover(competitionType, competitionId, roundId, matchId, winnerId, enrollments)
-      showToast({ title: 'Walkover set', message: `${playerName(winnerId)} wins by WO.`, variant: 'success' })
+      showToast({
+        title: 'Walkover set',
+        message: `${playerName(winnerId)} wins by WO.`,
+        variant: 'success',
+      })
       setShowWalkover(false)
       setEditingResult(false)
     } catch {
@@ -259,7 +311,10 @@ export default function MatchDetailPage() {
 
   async function handleSchedule(e) {
     e.preventDefault()
-    if (!scheduledAt) { setScheduleError('Please select a date and time.'); return }
+    if (!scheduledAt) {
+      setScheduleError('Please select a date and time.')
+      return
+    }
     setScheduling(true)
     setScheduleError(null)
     try {
@@ -275,12 +330,27 @@ export default function MatchDetailPage() {
   async function handleScoreSubmit(e) {
     e.preventDefault()
     const { valid, error } = validateSets(sets)
-    if (!valid) { setScoreError(error); return }
+    if (!valid) {
+      setScoreError(error)
+      return
+    }
     setScoring(true)
     setScoreError(null)
     try {
-      await submitScores(competitionType, competitionId, roundId, matchId, sets, match.player1Id, match.player2Id)
-      showToast({ title: 'Result submitted', message: 'Waiting for admin approval.', variant: 'info' })
+      await submitScores(
+        competitionType,
+        competitionId,
+        roundId,
+        matchId,
+        sets,
+        match.player1Id,
+        match.player2Id,
+      )
+      showToast({
+        title: 'Result submitted',
+        message: 'Waiting for admin approval.',
+        variant: 'info',
+      })
     } catch {
       setScoreError('Failed to submit scores. Please try again.')
     } finally {
@@ -292,7 +362,11 @@ export default function MatchDetailPage() {
     setApproving(true)
     try {
       await approveScores(competitionType, competitionId, roundId, match, enrollments)
-      showToast({ title: 'Result approved', message: 'Match marked as finished.', variant: 'success' })
+      showToast({
+        title: 'Result approved',
+        message: 'Match marked as finished.',
+        variant: 'success',
+      })
     } catch {
       showToast({ title: 'Error', message: 'Failed to approve result.', variant: 'error' })
     } finally {
@@ -303,11 +377,23 @@ export default function MatchDetailPage() {
   async function handleEditResult(e) {
     e.preventDefault()
     const { valid, error } = validateSets(sets)
-    if (!valid) { setScoreError(error); return }
+    if (!valid) {
+      setScoreError(error)
+      return
+    }
     setScoring(true)
     setScoreError(null)
     try {
-      await editResult(competitionType, competitionId, roundId, matchId, sets, match.player1Id, match.player2Id, enrollments)
+      await editResult(
+        competitionType,
+        competitionId,
+        roundId,
+        matchId,
+        sets,
+        match.player1Id,
+        match.player2Id,
+        enrollments,
+      )
       showToast({ title: 'Result updated', message: 'Match result saved.', variant: 'success' })
       setEditingResult(false)
     } catch {
@@ -321,7 +407,11 @@ export default function MatchDetailPage() {
     setApproving(true)
     try {
       await rejectScores(competitionType, competitionId, roundId, match)
-      showToast({ title: 'Result rejected', message: 'Scores cleared, match is open again.', variant: 'info' })
+      showToast({
+        title: 'Result rejected',
+        message: 'Scores cleared, match is open again.',
+        variant: 'info',
+      })
     } catch {
       showToast({ title: 'Error', message: 'Failed to reject result.', variant: 'error' })
     } finally {
@@ -330,7 +420,7 @@ export default function MatchDetailPage() {
   }
 
   function updateSet(index, field, value) {
-    setSets(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s))
+    setSets((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)))
   }
 
   async function handleRepairPlayers(e) {
@@ -352,7 +442,9 @@ export default function MatchDetailPage() {
   if (matchLoading) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-24"><Loader /></div>
+        <div className="flex justify-center py-24">
+          <Loader />
+        </div>
       </AppLayout>
     )
   }
@@ -374,14 +466,22 @@ export default function MatchDetailPage() {
     <AppLayout>
       <Container className="py-8">
         <div className="mb-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/${competitionType}/${competitionId}`)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(`/${competitionType}/${competitionId}`)}
+          >
             ← Back to competition
           </Button>
         </div>
 
         <SectionTitle
           title={`${p1Name} vs ${p2Name}`}
-          subtitle={[group?.name, round?.roundNumber != null ? `Round ${round.roundNumber}` : null].filter(Boolean).join(' - ') || 'Match detail'}
+          subtitle={
+            [group?.name, round?.roundNumber != null ? `Round ${round.roundNumber}` : null]
+              .filter(Boolean)
+              .join(' - ') || 'Match detail'
+          }
         />
 
         {/* Player comparison */}
@@ -392,94 +492,106 @@ export default function MatchDetailPage() {
             const p2won = isFinished && match.winnerId === match.player2Id
             const displayStatus = resolveDisplayStatus(match.status, match.scheduledAt)
             return (
-          <Card>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-4">
-              <div className="flex items-center gap-2">
-                <Badge variant={STATUS_BADGE_VARIANT[displayStatus] || 'neutral'}>
-                  {STATUS_LABEL[displayStatus] || match.status}
-                </Badge>
-              </div>
-              {match.scheduledAt && (
-                <span className="text-sm text-text-light">{formatDateTime(match.scheduledAt)}</span>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex flex-1 flex-col items-center text-center">
-                <Avatar
-                  src={matchPlayers[match.player1Id]?.avatarUrl}
-                  urls={matchPlayers[match.player1Id]?.avatarUrls}
-                  sizeHint={100}
-                  name={p1Name}
-                  className="h-16 w-16 border border-slate-200"
-                />
-                <div className="mt-2 flex items-center gap-1">
-                  <p className="text-sm font-semibold text-text">{p1Name}</p>
-                  {p1won && (
-                    <svg className="h-4 w-4 shrink-0 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
+              <Card>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={STATUS_BADGE_VARIANT[displayStatus] || 'neutral'}>
+                      {STATUS_LABEL[displayStatus] || match.status}
+                    </Badge>
+                  </div>
+                  {match.scheduledAt && (
+                    <span className="text-sm text-text-light">
+                      {formatDateTime(match.scheduledAt)}
+                    </span>
                   )}
                 </div>
-              </div>
-              <div className="flex shrink-0 flex-col items-center gap-0.5">
-                {result ? (
-                  <>
-                    <span className="text-lg font-bold text-text">{result.sets}</span>
-                    {result.detail && <span className="text-xs text-text-light">{result.detail}</span>}
-                  </>
-                ) : (
-                  <span className="text-xs font-bold tracking-widest text-text-light">VS</span>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col items-center text-center">
-                <Avatar
-                  src={matchPlayers[match.player2Id]?.avatarUrl}
-                  urls={matchPlayers[match.player2Id]?.avatarUrls}
-                  sizeHint={100}
-                  name={p2Name}
-                  className="h-16 w-16 border border-slate-200"
-                />
-                <div className="mt-2 flex items-center gap-1">
-                  {p2won && (
-                    <svg className="h-4 w-4 shrink-0 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                  <p className="text-sm font-semibold text-text">{p2Name}</p>
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-1 flex-col items-center text-center">
+                    <Avatar
+                      src={matchPlayers[match.player1Id]?.avatarUrl}
+                      urls={matchPlayers[match.player1Id]?.avatarUrls}
+                      sizeHint={100}
+                      name={p1Name}
+                      className="h-16 w-16 border border-slate-200"
+                    />
+                    <div className="mt-2 flex items-center gap-1">
+                      <p className="text-sm font-semibold text-text">{p1Name}</p>
+                      {p1won && (
+                        <svg
+                          className="h-4 w-4 shrink-0 text-secondary"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-center gap-0.5">
+                    {result ? (
+                      <>
+                        <span className="text-lg font-bold text-text">{result.sets}</span>
+                        {result.detail && (
+                          <span className="text-xs text-text-light">{result.detail}</span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-xs font-bold tracking-widest text-text-light">VS</span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col items-center text-center">
+                    <Avatar
+                      src={matchPlayers[match.player2Id]?.avatarUrl}
+                      urls={matchPlayers[match.player2Id]?.avatarUrls}
+                      sizeHint={100}
+                      name={p2Name}
+                      className="h-16 w-16 border border-slate-200"
+                    />
+                    <div className="mt-2 flex items-center gap-1">
+                      {p2won && (
+                        <svg
+                          className="h-4 w-4 shrink-0 text-secondary"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          strokeWidth="3"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      <p className="text-sm font-semibold text-text">{p2Name}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="mt-5 space-y-3 border-t border-slate-200 pt-4">
-              {h2h !== null && (
-                <CompareBar
-                  v1={h2h.p1wins}
-                  v2={h2h.p2wins}
-                  label="Head to Head"
-                />
-              )}
-              <CompareBar
-                v1={playerStats[match.player1Id]?.matchesPlayed}
-                v2={playerStats[match.player2Id]?.matchesPlayed}
-                label="Matches played"
-              />
-              <CompareBar
-                v1={playerStats[match.player1Id]?.wins}
-                v2={playerStats[match.player2Id]?.wins}
-                label="Wins"
-              />
-              <CompareBar
-                v1={playerStats[match.player1Id]?.losses}
-                v2={playerStats[match.player2Id]?.losses}
-                label="Losses"
-              />
-              <CompareBar
-                v1={playerStats[match.player1Id]?.winRate}
-                v2={playerStats[match.player2Id]?.winRate}
-                label="Win rate"
-                format={v => `${v}%`}
-              />
-            </div>
-          </Card>
+                <div className="mt-5 space-y-3 border-t border-slate-200 pt-4">
+                  {h2h !== null && (
+                    <CompareBar v1={h2h.p1wins} v2={h2h.p2wins} label="Head to Head" />
+                  )}
+                  <CompareBar
+                    v1={playerStats[match.player1Id]?.matchesPlayed}
+                    v2={playerStats[match.player2Id]?.matchesPlayed}
+                    label="Matches played"
+                  />
+                  <CompareBar
+                    v1={playerStats[match.player1Id]?.wins}
+                    v2={playerStats[match.player2Id]?.wins}
+                    label="Wins"
+                  />
+                  <CompareBar
+                    v1={playerStats[match.player1Id]?.losses}
+                    v2={playerStats[match.player2Id]?.losses}
+                    label="Losses"
+                  />
+                  <CompareBar
+                    v1={playerStats[match.player1Id]?.winRate}
+                    v2={playerStats[match.player2Id]?.winRate}
+                    label="Win rate"
+                    format={(v) => `${v}%`}
+                  />
+                </div>
+              </Card>
             )
           })()}
         </div>
@@ -491,13 +603,17 @@ export default function MatchDetailPage() {
                 <h4 className="mb-3 font-heading text-sm font-semibold text-text">
                   {match.scheduledAt ? 'Reschedule' : 'Schedule match'}
                 </h4>
-                {scheduleError && <Alert variant="error" className="mb-3">{scheduleError}</Alert>}
+                {scheduleError && (
+                  <Alert variant="error" className="mb-3">
+                    {scheduleError}
+                  </Alert>
+                )}
                 <form onSubmit={handleSchedule} className="space-y-3">
                   <Input
                     label="Date & time"
                     type="datetime-local"
                     value={scheduledAt}
-                    onChange={e => setScheduledAt(e.target.value)}
+                    onChange={(e) => setScheduledAt(e.target.value)}
                   />
                   <Button type="submit" size="sm" loading={scheduling} loadingLabel="Saving...">
                     Save schedule
@@ -509,7 +625,6 @@ export default function MatchDetailPage() {
 
           {/* Main content: score entry / approval / result */}
           <div className={canSchedule ? 'lg:col-span-2' : 'lg:col-span-3'}>
-
             {/* Finished — show final result */}
             {isFinished && (
               <Card>
@@ -529,15 +644,19 @@ export default function MatchDetailPage() {
                       {match.winnerId && (
                         <p className="mb-4 text-sm font-semibold text-secondary">
                           Winner: {playerName(match.winnerId)}
-                          {(match.walkover || match.status === 'walkover') && <span className="ml-2 text-xs font-normal text-text-light">(walkover)</span>}
+                          {(match.walkover || match.status === 'walkover') && (
+                            <span className="ml-2 text-xs font-normal text-text-light">
+                              (walkover)
+                            </span>
+                          )}
                         </p>
                       )}
-                      {(match.sets?.length > 0) && (
+                      {match.sets?.length > 0 && (
                         <SetsTable sets={match.sets} player1Name={p1Name} player2Name={p2Name} />
                       )}
-                      {(!match.sets?.length && match.scores?.length > 0) && (
+                      {!match.sets?.length && match.scores?.length > 0 && (
                         <SetsTable
-                          sets={match.scores.map(s => ({ p1: s.player1, p2: s.player2 }))}
+                          sets={match.scores.map((s) => ({ p1: s.player1, p2: s.player2 }))}
                           player1Name={p1Name}
                           player2Name={p2Name}
                         />
@@ -547,7 +666,11 @@ export default function MatchDetailPage() {
 
                   {editingResult && (
                     <>
-                      {scoreError && <Alert variant="error" className="mb-4">{scoreError}</Alert>}
+                      {scoreError && (
+                        <Alert variant="error" className="mb-4">
+                          {scoreError}
+                        </Alert>
+                      )}
                       <form onSubmit={handleEditResult} className="space-y-4">
                         <div className="grid grid-cols-3 gap-3 text-xs font-bold uppercase tracking-wide text-text-light">
                           <span>Set</span>
@@ -557,21 +680,60 @@ export default function MatchDetailPage() {
                         {sets.map((set, i) => (
                           <div key={i} className="grid grid-cols-3 items-end gap-3">
                             <span className="pb-2 text-sm text-text-light">Set {i + 1}</span>
-                            <Input type="number" min="0" max="99" value={set.p1} onChange={e => updateSet(i, 'p1', e.target.value)} placeholder="0" />
+                            <Input
+                              type="number"
+                              min="0"
+                              max="99"
+                              value={set.p1}
+                              onChange={(e) => updateSet(i, 'p1', e.target.value)}
+                              placeholder="0"
+                            />
                             <div className="flex gap-2">
-                              <Input type="number" min="0" max="99" value={set.p2} onChange={e => updateSet(i, 'p2', e.target.value)} placeholder="0" />
+                              <Input
+                                type="number"
+                                min="0"
+                                max="99"
+                                value={set.p2}
+                                onChange={(e) => updateSet(i, 'p2', e.target.value)}
+                                placeholder="0"
+                              />
                               {sets.length > 1 && (
-                                <button type="button" onClick={() => setSets(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-xs text-rose-500 hover:text-rose-700">✕</button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setSets((prev) => prev.filter((_, idx) => idx !== i))
+                                  }
+                                  className="shrink-0 text-xs text-rose-500 hover:text-rose-700"
+                                >
+                                  ✕
+                                </button>
                               )}
                             </div>
                           </div>
                         ))}
-                        <Button type="button" variant="ghost" size="sm" onClick={() => setSets(prev => [...prev, { p1: '', p2: '' }])}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSets((prev) => [...prev, { p1: '', p2: '' }])}
+                        >
                           + Add set
                         </Button>
                         <div className="flex gap-3 border-t border-slate-200 pt-4">
-                          <Button type="submit" loading={scoring} loadingLabel="Saving...">Save result</Button>
-                          <Button type="button" variant="ghost" onClick={() => { setEditingResult(false); setScoreError(null); setShowWalkover(false) }}>Cancel</Button>
+                          <Button type="submit" loading={scoring} loadingLabel="Saving...">
+                            Save result
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingResult(false)
+                              setScoreError(null)
+                              setShowWalkover(false)
+                            }}
+                          >
+                            Cancel
+                          </Button>
                         </div>
                       </form>
                       <div className="mt-4 border-t border-slate-200 pt-4">
@@ -583,13 +745,27 @@ export default function MatchDetailPage() {
                           <div className="space-y-2">
                             <p className="text-sm text-text-light">Who wins by walkover?</p>
                             <div className="flex gap-2">
-                              <Button size="sm" loading={walkoverSaving} onClick={() => handleSetWalkover(match.player1Id)}>
+                              <Button
+                                size="sm"
+                                loading={walkoverSaving}
+                                onClick={() => handleSetWalkover(match.player1Id)}
+                              >
                                 {p1Name} wins WO
                               </Button>
-                              <Button size="sm" loading={walkoverSaving} onClick={() => handleSetWalkover(match.player2Id)}>
+                              <Button
+                                size="sm"
+                                loading={walkoverSaving}
+                                onClick={() => handleSetWalkover(match.player2Id)}
+                              >
                                 {p2Name} wins WO
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={() => setShowWalkover(false)}>Cancel</Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setShowWalkover(false)}
+                              >
+                                Cancel
+                              </Button>
                             </div>
                           </div>
                         )}
@@ -612,10 +788,18 @@ export default function MatchDetailPage() {
                   </p>
                   {match.pendingSets?.length > 0 && (
                     <div className="mb-6">
-                      <SetsTable sets={match.pendingSets} player1Name={p1Name} player2Name={p2Name} pending />
+                      <SetsTable
+                        sets={match.pendingSets}
+                        player1Name={p1Name}
+                        player2Name={p2Name}
+                        pending
+                      />
                       {match.pendingWinnerId && (
                         <p className="mt-3 text-sm font-medium text-text">
-                          Calculated winner: <span className="text-secondary">{playerName(match.pendingWinnerId)}</span>
+                          Calculated winner:{' '}
+                          <span className="text-secondary">
+                            {playerName(match.pendingWinnerId)}
+                          </span>
                         </p>
                       )}
                     </div>
@@ -636,9 +820,7 @@ export default function MatchDetailPage() {
             {isPendingApproval && !isEditor && (
               <Card>
                 <CardContent>
-                  <Alert variant="info">
-                    Result submitted and waiting for admin approval.
-                  </Alert>
+                  <Alert variant="info">Result submitted and waiting for admin approval.</Alert>
                 </CardContent>
               </Card>
             )}
@@ -650,7 +832,11 @@ export default function MatchDetailPage() {
                   <CardTitle>Enter scores</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {scoreError && <Alert variant="error" className="mb-4">{scoreError}</Alert>}
+                  {scoreError && (
+                    <Alert variant="error" className="mb-4">
+                      {scoreError}
+                    </Alert>
+                  )}
                   <form onSubmit={handleScoreSubmit} className="space-y-4">
                     <div className="grid grid-cols-3 gap-3 text-xs font-bold uppercase tracking-wide text-text-light">
                       <span>Set</span>
@@ -666,7 +852,7 @@ export default function MatchDetailPage() {
                           min="0"
                           max="99"
                           value={set.p1}
-                          onChange={e => updateSet(i, 'p1', e.target.value)}
+                          onChange={(e) => updateSet(i, 'p1', e.target.value)}
                           placeholder="0"
                         />
                         <div className="flex gap-2">
@@ -675,13 +861,13 @@ export default function MatchDetailPage() {
                             min="0"
                             max="99"
                             value={set.p2}
-                            onChange={e => updateSet(i, 'p2', e.target.value)}
+                            onChange={(e) => updateSet(i, 'p2', e.target.value)}
                             placeholder="0"
                           />
                           {sets.length > 1 && (
                             <button
                               type="button"
-                              onClick={() => setSets(prev => prev.filter((_, idx) => idx !== i))}
+                              onClick={() => setSets((prev) => prev.filter((_, idx) => idx !== i))}
                               className="shrink-0 text-xs text-rose-500 hover:text-rose-700"
                             >
                               ✕
@@ -695,7 +881,7 @@ export default function MatchDetailPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setSets(prev => [...prev, { p1: '', p2: '' }])}
+                      onClick={() => setSets((prev) => [...prev, { p1: '', p2: '' }])}
                     >
                       + Add set
                     </Button>
@@ -719,13 +905,27 @@ export default function MatchDetailPage() {
                         <div className="space-y-2">
                           <p className="text-sm text-text-light">Who wins by walkover?</p>
                           <div className="flex gap-2">
-                            <Button size="sm" loading={walkoverSaving} onClick={() => handleSetWalkover(match.player1Id)}>
+                            <Button
+                              size="sm"
+                              loading={walkoverSaving}
+                              onClick={() => handleSetWalkover(match.player1Id)}
+                            >
                               {p1Name} wins WO
                             </Button>
-                            <Button size="sm" loading={walkoverSaving} onClick={() => handleSetWalkover(match.player2Id)}>
+                            <Button
+                              size="sm"
+                              loading={walkoverSaving}
+                              onClick={() => handleSetWalkover(match.player2Id)}
+                            >
                               {p2Name} wins WO
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setShowWalkover(false)}>Cancel</Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setShowWalkover(false)}
+                            >
+                              Cancel
+                            </Button>
                           </div>
                         </div>
                       )}
@@ -748,7 +948,9 @@ export default function MatchDetailPage() {
 
         {isSuperadmin && allPlayers.length > 0 && (
           <div className="mt-8 border-t border-slate-200 pt-6">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-light">Superadmin — Repair Player IDs</p>
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-text-light">
+              Superadmin — Repair Player IDs
+            </p>
             <div className="max-w-lg">
               <Card className="border-amber-200 bg-amber-50">
                 <form onSubmit={handleRepairPlayers} className="space-y-3">
@@ -758,21 +960,31 @@ export default function MatchDetailPage() {
                     { label: 'Winner', value: repairWinner, set: setRepairWinner },
                   ].map(({ label, value, set }) => (
                     <div key={label} className="flex items-center gap-3">
-                      <label className="w-20 shrink-0 text-xs font-medium text-text-light">{label}</label>
+                      <label className="w-20 shrink-0 text-xs font-medium text-text-light">
+                        {label}
+                      </label>
                       <select
                         className="flex-1 rounded border border-slate-200 bg-white px-2 py-1.5 text-sm text-text"
                         value={value}
-                        onChange={e => set(e.target.value)}
+                        onChange={(e) => set(e.target.value)}
                       >
                         <option value="">— none —</option>
-                        {allPlayers.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
+                        {allPlayers.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                   ))}
                   {repairError && <p className="text-xs text-rose-600">{repairError}</p>}
-                  <Button type="submit" size="sm" variant="outline" loading={repairing} loadingLabel="Saving...">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    variant="outline"
+                    loading={repairing}
+                    loadingLabel="Saving..."
+                  >
                     Save player IDs
                   </Button>
                 </form>

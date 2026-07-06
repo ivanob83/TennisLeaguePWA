@@ -1,10 +1,21 @@
 /**
  * User Repository
- * 
+ *
  * Firestore operations for user documents
  */
 
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, query, limit, orderBy, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  query,
+  limit,
+  orderBy,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase.js'
 
 const COLLECTION = 'users'
@@ -15,7 +26,7 @@ const COLLECTION = 'users'
  */
 export async function createUser(uid, userData) {
   const userRef = doc(db, COLLECTION, uid)
-  
+
   await setDoc(userRef, {
     uid,
     email: userData.email,
@@ -23,7 +34,7 @@ export async function createUser(uid, userData) {
     role: userData.role || 'player',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    ...userData
+    ...userData,
   })
 
   return { uid, ...userData }
@@ -48,10 +59,10 @@ export async function getUserById(uid) {
  */
 export async function updateUser(uid, updates) {
   const userRef = doc(db, COLLECTION, uid)
-  
+
   await updateDoc(userRef, {
     ...updates,
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
   })
 
   return { uid, ...updates }
@@ -87,7 +98,7 @@ export async function isFirstUser() {
 export async function getAllUsers() {
   const q = query(collection(db, COLLECTION), orderBy('createdAt', 'asc'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
 /**

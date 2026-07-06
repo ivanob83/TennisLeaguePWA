@@ -30,14 +30,13 @@ export default function LeagueEnrollPage() {
           </Button>
         </div>
         {loading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
         ) : (
           <>
             <div className="mb-8">
-              <SectionTitle
-                title="League Setup"
-                subtitle={league?.name ?? 'League'}
-              />
+              <SectionTitle title="League Setup" subtitle={league?.name ?? 'League'} />
             </div>
 
             <div className="mb-6 flex gap-3 border-b border-slate-200 pb-3">
@@ -76,7 +75,9 @@ export default function LeagueEnrollPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-text-light">Players per group</span>
-                        <span className="font-medium text-text">{league?.playersPerGroup || 0}</span>
+                        <span className="font-medium text-text">
+                          {league?.playersPerGroup || 0}
+                        </span>
                       </div>
                     </>
                   )}

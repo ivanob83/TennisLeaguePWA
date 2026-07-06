@@ -8,7 +8,10 @@ function mergeRankings(entries) {
   for (const e of entries) {
     const pid = e.playerId
     if (!pid) continue
-    if (!byId[pid]) { byId[pid] = { ...e }; continue }
+    if (!byId[pid]) {
+      byId[pid] = { ...e }
+      continue
+    }
     byId[pid].points = (byId[pid].points ?? 0) + (e.points ?? 0)
     byId[pid].wins = (byId[pid].wins ?? 0) + (e.wins ?? 0)
     byId[pid].losses = (byId[pid].losses ?? 0) + (e.losses ?? 0)
@@ -21,7 +24,10 @@ function mergeRankings(entries) {
   for (const e of Object.values(byId)) {
     const key = (e.playerName ?? '').trim().toLowerCase()
     if (!key) continue
-    if (!byName[key]) { byName[key] = { ...e }; continue }
+    if (!byName[key]) {
+      byName[key] = { ...e }
+      continue
+    }
     byName[key].points = (byName[key].points ?? 0) + (e.points ?? 0)
     byName[key].wins = (byName[key].wins ?? 0) + (e.wins ?? 0)
     byName[key].losses = (byName[key].losses ?? 0) + (e.losses ?? 0)
@@ -30,18 +36,26 @@ function mergeRankings(entries) {
     byName[key].setsLost = (byName[key].setsLost ?? 0) + (e.setsLost ?? 0)
   }
 
-  return Object.values(byName).map(e => ({
+  return Object.values(byName).map((e) => ({
     ...e,
     winRate: e.matchesPlayed > 0 ? Math.round((e.wins / e.matchesPlayed) * 100) : 0,
   }))
 }
 
+function setRatio(e) {
+  const won = e.setsWon ?? 0
+  const lost = e.setsLost ?? 0
+  const total = won + lost
+  return total > 0 ? won / total : 0
+}
+
 function sortRankings(list) {
   return [...list].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points
+    const ratioDiff = setRatio(b) - setRatio(a)
+    if (ratioDiff !== 0) return ratioDiff
     if (b.wins !== a.wins) return b.wins - a.wins
-    if (b.winRate !== a.winRate) return b.winRate - a.winRate
-    return b.setsWon - a.setsWon
+    return (b.setsWon ?? 0) - (a.setsWon ?? 0)
   })
 }
 
@@ -64,18 +78,20 @@ export function useAllTimeTopPlayer() {
         ])
 
         const competitions = [
-          ...leaguesSnap.docs.map(d => ({ type: 'leagues', id: d.id })),
-          ...tournamentsSnap.docs.map(d => ({ type: 'tournaments', id: d.id })),
+          ...leaguesSnap.docs.map((d) => ({ type: 'leagues', id: d.id })),
+          ...tournamentsSnap.docs.map((d) => ({ type: 'tournaments', id: d.id })),
         ]
 
         const allEntries = []
-        await Promise.all(competitions.map(async comp => {
-          const snap = await getDocs(collection(db, `${comp.type}/${comp.id}/rankings`))
-          snap.docs.forEach(d => {
-            const data = d.data()
-            if (data.playerId) allEntries.push(data)
-          })
-        }))
+        await Promise.all(
+          competitions.map(async (comp) => {
+            const snap = await getDocs(collection(db, `${comp.type}/${comp.id}/rankings`))
+            snap.docs.forEach((d) => {
+              const data = d.data()
+              if (data.playerId) allEntries.push(data)
+            })
+          }),
+        )
 
         const sorted = sortRankings(mergeRankings(allEntries))
         const top = sorted[0] ?? null
@@ -83,7 +99,7 @@ export function useAllTimeTopPlayer() {
 
         if (top) {
           const key = (top.playerName ?? '').trim().toLowerCase()
-          const player = allPlayers.find(p => (p.name ?? '').trim().toLowerCase() === key) ?? null
+          const player = allPlayers.find((p) => (p.name ?? '').trim().toLowerCase() === key) ?? null
           setTopPlayer(player)
         }
       } catch (err) {

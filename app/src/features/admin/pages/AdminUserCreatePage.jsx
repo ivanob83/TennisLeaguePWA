@@ -4,14 +4,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth'
 import { firebaseConfig } from '../../../infrastructure/firebase.js'
 import AppLayout from '../../../layouts/AppLayout.jsx'
-import {
-  SectionTitle,
-  Card,
-  Input,
-  Button,
-  Alert,
-  Select,
-} from '../../../ui/index.js'
+import { SectionTitle, Card, Input, Button, Alert, Select } from '../../../ui/index.js'
 import { createUser } from '../../auth/services/userRepository.js'
 import { useToast } from '../../../context/ToastContext.jsx'
 
@@ -20,7 +13,6 @@ const ROLES = [
   { value: 'editor', label: 'Editor' },
   { value: 'superadmin', label: 'Superadmin' },
 ]
-
 
 export default function AdminUserCreatePage() {
   const navigate = useNavigate()
@@ -44,7 +36,10 @@ export default function AdminUserCreatePage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
 
     setSubmitting(true)
     setServerError(null)
@@ -57,7 +52,7 @@ export default function AdminUserCreatePage() {
       const { user } = await createUserWithEmailAndPassword(
         secondaryAuth,
         form.email.trim().toLowerCase(),
-        form.password
+        form.password,
       )
 
       await createUser(user.uid, {
@@ -69,22 +64,31 @@ export default function AdminUserCreatePage() {
 
       await signOut(secondaryAuth)
 
-      showToast({ title: 'User created', message: `${form.displayName.trim()} has been added.`, variant: 'success' })
+      showToast({
+        title: 'User created',
+        message: `${form.displayName.trim()} has been added.`,
+        variant: 'success',
+      })
       navigate('/admin/users')
     } catch (err) {
-      const msg = err.code === 'auth/email-already-in-use'
-        ? 'An account with this email already exists.'
-        : 'Failed to create user. Please try again.'
+      const msg =
+        err.code === 'auth/email-already-in-use'
+          ? 'An account with this email already exists.'
+          : 'Failed to create user. Please try again.'
       setServerError(msg)
     } finally {
       setSubmitting(false)
-      try { await signOut(secondaryAuth) } catch { /* ignore */ }
+      try {
+        await signOut(secondaryAuth)
+      } catch {
+        /* ignore */
+      }
     }
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
   return (
@@ -94,7 +98,11 @@ export default function AdminUserCreatePage() {
           <SectionTitle title="New User" subtitle="Create a user account with a role." />
         </div>
 
-        {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
+        {serverError && (
+          <Alert variant="error" className="mb-6">
+            {serverError}
+          </Alert>
+        )}
 
         <Card>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -103,7 +111,7 @@ export default function AdminUserCreatePage() {
               name="displayName"
               placeholder="e.g. John Doe"
               value={form.displayName}
-              onChange={e => handleChange('displayName', e.target.value)}
+              onChange={(e) => handleChange('displayName', e.target.value)}
               error={errors.displayName}
             />
             <Input
@@ -112,7 +120,7 @@ export default function AdminUserCreatePage() {
               type="email"
               placeholder="e.g. john@example.com"
               value={form.email}
-              onChange={e => handleChange('email', e.target.value)}
+              onChange={(e) => handleChange('email', e.target.value)}
               error={errors.email}
             />
             <Input
@@ -121,7 +129,7 @@ export default function AdminUserCreatePage() {
               type="password"
               placeholder="Min. 6 characters"
               value={form.password}
-              onChange={e => handleChange('password', e.target.value)}
+              onChange={(e) => handleChange('password', e.target.value)}
               error={errors.password}
             />
             <div>
@@ -130,7 +138,7 @@ export default function AdminUserCreatePage() {
               </label>
               <Select
                 value={form.role}
-                onChange={e => handleChange('role', e.target.value)}
+                onChange={(e) => handleChange('role', e.target.value)}
                 options={ROLES}
               />
             </div>

@@ -18,7 +18,7 @@ function cropAndResize(imageSrc, crop, size) {
 }
 
 function cropAndResizeRect(imageSrc, crop, width) {
-  const height = Math.round(width * 9 / 16)
+  const height = Math.round((width * 9) / 16)
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.onload = () => {
@@ -51,7 +51,10 @@ async function postToApi(endpoint, body) {
 
 export async function uploadPlayerAvatar(playerId, imageSrc, croppedAreaPixels) {
   const entries = await Promise.all(
-    AVATAR_SIZES.map(async size => [size, await cropAndResize(imageSrc, croppedAreaPixels, size)])
+    AVATAR_SIZES.map(async (size) => [
+      size,
+      await cropAndResize(imageSrc, croppedAreaPixels, size),
+    ]),
   )
   const images = Object.fromEntries(entries)
   const json = await postToApi('/api/upload-avatar.php', { playerId, images })
@@ -61,7 +64,10 @@ export async function uploadPlayerAvatar(playerId, imageSrc, croppedAreaPixels) 
 
 export async function uploadCompetitionImage(competitionId, imageSrc, croppedAreaPixels) {
   const entries = await Promise.all(
-    COMPETITION_WIDTHS.map(async width => [width, await cropAndResizeRect(imageSrc, croppedAreaPixels, width)])
+    COMPETITION_WIDTHS.map(async (width) => [
+      width,
+      await cropAndResizeRect(imageSrc, croppedAreaPixels, width),
+    ]),
   )
   const images = Object.fromEntries(entries)
   const json = await postToApi('/api/upload-competition-image.php', { competitionId, images })

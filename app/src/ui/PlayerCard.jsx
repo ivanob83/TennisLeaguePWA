@@ -10,8 +10,8 @@ export default function PlayerCard({ player }) {
   const countryCode = player.countryCode || ''
   const countryName = player.country || ''
   const statsLine = [
-    player.age ? `${player.age} Y/O` : null, 
-    player.hand ? `${String(player.hand).toUpperCase()} HANDED` : null
+    player.age ? `${player.age} Y/O` : null,
+    player.hand ? `${String(player.hand).toUpperCase()} HANDED` : null,
   ]
     .filter(Boolean)
     .join(' | ')

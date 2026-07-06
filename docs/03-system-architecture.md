@@ -2,16 +2,17 @@
 
 Version: 1.0  
 Status: Draft  
-Last updated: 2026-02-08  
+Last updated: 2026-02-08
 
 ---
 
 ## 1. Overview
 
 This document describes the **high-level architecture** of the Tennis League PWA.  
-It defines how the system is organized into layers and components, without delving into detailed implementation yet.  
+It defines how the system is organized into layers and components, without delving into detailed implementation yet.
 
 **Goals:**
+
 - Support offline-first capabilities (PWA)
 - Maintain data integrity and consistency
 - Separate concerns (UI, domain, persistence)
@@ -36,12 +37,14 @@ It defines how the system is organized into layers and components, without delvi
 ### 3.1 Presentation Layer (UI)
 
 **Responsibilities:**
+
 - Display matches, rounds, rankings, and news
 - Collect user input (match results, profile updates)
 - Handle push notifications
 - Offline caching via service workers
 
 **Technologies:**
+
 - React 19 + TypeScript
 - React Router for client-side navigation
 - PWA service workers
@@ -52,6 +55,7 @@ It defines how the system is organized into layers and components, without delvi
 ### 3.2 Application Layer (Client-Side Services)
 
 **Responsibilities:**
+
 - Orchestrates use cases and user actions (fully client-side)
 - Coordinates between UI and domain
 - Implements workflows for automatically creating rounds and matches based on league or tournament rules
@@ -60,6 +64,7 @@ It defines how the system is organized into layers and components, without delvi
 - Manages Firestore SDK calls and offline queue management
 
 **Components:**
+
 - **Application Services** – TypeScript services handling commands like `RecordMatchResult`, `CreateRound`
 - **DTOs / Models** – transfer data between UI components and domain layer
 - **Firestore Repository Layer** – abstracts Firestore CRUD operations (replaces Laravel Eloquent models)
@@ -70,17 +75,20 @@ It defines how the system is organized into layers and components, without delvi
 ### 3.3 Domain Layer
 
 **Responsibilities:**
+
 - Encapsulates core business logic
 - Enforces invariants and rules
 - Exposes domain entities and value objects
 
 **Components:**
+
 - **Entities:** Player, Match, Round, Season, League, Team, Ranking, News
 - **Value Objects:** Score, MatchStatus, RankingPosition, SeasonPeriod
 - **Domain Services:** Ranking calculation, dispute resolution
 - **Aggregates:** Season (root for rounds/matches), League/Tournament (root for seasons)
 
 **Notes:**
+
 - No dependencies on UI, database, or external systems
 - All state transitions and rules are enforced here
 
@@ -89,10 +97,12 @@ It defines how the system is organized into layers and components, without delvi
 ### 3.4 Infrastructure Layer
 
 **Responsibilities:**
+
 - Provides persistence, notifications, and external integrations
 - Bridges domain layer with Firestore and external systems
 
 **Components:**
+
 - **Firestore Repositories:** CRUD access via Firebase SDK (e.g., `PlayerRepository`, `MatchRepository`)
 - **Firebase Auth Service:** Manages user authentication and role claims
 - **Notifications Service:** Firebase Cloud Messaging (FCM) + browser push when enabled
@@ -101,6 +111,7 @@ It defines how the system is organized into layers and components, without delvi
 - **External Integrations:** Optional, e.g., Google Calendar export
 
 **Notes:**
+
 - Infrastructure is swappable; domain does not know implementation details
 - Primary persistence is Firestore (NoSQL, real-time, offline-capable)
 
@@ -132,11 +143,10 @@ It defines how the system is organized into layers and components, without delvi
 ## 6. Component Diagram (High-Level)
 
 [React Components] <--> [Application Services] <--> [Domain Layer: Entities/Services] <--> [Firestore SDK] <--> [Firestore Database]
-                                                                                            ↓
-                                                                                     [Local Cache / Offline]
-                                                                                            ↓
-                                                                                     [Service Worker / FCM]
-
+↓
+[Local Cache / Offline]
+↓
+[Service Worker / FCM]
 
 ---
 

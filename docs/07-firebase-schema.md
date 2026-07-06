@@ -2,7 +2,7 @@
 
 Version: 1.0  
 Status: Draft  
-Last updated: 2026-02-28  
+Last updated: 2026-02-28
 
 ---
 
@@ -57,6 +57,7 @@ firestore/
 ```
 
 **Notes:**
+
 - `uid` matches Firebase Auth UID
 - `role` is set as a Firebase Auth custom claim for efficient authorization checks
 - Only users can read/write their own document
@@ -71,21 +72,22 @@ firestore/
 
 ```typescript
 {
-  id: string                     // Auto-generated Firestore ID
-  name: string                   // League name (e.g., "Monday Night Tennis")
-  description: string            // League description
-  createdBy: string              // User ID of league organizer
-  createdAt: Timestamp           // League creation date
-  status: 'active' | 'archived'  // League status
+  id: string // Auto-generated Firestore ID
+  name: string // League name (e.g., "Monday Night Tennis")
+  description: string // League description
+  createdBy: string // User ID of league organizer
+  createdAt: Timestamp // League creation date
+  status: 'active' | 'archived' // League status
   settings: {
-    autoCreateSequentialMatches: boolean  // Auto-schedule based on rules
-    allowPlayerResultEntry: boolean       // Players can enter scores
-    requireOrganizerConfirm: boolean      // Organizer must confirm results
+    autoCreateSequentialMatches: boolean // Auto-schedule based on rules
+    allowPlayerResultEntry: boolean // Players can enter scores
+    requireOrganizerConfirm: boolean // Organizer must confirm results
   }
 }
 ```
 
 **Notes:**
+
 - `createdBy` determines who can manage league
 - Permissions: League creator acts as organizer; players can view
 
@@ -99,11 +101,11 @@ firestore/
 
 ```typescript
 {
-  id: string                     // Auto-generated Firestore ID
-  leagueId: string               // Parent league ID
-  name: string                   // Season name (e.g., "Spring 2026")
-  startDate: Timestamp           // Season start date
-  endDate: Timestamp             // Season end date
+  id: string // Auto-generated Firestore ID
+  leagueId: string // Parent league ID
+  name: string // Season name (e.g., "Spring 2026")
+  startDate: Timestamp // Season start date
+  endDate: Timestamp // Season end date
   status: 'pending' | 'active' | 'completed'
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -111,6 +113,7 @@ firestore/
 ```
 
 **Notes:**
+
 - Season must have non-overlapping dates within a league
 - Validation: `startDate < endDate`
 
@@ -124,12 +127,12 @@ firestore/
 
 ```typescript
 {
-  id: string                     // Auto-generated Firestore ID
-  seasonId: string               // Parent season ID
-  number: integer                // Round number (e.g., 1, 2, 3...)
-  name: string                   // Round name (e.g., "Round 1" or "Semifinals")
-  startDate: Timestamp           // Scheduled start of round
-  endDate: Timestamp             // Expected completion date
+  id: string // Auto-generated Firestore ID
+  seasonId: string // Parent season ID
+  number: integer // Round number (e.g., 1, 2, 3...)
+  name: string // Round name (e.g., "Round 1" or "Semifinals")
+  startDate: Timestamp // Scheduled start of round
+  endDate: Timestamp // Expected completion date
   status: 'scheduled' | 'in_progress' | 'completed'
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -137,6 +140,7 @@ firestore/
 ```
 
 **Notes:**
+
 - `number` should be unique within a season
 - All matches in a round should fall between `startDate` and `endDate`
 
@@ -167,6 +171,7 @@ firestore/
 ```
 
 **Notes:**
+
 - Scores only valid when `status === 'finished'`
 - `resultEnteredBy` tracks who entered the result (for audit)
 - Validation: `player1Id !== player2Id`
@@ -181,15 +186,16 @@ firestore/
 
 ```typescript
 {
-  id: string                     // Auto-generated Firestore ID
-  seasonId: string               // Parent season ID
-  userId: string                 // Reference to user UID
-  joinedAt: Timestamp            // When player joined the season
+  id: string // Auto-generated Firestore ID
+  seasonId: string // Parent season ID
+  userId: string // Reference to user UID
+  joinedAt: Timestamp // When player joined the season
   status: 'active' | 'inactive' | 'removed'
 }
 ```
 
 **Notes:**
+
 - Separate from `users` collection to track season-specific enrollment
 - Multiple entries possible if a player exists in multiple seasons
 
@@ -220,6 +226,7 @@ firestore/
 ```
 
 **Notes:**
+
 - Denormalized for performance (avoids aggregation queries)
 - Updated by domain service when match status changes to `finished`
 - Sorted by position for quick UI display
@@ -234,18 +241,19 @@ firestore/
 
 ```typescript
 {
-  id: string                     // Auto-generated Firestore ID
-  leagueId: string | null        // League ID (null if platform-wide)
-  title: string                  // Announcement title
-  content: string                // Announcement content (markdown supported)
-  createdBy: string              // User UID of author
-  createdAt: Timestamp           // Publication date
-  updatedAt: Timestamp           // Last edit date
-  visibility: 'public' | 'leagueOnly'  // Who can see this news
+  id: string // Auto-generated Firestore ID
+  leagueId: string | null // League ID (null if platform-wide)
+  title: string // Announcement title
+  content: string // Announcement content (markdown supported)
+  createdBy: string // User UID of author
+  createdAt: Timestamp // Publication date
+  updatedAt: Timestamp // Last edit date
+  visibility: 'public' | 'leagueOnly' // Who can see this news
 }
 ```
 
 **Notes:**
+
 - If `leagueId` is null, all players see news
 - If `leagueId` specified, only league members see news
 
@@ -259,7 +267,7 @@ firestore/
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
@@ -314,8 +322,8 @@ service cloud.firestore {
           match /matches/{matchId} {
             allow read: if isAuthenticated();
             allow create: if leagueCreator(leagueId);
-            allow update: if leagueCreator(leagueId) || 
-              (request.resource.data.status == 'finished' && 
+            allow update: if leagueCreator(leagueId) ||
+              (request.resource.data.status == 'finished' &&
                (isUser(request.resource.data.player1Id) || isUser(request.resource.data.player2Id)));
             allow delete: if leagueCreator(leagueId);
           }
@@ -350,18 +358,19 @@ service cloud.firestore {
 
 ### 4.2 Rules Explanation
 
-| Collection | Read | Create | Update | Delete |
-|-----------|------|--------|--------|--------|
-| users | Self only | Self | Self | Self |
-| leagues | All authenticated | Authenticated (set creator) | League creator or superadmin | League creator or superadmin |
-| seasons | All authenticated | League creator | League creator | League creator |
-| rounds | All authenticated | League creator | League creator | League creator |
-| matches | All authenticated | League creator | League creator **or** match player (if finishing) | League creator |
-| players | All authenticated | League creator | League creator or self | League creator |
-| rankings | All authenticated | League creator or superadmin | League creator or superadmin | League creator or superadmin |
-| news | All authenticated | Editor or superadmin | Editor or author | Editor or author |
+| Collection | Read              | Create                       | Update                                            | Delete                       |
+| ---------- | ----------------- | ---------------------------- | ------------------------------------------------- | ---------------------------- |
+| users      | Self only         | Self                         | Self                                              | Self                         |
+| leagues    | All authenticated | Authenticated (set creator)  | League creator or superadmin                      | League creator or superadmin |
+| seasons    | All authenticated | League creator               | League creator                                    | League creator               |
+| rounds     | All authenticated | League creator               | League creator                                    | League creator               |
+| matches    | All authenticated | League creator               | League creator **or** match player (if finishing) | League creator               |
+| players    | All authenticated | League creator               | League creator or self                            | League creator               |
+| rankings   | All authenticated | League creator or superadmin | League creator or superadmin                      | League creator or superadmin |
+| news       | All authenticated | Editor or superadmin         | Editor or author                                  | Editor or author             |
 
 **Notes:**
+
 - Players can only update a match if they are one of the participants and the match is transitioning to `finished`
 - All writes to rankings should include domain-layer validation before hitting Firestore
 - League creator has full control over their league
@@ -373,6 +382,7 @@ service cloud.firestore {
 ### 5.1 Authentication Methods
 
 **Enabled Providers:**
+
 1. **Email/Password** (primary for MVP)
    - User registration and login
    - Password reset via email
@@ -395,12 +405,14 @@ Custom claims are set via Firebase Admin SDK (backend script or Cloud Function):
 **How to set (example via Cloud Function or Node.js script):**
 
 ```javascript
-admin.auth().setCustomUserClaims(uid, {
-  role: 'editor',
-  leagueIds: []
-})
-.then(() => console.log('Custom claims set'))
-.catch(error => console.log(error));
+admin
+  .auth()
+  .setCustomUserClaims(uid, {
+    role: 'editor',
+    leagueIds: [],
+  })
+  .then(() => console.log('Custom claims set'))
+  .catch((error) => console.log(error))
 ```
 
 ### 5.3 User Onboarding Flow
@@ -421,31 +433,34 @@ admin.auth().setCustomUserClaims(uid, {
 **Listen to a single league:**
 
 ```javascript
-const unsubscribe = db.collection('leagues')
+const unsubscribe = db
+  .collection('leagues')
   .doc(leagueId)
-  .onSnapshot(doc => {
-    console.log('League updated:', doc.data());
-  });
+  .onSnapshot((doc) => {
+    console.log('League updated:', doc.data())
+  })
 ```
 
 **Listen to all rounds in a season:**
 
 ```javascript
-const unsubscribe = db.collection('leagues')
+const unsubscribe = db
+  .collection('leagues')
   .doc(leagueId)
   .collection('seasons')
   .doc(seasonId)
   .collection('rounds')
-  .onSnapshot(snapshot => {
-    const rounds = snapshot.docs.map(doc => doc.data());
-    console.log('Rounds:', rounds);
-  });
+  .onSnapshot((snapshot) => {
+    const rounds = snapshot.docs.map((doc) => doc.data())
+    console.log('Rounds:', rounds)
+  })
 ```
 
 **Listen to matches in a round (with filtering):**
 
 ```javascript
-const unsubscribe = db.collection('leagues')
+const unsubscribe = db
+  .collection('leagues')
   .doc(leagueId)
   .collection('seasons')
   .doc(seasonId)
@@ -453,9 +468,12 @@ const unsubscribe = db.collection('leagues')
   .doc(roundId)
   .collection('matches')
   .where('status', '==', 'finished')
-  .onSnapshot(snapshot => {
-    console.log('Finished matches:', snapshot.docs.map(d => d.data()));
-  });
+  .onSnapshot((snapshot) => {
+    console.log(
+      'Finished matches:',
+      snapshot.docs.map((d) => d.data()),
+    )
+  })
 ```
 
 ### 6.2 Listener Best Practices
@@ -475,17 +493,20 @@ Firestore SDK provides built-in offline support:
 
 ```javascript
 // Enable offline persistence (call once on app startup)
-firebase.firestore().enablePersistence()
-  .catch(err => {
+firebase
+  .firestore()
+  .enablePersistence()
+  .catch((err) => {
     if (err.code == 'failed-precondition') {
-      console.log('Offline persistence requires single tab');
+      console.log('Offline persistence requires single tab')
     } else if (err.code == 'unimplemented') {
-      console.log('Browser does not support offline persistence');
+      console.log('Browser does not support offline persistence')
     }
-  });
+  })
 ```
 
 **Behavior:**
+
 - Reads: Served from local cache if offline
 - Writes: Queued locally; synced to server automatically when online
 - Listeners: Triggered from cache offline; sync from server when online
@@ -493,10 +514,12 @@ firebase.firestore().enablePersistence()
 ### 7.2 Conflict Resolution
 
 **Default strategy (Firestore database-level):**
+
 - Latest timestamp wins for document updates
 - Firestore handles merge of concurrent writes
 
 **Application-level handling:**
+
 - Before writing match scores, client-side domain logic validates state
 - Firestore security rules prevent unauthorized overwrites
 - For disputes: editor can override via `editor_override` field (future enhancement)
@@ -509,22 +532,24 @@ For MVP, Firestore auto-indexes single-field queries. Composite indexes needed o
 
 **Recommended composite indexes:**
 
-| Collection | Fields | Use Case |
-|-----------|--------|----------|
-| matches | `status`, `scheduledDate` | Filter finished matches by date |
-| players | `seasonId`, `status` | List active players in season |
-| news | `leagueId`, `createdAt` | Paginate news by league |
+| Collection | Fields                    | Use Case                        |
+| ---------- | ------------------------- | ------------------------------- |
+| matches    | `status`, `scheduledDate` | Filter finished matches by date |
+| players    | `seasonId`, `status`      | List active players in season   |
+| news       | `leagueId`, `createdAt`   | Paginate news by league         |
 
 ---
 
 ## 9. Backup & Recovery
 
 **Firestore Backups:**
+
 - Enable automated backups in Firebase Console
 - For MVP: weekly backups to Cloud Storage
 - Restoration: via Firebase Console or `gcloud` CLI
 
 **Data Export:**
+
 ```bash
 gcloud firestore export gs://backup-bucket/backup-name --async
 ```
@@ -534,12 +559,14 @@ gcloud firestore export gs://backup-bucket/backup-name --async
 ## 10. Monitoring & Quotas
 
 **Free tier limits (pay-as-you-go):**
+
 - Reads: 50,000/day free
 - Writes: 20,000/day free
 - Deletes: 20,000/day free
 - Storage: 1GB free
 
 **Estimated usage for MVP:**
+
 - ~10-50 reads per active user per session
 - ~1-5 writes per session
 - Should stay well within free tier

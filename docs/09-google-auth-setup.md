@@ -7,6 +7,7 @@ Quick guide for enabling Google Sign-In in Firebase.
 ## Enable Google Provider in Firebase Console
 
 ### Step 1: Go to Firebase Console
+
 [https://console.firebase.google.com/project/ligaplay-9c803/authentication](https://console.firebase.google.com/project/ligaplay-9c803/authentication/providers)
 
 ### Step 2: Enable Google Sign-In Method
@@ -68,15 +69,19 @@ By default, `localhost` should already be authorized. If deploying to production
 ## Troubleshooting
 
 ### Error: "Popup blocked"
+
 **Solution:** Allow popups for localhost in browser settings
 
 ### Error: "unauthorized_client"
+
 **Solution:** Make sure Google provider is enabled in Firebase Console
 
 ### Error: "auth/popup-closed-by-user"
+
 **Solution:** User closed the popup, this is normal - just try again
 
 ### Profile photo not showing
+
 **Solution:** Check if `photoURL` field exists in Firestore user document
 
 ---
@@ -94,6 +99,7 @@ By default, `localhost` should already be authorized. If deploying to production
 ## Next Steps
 
 After enabling Google Sign-In:
+
 1. ✅ Test login flow
 2. ✅ Test register flow
 3. ✅ Verify Firestore user document creation

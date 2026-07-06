@@ -59,8 +59,16 @@ export async function scheduleMatch(competitionType, competitionId, roundId, mat
  * Saves scores as pending; transitions to 'pending_approval'.
  * Admin must approve before the result is finalised.
  */
-export async function submitScores(competitionType, competitionId, roundId, matchId, sets, player1Id, player2Id) {
-  const normalizedSets = sets.map(s => ({ p1: Number(s.p1), p2: Number(s.p2) }))
+export async function submitScores(
+  competitionType,
+  competitionId,
+  roundId,
+  matchId,
+  sets,
+  player1Id,
+  player2Id,
+) {
+  const normalizedSets = sets.map((s) => ({ p1: Number(s.p1), p2: Number(s.p2) }))
   const pendingWinnerId = determineWinner(normalizedSets, player1Id, player2Id)
   const repo = matchesRepository(competitionType, competitionId, roundId)
   await repo.update(matchId, {
@@ -75,11 +83,17 @@ export async function submitScores(competitionType, competitionId, roundId, matc
  * Admin approves pending scores — editor only.
  * Copies pending data to final fields and transitions to 'finished'.
  */
-export async function approveScores(competitionType, competitionId, roundId, match, enrollments = []) {
+export async function approveScores(
+  competitionType,
+  competitionId,
+  roundId,
+  match,
+  enrollments = [],
+) {
   const repo = matchesRepository(competitionType, competitionId, roundId)
   await repo.update(match.id, {
     sets: match.pendingSets,
-    scores: match.pendingSets.map(s => ({ player1: s.p1, player2: s.p2 })),
+    scores: match.pendingSets.map((s) => ({ player1: s.p1, player2: s.p2 })),
     winnerId: match.pendingWinnerId,
     pendingSets: null,
     pendingWinnerId: null,
@@ -92,13 +106,22 @@ export async function approveScores(competitionType, competitionId, roundId, mat
 /**
  * Editor directly overwrites a finished match result — skips pending_approval.
  */
-export async function editResult(competitionType, competitionId, roundId, matchId, sets, player1Id, player2Id, enrollments = []) {
-  const normalizedSets = sets.map(s => ({ p1: Number(s.p1), p2: Number(s.p2) }))
+export async function editResult(
+  competitionType,
+  competitionId,
+  roundId,
+  matchId,
+  sets,
+  player1Id,
+  player2Id,
+  enrollments = [],
+) {
+  const normalizedSets = sets.map((s) => ({ p1: Number(s.p1), p2: Number(s.p2) }))
   const winnerId = determineWinner(normalizedSets, player1Id, player2Id)
   const repo = matchesRepository(competitionType, competitionId, roundId)
   await repo.update(matchId, {
     sets: normalizedSets,
-    scores: normalizedSets.map(s => ({ player1: s.p1, player2: s.p2 })),
+    scores: normalizedSets.map((s) => ({ player1: s.p1, player2: s.p2 })),
     winnerId,
     status: 'finished',
     finishedAt: new Date(),
@@ -111,7 +134,14 @@ export async function editResult(competitionType, competitionId, roundId, matchI
 /**
  * Editor sets match result as walkover — no sets, winner is the non-defaulting player.
  */
-export async function setWalkover(competitionType, competitionId, roundId, matchId, winnerId, enrollments = []) {
+export async function setWalkover(
+  competitionType,
+  competitionId,
+  roundId,
+  matchId,
+  winnerId,
+  enrollments = [],
+) {
   const repo = matchesRepository(competitionType, competitionId, roundId)
   await repo.update(matchId, {
     winnerId,
@@ -145,7 +175,7 @@ export async function rejectScores(competitionType, competitionId, roundId, matc
  * Triggers ranking recalculation after a match is finished.
  */
 function onMatchFinished({ competitionType, competitionId, enrollments }) {
-  recalculateRankings(competitionType, competitionId, enrollments).catch(err =>
-    console.error('[Rankings] Recalculation failed:', err)
+  recalculateRankings(competitionType, competitionId, enrollments).catch((err) =>
+    console.error('[Rankings] Recalculation failed:', err),
   )
 }

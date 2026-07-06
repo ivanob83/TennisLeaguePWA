@@ -32,11 +32,13 @@ export default function SeasonsPage() {
   const navigate = useNavigate()
   const { isEditor, isSuperadmin } = useAuthContext()
   const { showToast } = useToast()
-  const { data: seasons, loading } = useFirestoreCollection('seasons', [orderBy('startDate', 'desc')])
+  const { data: seasons, loading } = useFirestoreCollection('seasons', [
+    orderBy('startDate', 'desc'),
+  ])
   const [confirmId, setConfirmId] = useState(null)
   const [deleting, setDeleting] = useState(false)
 
-  const confirmSeason = seasons.find(s => s.id === confirmId)
+  const confirmSeason = seasons.find((s) => s.id === confirmId)
 
   async function handleDelete() {
     setDeleting(true)
@@ -57,16 +59,24 @@ export default function SeasonsPage() {
         <SectionTitle
           title="Seasons"
           subtitle="Yearly competition sessions."
-          action={<Button size="sm" onClick={() => navigate('/seasons/create')}>+ New Season</Button>}
+          action={
+            <Button size="sm" onClick={() => navigate('/seasons/create')}>
+              + New Season
+            </Button>
+          }
         />
         <div className="mt-8">
           {loading ? (
-            <div className="flex justify-center py-16"><Loader /></div>
+            <div className="flex justify-center py-16">
+              <Loader />
+            </div>
           ) : seasons.length === 0 ? (
-            <p className="py-16 text-center text-text-light">No seasons yet. Create your first session.</p>
+            <p className="py-16 text-center text-text-light">
+              No seasons yet. Create your first session.
+            </p>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {seasons.map(season => (
+              {seasons.map((season) => (
                 <Card key={season.id}>
                   <CardHeader>
                     <div className="flex items-center justify-between">

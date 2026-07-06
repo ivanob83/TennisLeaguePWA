@@ -1,6 +1,4 @@
-import Card, {
-  CardContent,
-} from './Card.jsx'
+import Card, { CardContent } from './Card.jsx'
 
 export default function NewsCard({ news }) {
   return (

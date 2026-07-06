@@ -23,7 +23,7 @@ export default function AdminFixTieredLeaguePage() {
   const [log, setLog] = useState([])
 
   function addLog(msg) {
-    setLog(prev => [...prev, msg])
+    setLog((prev) => [...prev, msg])
   }
 
   async function handleFix() {
@@ -77,18 +77,24 @@ export default function AdminFixTieredLeaguePage() {
                 <li>Promotion: top 2, Relegation: bottom 2</li>
                 <li>Points: 3/0 (win/loss)</li>
               </ul>
-              <p className="pt-1 text-amber-600 font-medium">⚠ Pokretati samo jednom — ne briše postojeće podatke pre kreiranja.</p>
+              <p className="pt-1 text-amber-600 font-medium">
+                ⚠ Pokretati samo jednom — ne briše postojeće podatke pre kreiranja.
+              </p>
             </div>
-            <Button
-              onClick={handleFix}
-              disabled={status === 'loading' || status === 'done'}
-            >
-              {status === 'loading' ? 'Kreiranje...' : status === 'done' ? '✓ Gotovo' : 'Kreiraj Grupe i Match Slotove'}
+            <Button onClick={handleFix} disabled={status === 'loading' || status === 'done'}>
+              {status === 'loading'
+                ? 'Kreiranje...'
+                : status === 'done'
+                  ? '✓ Gotovo'
+                  : 'Kreiraj Grupe i Match Slotove'}
             </Button>
             {log.length > 0 && (
               <div className="mt-4 font-mono text-xs space-y-1 bg-slate-50 rounded-md p-3 border border-slate-200">
                 {log.map((line, i) => (
-                  <div key={i} className={line.startsWith('Greška') ? 'text-red-600' : 'text-slate-700'}>
+                  <div
+                    key={i}
+                    className={line.startsWith('Greška') ? 'text-red-600' : 'text-slate-700'}
+                  >
                     {line}
                   </div>
                 ))}

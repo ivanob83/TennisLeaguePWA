@@ -1,12 +1,6 @@
 import { cn } from '../utils.js'
 
-export default function SectionTitle({
-  title,
-  subtitle,
-  eyebrow,
-  action,
-  className,
-}) {
+export default function SectionTitle({ title, subtitle, eyebrow, action, className }) {
   return (
     <div className={cn(className)}>
       <div className="border-b border-slate-200 flex items-end justify-between gap-6 pt-6">

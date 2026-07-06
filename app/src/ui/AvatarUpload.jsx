@@ -81,10 +81,7 @@ export default function AvatarUpload({
             urls={value}
             sizeHint={100}
             name={name || 'Player'}
-            className={cn(
-              'h-16 w-16 border-2 border-slate-200',
-              uploading && 'opacity-50',
-            )}
+            className={cn('h-16 w-16 border-2 border-slate-200', uploading && 'opacity-50')}
             fallbackClassName="text-lg font-black"
           />
           {uploading && (
@@ -122,9 +119,7 @@ export default function AvatarUpload({
         </div>
       </div>
 
-      {displayError && (
-        <p className="text-xs text-rose-500">{displayError}</p>
-      )}
+      {displayError && <p className="text-xs text-rose-500">{displayError}</p>}
 
       <p className="text-xs text-text-light">
         JPG, PNG or WebP · max 5 MB · will be cropped to a circle

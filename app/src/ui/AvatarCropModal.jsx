@@ -17,10 +17,7 @@ export default function AvatarCropModal({ open, imageSrc, onClose, onConfirm }) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       {/* Modal */}
       <div className="relative z-10 flex w-full max-w-md flex-col bg-white shadow-xl">
@@ -29,9 +26,7 @@ export default function AvatarCropModal({ open, imageSrc, onClose, onConfirm }) 
           <h2 className="font-heading text-base font-black uppercase tracking-tight text-[#212121]">
             Crop Avatar
           </h2>
-          <p className="mt-0.5 text-xs text-text-light">
-            Drag to reposition · Scroll to zoom
-          </p>
+          <p className="mt-0.5 text-xs text-text-light">Drag to reposition · Scroll to zoom</p>
         </div>
 
         {/* Crop area */}
@@ -51,7 +46,9 @@ export default function AvatarCropModal({ open, imageSrc, onClose, onConfirm }) 
 
         {/* Zoom slider */}
         <div className="flex items-center gap-3 border-b border-slate-200 px-6 py-3">
-          <span className="text-xs font-semibold text-text-light uppercase tracking-[0.12em]">Zoom</span>
+          <span className="text-xs font-semibold text-text-light uppercase tracking-[0.12em]">
+            Zoom
+          </span>
           <input
             type="range"
             min={1}

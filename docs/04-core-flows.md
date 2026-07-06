@@ -2,7 +2,7 @@
 
 Version: 1.0  
 Status: Draft  
-Last updated: 2026-02-08  
+Last updated: 2026-02-08
 
 ---
 
@@ -19,12 +19,14 @@ They focus on **business behavior**, not implementation details.
 ### 2.1 Player Flows
 
 #### 2.1.1 View Match Schedule
+
 1. Player opens the app (online/offline)
 2. App fetches cached or live rounds and matches
 3. Player sees upcoming matches sorted by date and round
 4. Optional: Player sets reminders or notifications
 
 #### 2.1.2 Enter Match Result (if allowed)
+
 1. Player selects a finished match
 2. Enters score
 3. App validates score format
@@ -35,11 +37,13 @@ They focus on **business behavior**, not implementation details.
 8. FCM push notifications sent to affected players
 
 #### 2.1.3 View Rankings
+
 1. Player navigates to Rankings screen
 2. Domain layer provides ordered list of players for the relevant season
 3. App displays positions, points (if applicable), and trends
 
 #### 2.1.4 View News
+
 1. Player opens News section
 2. App fetches latest announcements
 3. Player can mark as read or share
@@ -49,6 +53,7 @@ They focus on **business behavior**, not implementation details.
 ### 2.2 Organizer Flows
 
 #### 2.2.1 Create Season & Rounds
+
 1. Organizer defines a new season (start/end dates)
 2. System checks for overlapping seasons
 3. Organizer creates a league or tournament inside the season
@@ -57,6 +62,7 @@ They focus on **business behavior**, not implementation details.
 6. Rounds are persisted and available to players
 
 #### 2.2.2 Schedule Matches
+
 1. Organizer selects a round
 2. Edits matches between players or teams and schedules date and time of play
 3. Application service writes to Firestore (if authorized by security rules)
@@ -64,6 +70,7 @@ They focus on **business behavior**, not implementation details.
 5. Notifications optionally triggered via FCM
 
 #### 2.2.3 Enter Match Results
+
 1. Similar to player flow, but organizer can override disputes
 2. Domain rules validate result
 3. Write to Firestore (authorization checked by security rules)
@@ -73,6 +80,7 @@ They focus on **business behavior**, not implementation details.
 7. FCM push notifications sent to affected players
 
 #### 2.2.4 Publish News
+
 1. Organizer creates announcement
 2. Content is saved to Firestore with timestamp
 3. Firestore real-time listeners notify all clients
@@ -84,6 +92,7 @@ They focus on **business behavior**, not implementation details.
 ## 3. System Flows
 
 ### 3.1 Offline Sync Flow
+
 1. User performs actions offline (match entry, news read)
 2. Actions are queued in Firestore's local offline cache (automatic)
 3. Service worker detects online availability
@@ -94,6 +103,7 @@ They focus on **business behavior**, not implementation details.
    - Manual review if organizer override needed for disputes
 
 ### 3.2 Ranking Update Flow
+
 1. Match status changes to `finished`
 2. Application service calls domain service to calculate new rankings for affected players
 3. Rankings written to Firestore (validated by security rules)
@@ -101,6 +111,7 @@ They focus on **business behavior**, not implementation details.
 5. FCM push notifications sent to players with ranking changes
 
 ### 3.3 Notification Flow
+
 1. Event triggers notification (new match, result, news)
 2. Application layer formats notification message
 3. Infrastructure layer (Firebase Admin SDK or client-side) sends FCM push
@@ -112,9 +123,9 @@ They focus on **business behavior**, not implementation details.
 ## 4. Flow Diagram (High-Level)
 
 [Player/Organizer] --> [UI] --> [Application Layer] --> [Domain Layer] --> [Firestore SDK]
-^ |                                                                              |
+^ | |
 |-----> [Firestore Security Rules] --> [Firestore DB]
-        [FCM / Real-time Listeners] <----|
+[FCM / Real-time Listeners] <----|
 
 ---
 

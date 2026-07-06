@@ -33,14 +33,16 @@ export default function NewsPage() {
 
         <div className="mt-8">
           {loading ? (
-            <div className="flex justify-center py-16"><Loader /></div>
+            <div className="flex justify-center py-16">
+              <Loader />
+            </div>
           ) : !articles.length ? (
             <Card>
               <p className="text-sm text-text-light">No news articles yet.</p>
             </Card>
           ) : (
             <div className="space-y-4">
-              {articles.map(article => (
+              {articles.map((article) => (
                 <Link
                   key={article.id}
                   to={`/news/${article.id}`}

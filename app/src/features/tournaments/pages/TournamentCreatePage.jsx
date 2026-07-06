@@ -30,7 +30,9 @@ export default function TournamentCreatePage() {
   const navigate = useNavigate()
   const { user } = useAuthContext()
   const { showToast } = useToast()
-  const { data: seasons, loading: seasonsLoading } = useFirestoreCollection('seasons', [orderBy('startDate', 'desc')])
+  const { data: seasons, loading: seasonsLoading } = useFirestoreCollection('seasons', [
+    orderBy('startDate', 'desc'),
+  ])
   const [form, setForm] = useState({
     seasonId: '',
     name: '',
@@ -48,7 +50,7 @@ export default function TournamentCreatePage() {
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState(null)
 
-  const selectedSeason = seasons.find(s => s.id === form.seasonId) ?? null
+  const selectedSeason = seasons.find((s) => s.id === form.seasonId) ?? null
 
   function validate() {
     const e = {}
@@ -92,7 +94,10 @@ export default function TournamentCreatePage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const fieldErrors = validate()
-    if (Object.keys(fieldErrors).length) { setErrors(fieldErrors); return }
+    if (Object.keys(fieldErrors).length) {
+      setErrors(fieldErrors)
+      return
+    }
     setSubmitting(true)
     setServerError(null)
     try {
@@ -135,146 +140,154 @@ export default function TournamentCreatePage() {
   }
 
   function handleChange(field, value) {
-    setForm(p => ({ ...p, [field]: value }))
-    setErrors(p => ({ ...p, [field]: undefined }))
+    setForm((p) => ({ ...p, [field]: value }))
+    setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
-  const seasonOptions = seasons.map(s => ({ value: s.id, label: s.name }))
+  const seasonOptions = seasons.map((s) => ({ value: s.id, label: s.name }))
 
   return (
     <AppLayout>
       <Container className="py-8">
-      <SectionTitle title="New Tournament" subtitle="Create a tournament within a season." />
-      <div className="mt-8 max-w-lg">
-        {serverError && <Alert variant="error" className="mb-6">{serverError}</Alert>}
-        {seasonsLoading ? (
-          <div className="flex justify-center py-16"><Loader /></div>
-        ) : seasons.length === 0 ? (
-          <Alert variant="info">
-            No seasons exist yet.{' '}
-            <a href="/seasons/create" className="font-medium underline">Create a season first.</a>
-          </Alert>
-        ) : (
-          <Card>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <Select
-                label="Season"
-                name="seasonId"
-                placeholder="Select a season"
-                options={seasonOptions}
-                value={form.seasonId}
-                onChange={e => handleChange('seasonId', e.target.value)}
-                error={errors.seasonId}
-              />
-              <Input
-                label="Tournament name"
-                name="name"
-                placeholder="e.g. Summer Slam 2026"
-                value={form.name}
-                onChange={e => handleChange('name', e.target.value)}
-                error={errors.name}
-              />
-              <Select
-                label="Format"
-                name="format"
-                placeholder="Select a format"
-                options={FORMAT_OPTIONS}
-                value={form.format}
-                onChange={e => handleChange('format', e.target.value)}
-                error={errors.format}
-              />
-              {(form.format === 'round_robin' || form.format === 'round_robin_knockout') && (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="Number of groups"
-                      name="numGroups"
-                      type="number"
-                      min="1"
-                      value={form.numGroups}
-                      onChange={e => handleChange('numGroups', e.target.value)}
-                      error={errors.numGroups}
-                    />
-                    <Input
-                      label="Players per group"
-                      name="playersPerGroup"
-                      type="number"
-                      min="2"
-                      value={form.playersPerGroup}
-                      onChange={e => handleChange('playersPerGroup', e.target.value)}
-                      error={errors.playersPerGroup}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="Points per win"
-                      name="pointsPerWin"
-                      type="number"
-                      min="0"
-                      value={form.pointsPerWin}
-                      onChange={e => handleChange('pointsPerWin', e.target.value)}
-                    />
-                    <Input
-                      label="Points per loss"
-                      name="pointsPerLoss"
-                      type="number"
-                      min="0"
-                      value={form.pointsPerLoss}
-                      onChange={e => handleChange('pointsPerLoss', e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
-              {form.format === 'knockout' && (
-                <Input
-                  label="Number of players (bracket size)"
-                  name="numPlayers"
-                  type="number"
-                  min="2"
-                  step="2"
-                  placeholder="e.g. 8, 16, 32"
-                  value={form.numPlayers}
-                  onChange={e => handleChange('numPlayers', e.target.value)}
-                  error={errors.numPlayers}
-                />
-              )}
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Start date"
-                  name="startDate"
-                  type="date"
-                  value={form.startDate}
-                  onChange={e => handleChange('startDate', e.target.value)}
-                  error={errors.startDate}
+        <SectionTitle title="New Tournament" subtitle="Create a tournament within a season." />
+        <div className="mt-8 max-w-lg">
+          {serverError && (
+            <Alert variant="error" className="mb-6">
+              {serverError}
+            </Alert>
+          )}
+          {seasonsLoading ? (
+            <div className="flex justify-center py-16">
+              <Loader />
+            </div>
+          ) : seasons.length === 0 ? (
+            <Alert variant="info">
+              No seasons exist yet.{' '}
+              <a href="/seasons/create" className="font-medium underline">
+                Create a season first.
+              </a>
+            </Alert>
+          ) : (
+            <Card>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <Select
+                  label="Season"
+                  name="seasonId"
+                  placeholder="Select a season"
+                  options={seasonOptions}
+                  value={form.seasonId}
+                  onChange={(e) => handleChange('seasonId', e.target.value)}
+                  error={errors.seasonId}
                 />
                 <Input
-                  label="End date"
-                  name="endDate"
-                  type="date"
-                  value={form.endDate}
-                  onChange={e => handleChange('endDate', e.target.value)}
-                  error={errors.endDate}
+                  label="Tournament name"
+                  name="name"
+                  placeholder="e.g. Summer Slam 2026"
+                  value={form.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  error={errors.name}
                 />
-              </div>
-              <Input
-                label="Rules (optional)"
-                name="rules"
-                placeholder="Any specific rules or notes..."
-                value={form.rules}
-                onChange={e => handleChange('rules', e.target.value)}
-              />
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" loading={submitting} loadingLabel="Creating...">
-                  Create Tournament
-                </Button>
-                <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </Card>
-        )}
-      </div>
+                <Select
+                  label="Format"
+                  name="format"
+                  placeholder="Select a format"
+                  options={FORMAT_OPTIONS}
+                  value={form.format}
+                  onChange={(e) => handleChange('format', e.target.value)}
+                  error={errors.format}
+                />
+                {(form.format === 'round_robin' || form.format === 'round_robin_knockout') && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Number of groups"
+                        name="numGroups"
+                        type="number"
+                        min="1"
+                        value={form.numGroups}
+                        onChange={(e) => handleChange('numGroups', e.target.value)}
+                        error={errors.numGroups}
+                      />
+                      <Input
+                        label="Players per group"
+                        name="playersPerGroup"
+                        type="number"
+                        min="2"
+                        value={form.playersPerGroup}
+                        onChange={(e) => handleChange('playersPerGroup', e.target.value)}
+                        error={errors.playersPerGroup}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Points per win"
+                        name="pointsPerWin"
+                        type="number"
+                        min="0"
+                        value={form.pointsPerWin}
+                        onChange={(e) => handleChange('pointsPerWin', e.target.value)}
+                      />
+                      <Input
+                        label="Points per loss"
+                        name="pointsPerLoss"
+                        type="number"
+                        min="0"
+                        value={form.pointsPerLoss}
+                        onChange={(e) => handleChange('pointsPerLoss', e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+                {form.format === 'knockout' && (
+                  <Input
+                    label="Number of players (bracket size)"
+                    name="numPlayers"
+                    type="number"
+                    min="2"
+                    step="2"
+                    placeholder="e.g. 8, 16, 32"
+                    value={form.numPlayers}
+                    onChange={(e) => handleChange('numPlayers', e.target.value)}
+                    error={errors.numPlayers}
+                  />
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Start date"
+                    name="startDate"
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => handleChange('startDate', e.target.value)}
+                    error={errors.startDate}
+                  />
+                  <Input
+                    label="End date"
+                    name="endDate"
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) => handleChange('endDate', e.target.value)}
+                    error={errors.endDate}
+                  />
+                </div>
+                <Input
+                  label="Rules (optional)"
+                  name="rules"
+                  placeholder="Any specific rules or notes..."
+                  value={form.rules}
+                  onChange={(e) => handleChange('rules', e.target.value)}
+                />
+                <div className="flex gap-3 pt-2">
+                  <Button type="submit" loading={submitting} loadingLabel="Creating...">
+                    Create Tournament
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
+        </div>
       </Container>
     </AppLayout>
   )

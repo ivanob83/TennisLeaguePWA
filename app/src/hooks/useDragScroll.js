@@ -10,7 +10,7 @@ export function useDragScroll() {
   const startX = useRef(0)
   const scrollLeft = useRef(0)
 
-  const onMouseDown = useCallback(e => {
+  const onMouseDown = useCallback((e) => {
     dragging.current = true
     startX.current = e.pageX - ref.current.offsetLeft
     scrollLeft.current = ref.current.scrollLeft
@@ -31,7 +31,7 @@ export function useDragScroll() {
     ref.current.style.userSelect = ''
   }, [])
 
-  const onMouseMove = useCallback(e => {
+  const onMouseMove = useCallback((e) => {
     if (!dragging.current) return
     e.preventDefault()
     const x = e.pageX - ref.current.offsetLeft

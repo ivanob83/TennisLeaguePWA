@@ -23,7 +23,7 @@ function resolveUrl(src, urls, sizeHint = 100) {
 
 export default function Avatar({
   src,
-  urls,          // avatarUrls object { 400, 200, 100, 80 }
+  urls, // avatarUrls object { 400, 200, 100, 80 }
   sizeHint = 100,
   name,
   fallback,
@@ -39,7 +39,12 @@ export default function Avatar({
   if (resolvedSrc) {
     const src = resolvedSrc
     return (
-      <span className={cn('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full', className)}>
+      <span
+        className={cn(
+          'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full',
+          className,
+        )}
+      >
         <img
           src={src}
           alt={alt || name || 'Avatar'}
@@ -55,7 +60,7 @@ export default function Avatar({
       className={cn(
         'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-white uppercase',
         className,
-        fallbackClassName
+        fallbackClassName,
       )}
       aria-label={alt || name || 'Avatar'}
     >

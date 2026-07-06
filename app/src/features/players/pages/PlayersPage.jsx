@@ -31,7 +31,9 @@ export default function PlayersPage() {
       try {
         const data = await playersRepository.getAll()
         const enriched = await enrichPlayersWithUserNames(data)
-        const list = Object.values(enriched).sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        const list = Object.values(enriched).sort((a, b) =>
+          (a.name || '').localeCompare(b.name || ''),
+        )
         setPlayers(list)
       } catch (err) {
         console.error(err)
@@ -48,7 +50,7 @@ export default function PlayersPage() {
     setDeleting(true)
     try {
       await playersRepository.delete(confirmPlayer.id)
-      setPlayers(prev => prev.filter(p => p.id !== confirmPlayer.id))
+      setPlayers((prev) => prev.filter((p) => p.id !== confirmPlayer.id))
       showToast({ title: 'Deleted', message: `${confirmPlayer.name} removed.`, variant: 'success' })
       setConfirmPlayer(null)
     } catch {
@@ -64,22 +66,36 @@ export default function PlayersPage() {
         <SectionTitle
           title="Players"
           subtitle="All registered players."
-          action={isEditor && (
-            <Button size="sm" onClick={() => navigate('/players/create')}>+ New Player</Button>
-          )}
+          action={
+            isEditor && (
+              <Button size="sm" onClick={() => navigate('/players/create')}>
+                + New Player
+              </Button>
+            )
+          }
         />
         <div className="mt-8">
-          {error && <Alert variant="error" className="mb-6">{error}</Alert>}
+          {error && (
+            <Alert variant="error" className="mb-6">
+              {error}
+            </Alert>
+          )}
           {loading ? (
-            <div className="flex justify-center py-16"><Loader /></div>
+            <div className="flex justify-center py-16">
+              <Loader />
+            </div>
           ) : players.length === 0 ? (
             <div className="py-16 text-center text-text-light">No players yet.</div>
           ) : (
             <div className="border border-gray-200">
               <div className="hidden sm:grid grid-cols-[40px_1fr_auto] gap-4 border-b border-gray-200 bg-background-light px-6 py-3">
                 <span />
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-text-light">Name</span>
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-text-light">Actions</span>
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-text-light">
+                  Name
+                </span>
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-text-light">
+                  Actions
+                </span>
               </div>
               {players.map((player, idx) => (
                 <div
@@ -102,7 +118,9 @@ export default function PlayersPage() {
                       {player.name}
                     </button>
                     {player.authUid && (
-                      <span className="text-xs font-bold uppercase tracking-[0.12em] text-secondary">linked</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.12em] text-secondary">
+                        linked
+                      </span>
                     )}
                   </div>
                   {isEditor && (
@@ -135,7 +153,11 @@ export default function PlayersPage() {
       <ConfirmDialog
         open={!!confirmPlayer}
         title="Delete player"
-        description={confirmPlayer ? `"${confirmPlayer.name}" will be permanently deleted. This cannot be undone.` : ''}
+        description={
+          confirmPlayer
+            ? `"${confirmPlayer.name}" will be permanently deleted. This cannot be undone.`
+            : ''
+        }
         confirmLabel="Delete"
         loading={deleting}
         onConfirm={handleDeleteConfirm}

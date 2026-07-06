@@ -3,13 +3,7 @@ export { default as Container } from './Container.jsx'
 export { default as ConfirmDialog } from './ConfirmDialog.jsx'
 export { default as SectionTitle } from './SectionTitle.jsx'
 export { default as Card } from './Card.jsx'
-export {
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from './Card.jsx'
+export { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card.jsx'
 export { default as Badge } from './Badge.jsx'
 export { default as Avatar } from './Avatar.jsx'
 export { default as AvatarUpload } from './AvatarUpload.jsx'

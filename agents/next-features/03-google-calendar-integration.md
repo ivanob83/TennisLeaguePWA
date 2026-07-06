@@ -21,12 +21,12 @@
 
 ### Auth strategija — odabir
 
-| Pristup | Pro | Kontra | Odluka |
-|---|---|---|---|
-| **A. Client-side OAuth (gapi/GIS)** sa scope `calendar.events` | Bez backenda, brz prototip, Firebase već koristi Google sign-in | Token traje 1h, refresh zahteva backend ili re-prompt. Token u memoriji = svaka sesija nov consent. | **Izabrano za v1.** |
-| B. Cloud Function + service account "domain-wide delegation" | Server-to-server, bez user OAuth-a | Zahteva Google Workspace, nema kod ovog projekta | Odbijeno. |
-| C. Cloud Function + per-user refresh token storage | Robusno, dugotrajno | Zahteva uvođenje Cloud Functions + sigurnosni model za token storage | Razmotriti za v2 ako re-prompt postane smetnja. |
-| D. Samo `.ics` file (bez OAuth-a) | Nula auth-a | Bez attendees / RSVP. Samo download. | **Fallback.** |
+| Pristup                                                        | Pro                                                             | Kontra                                                                                              | Odluka                                          |
+| -------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **A. Client-side OAuth (gapi/GIS)** sa scope `calendar.events` | Bez backenda, brz prototip, Firebase već koristi Google sign-in | Token traje 1h, refresh zahteva backend ili re-prompt. Token u memoriji = svaka sesija nov consent. | **Izabrano za v1.**                             |
+| B. Cloud Function + service account "domain-wide delegation"   | Server-to-server, bez user OAuth-a                              | Zahteva Google Workspace, nema kod ovog projekta                                                    | Odbijeno.                                       |
+| C. Cloud Function + per-user refresh token storage             | Robusno, dugotrajno                                             | Zahteva uvođenje Cloud Functions + sigurnosni model za token storage                                | Razmotriti za v2 ako re-prompt postane smetnja. |
+| D. Samo `.ics` file (bez OAuth-a)                              | Nula auth-a                                                     | Bez attendees / RSVP. Samo download.                                                                | **Fallback.**                                   |
 
 ### Implementacijski stack
 
@@ -102,13 +102,13 @@ export async function generateIcsFile({ match, scheduledAt, durationMinutes, sum
 ### Token client lifecycle
 
 ```js
-let cachedToken = null  // { accessToken, expiresAt }
+let cachedToken = null // { accessToken, expiresAt }
 
 export async function ensureCalendarToken({ interactive = true } = {}) {
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken
   if (!interactive) throw new NotAuthorizedError()
 
-  await loadGisScript()  // dynamic import za /gsi/client
+  await loadGisScript() // dynamic import za /gsi/client
   return new Promise((resolve, reject) => {
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID,
@@ -132,7 +132,15 @@ export async function ensureCalendarToken({ interactive = true } = {}) {
 ### Event payload
 
 ```js
-function buildEventBody({ match, scheduledAt, durationMinutes, summary, description, attendees, location }) {
+function buildEventBody({
+  match,
+  scheduledAt,
+  durationMinutes,
+  summary,
+  description,
+  attendees,
+  location,
+}) {
   const start = new Date(scheduledAt)
   const end = new Date(start.getTime() + durationMinutes * 60_000)
   return {
@@ -140,10 +148,10 @@ function buildEventBody({ match, scheduledAt, durationMinutes, summary, descript
     description,
     location: location ?? null,
     start: { dateTime: start.toISOString(), timeZone: 'Europe/Belgrade' },
-    end:   { dateTime: end.toISOString(),   timeZone: 'Europe/Belgrade' },
+    end: { dateTime: end.toISOString(), timeZone: 'Europe/Belgrade' },
     attendees: attendees
-      .filter(a => a.email)
-      .map(a => ({ email: a.email, displayName: a.displayName, responseStatus: 'needsAction' })),
+      .filter((a) => a.email)
+      .map((a) => ({ email: a.email, displayName: a.displayName, responseStatus: 'needsAction' })),
     guestsCanModify: false,
     guestsCanInviteOthers: false,
     reminders: { useDefault: true },
@@ -163,9 +171,11 @@ function buildEventBody({ match, scheduledAt, durationMinutes, summary, descript
 ### Idempotency / dedup
 
 Pre `createMatchEvent`:
+
 - Ako `match.calendarEvent?.eventId` postoji → poziva `updateMatchEvent` umesto create. Sprečava duplikat ako admin klikne dvaput ili ako se kreće između environments.
 
 Nakon `createMatchEvent`:
+
 - Write `matchesRepository.update(matchId, { calendarEvent: { eventId, htmlLink, iCalUID, organizerUid, createdAt, lastSyncAt } })`.
 
 ### Reschedule / cancel hooks
@@ -174,19 +184,23 @@ Ovaj feature **proširuje** postojeći `scheduleMatch` u `matchService.js`:
 
 ```js
 // app/src/features/matches/services/matchService.js
-import { syncMatchToCalendar, removeMatchFromCalendar } from '../../scheduling/services/matchCalendarSync.js'
+import {
+  syncMatchToCalendar,
+  removeMatchFromCalendar,
+} from '../../scheduling/services/matchCalendarSync.js'
 
 export async function scheduleMatch(competitionType, competitionId, roundId, matchId, scheduledAt) {
   const repo = matchesRepository(competitionType, competitionId, roundId)
   await repo.update(matchId, { scheduledAt, status: 'scheduled' })
   // Best-effort sync; greška se loguje ali ne ruši zakazivanje
-  syncMatchToCalendar({ competitionType, competitionId, roundId, matchId }).catch(err =>
-    console.error('[Calendar] sync failed', err)
+  syncMatchToCalendar({ competitionType, competitionId, roundId, matchId }).catch((err) =>
+    console.error('[Calendar] sync failed', err),
   )
 }
 ```
 
 Wrapper servis `matchCalendarSync.js`:
+
 - Čita match doc + competition meta + player docs.
 - Resolve attendees (admin email + igrači).
 - Bira create vs update na osnovu `match.calendarEvent`.
@@ -194,6 +208,7 @@ Wrapper servis `matchCalendarSync.js`:
 - Greške ne propagira u UI; postavi toast iz UI sloja samo ako poziv inicirao admin direktno (vidi UI sekciju).
 
 Slično za walkover/cancel:
+
 - `setWalkover` → `cancelMatchEvent` (meč se neće odigrati u zakazano vreme).
 - Brisanje meča (ako se ikada uvede) → `cancelMatchEvent`.
 
@@ -209,6 +224,7 @@ Nakon postojećeg "Schedule" forme dodati red:
 ```
 
 Default `checked` ako `users[user.uid].googleCalendarLinked === true`. Klikom na "Schedule" uz čekiran toggle:
+
 1. `await ensureCalendarToken({ interactive: true })`.
 2. `await scheduleMatch(...)` (postojeći).
 3. Toast: "Scheduled. Calendar event sent to N attendees." (broj = oni sa email-om).
@@ -221,6 +237,7 @@ Dialog (iz #02) dobija checkbox identičan gornjem. Workflow analogan.
 ### ProfilePage — Calendar status
 
 Sekcija "Integrations":
+
 - "Google Calendar — connected ✓" / "Not connected — [Connect]".
 - Disconnect dugme: ne ruši event-e (ostaju u kalendaru), samo briše `googleCalendarLinked` flag i čisti memorijski token.
 
@@ -237,12 +254,14 @@ VITE_GOOGLE_OAUTH_CLIENT_ID=xxxxx.apps.googleusercontent.com
 ```
 
 OAuth client setup u Google Cloud Console:
+
 - Tip: "Web application".
 - Authorized JavaScript origins: dev (`http://localhost:5173`) + prod URL.
 - **Bez** redirect URI-a (GIS koristi popup token flow).
 - Scope: `https://www.googleapis.com/auth/calendar.events` — dodato u OAuth consent screen.
 
 OAuth consent screen verifikacija:
+
 - Dok je u "testing" mode-u, samo whitelisted Google nalozi mogu autorizovati.
 - Za produkciju potrebna verifikacija (Google review). Privremeno: ostaviti u testing sa eksplicitnim listom admin email-ova.
 
@@ -252,18 +271,18 @@ Bez promena — sve klijentski.
 
 ## Edge cases
 
-| Slučaj | Tretman |
-|---|---|
-| Admin nije ulogovan kroz Google (već email/password) | Ne smeta — OAuth token za Calendar je odvojen od Firebase Auth-a. Popup za consent može tražiti drugi Google nalog. |
-| Admin koristi različit Google nalog svaki put | `cachedToken` je per-session. Calendar event ide u kalendar onog naloga koji je trenutno autorizovao. `organizerUid` čuva ko je inicirao. Reschedule od drugog admina → koristi novi token i šalje update svom kalendaru? **Odluka:** ako `match.calendarEvent.organizerUid !== currentUserUid` → upozorenje "Calendar event je u kalendaru drugog admina (X). Update će ići na njegov event." Pre poziva proveri da je trenutni user pristupio nekom Google nalogu — Calendar API dopušta `update` events samo organizatoru ili attendee-u. Ako ne uspe → fallback "create new event" + zaboravi stari (ostaje stale, ali bez čišćenja). Audit-friendly: log u console + UI warning toast. |
-| Igrač nema email | Preskoči iz attendees. Admin svejedno dobija event. |
-| Igrač ima email ali ne i Google nalog | Google šalje iCal pozivnicu na email — radi out-of-the-box. |
-| `scheduledAt` je u prošlosti | Calendar API to dopušta; samo postaje "past event". Ne blokirati. |
-| `scheduleMatch` sa istim `scheduledAt` (admin samo "potvrđuje" stari datum) | Idempotency: ako je `eventId` postavljen i `scheduledAt` se ne menja, skip API call. Pratimo last sync hash. |
-| Token expire mid-action | `ensureCalendarToken({ interactive: true })` će re-promptovati. UI mora await pa retry. |
-| Pop-up blocked | Eksplicitan toast: "Pop-up blocked. Allow pop-ups za ovu stranu pa probaj opet." |
-| Korisnik povuče Calendar pristup u Google security settings | API vraća 401. Treba uhvatiti i pozvati `ensureCalendarToken({ interactive: true })` jednom; ako i dalje 401 → fallback ICS. |
-| Više od 10 attendees | Nije scenario (max 2 + admin). Ako postane (turnir grupna potvrda), treba paginirati `sendUpdates`. Out-of-scope. |
+| Slučaj                                                                      | Tretman                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Admin nije ulogovan kroz Google (već email/password)                        | Ne smeta — OAuth token za Calendar je odvojen od Firebase Auth-a. Popup za consent može tražiti drugi Google nalog.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Admin koristi različit Google nalog svaki put                               | `cachedToken` je per-session. Calendar event ide u kalendar onog naloga koji je trenutno autorizovao. `organizerUid` čuva ko je inicirao. Reschedule od drugog admina → koristi novi token i šalje update svom kalendaru? **Odluka:** ako `match.calendarEvent.organizerUid !== currentUserUid` → upozorenje "Calendar event je u kalendaru drugog admina (X). Update će ići na njegov event." Pre poziva proveri da je trenutni user pristupio nekom Google nalogu — Calendar API dopušta `update` events samo organizatoru ili attendee-u. Ako ne uspe → fallback "create new event" + zaboravi stari (ostaje stale, ali bez čišćenja). Audit-friendly: log u console + UI warning toast. |
+| Igrač nema email                                                            | Preskoči iz attendees. Admin svejedno dobija event.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Igrač ima email ali ne i Google nalog                                       | Google šalje iCal pozivnicu na email — radi out-of-the-box.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `scheduledAt` je u prošlosti                                                | Calendar API to dopušta; samo postaje "past event". Ne blokirati.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `scheduleMatch` sa istim `scheduledAt` (admin samo "potvrđuje" stari datum) | Idempotency: ako je `eventId` postavljen i `scheduledAt` se ne menja, skip API call. Pratimo last sync hash.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Token expire mid-action                                                     | `ensureCalendarToken({ interactive: true })` će re-promptovati. UI mora await pa retry.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Pop-up blocked                                                              | Eksplicitan toast: "Pop-up blocked. Allow pop-ups za ovu stranu pa probaj opet."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Korisnik povuče Calendar pristup u Google security settings                 | API vraća 401. Treba uhvatiti i pozvati `ensureCalendarToken({ interactive: true })` jednom; ako i dalje 401 → fallback ICS.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Više od 10 attendees                                                        | Nije scenario (max 2 + admin). Ako postane (turnir grupna potvrda), treba paginirati `sendUpdates`. Out-of-scope.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ## Sigurnost
 
@@ -287,6 +306,7 @@ app/src/features/scheduling/
 ```
 
 **Izmene postojećih fajlova:**
+
 - `app/src/features/matches/services/matchService.js` — `scheduleMatch`, `setWalkover` pozivaju sync wrapper.
 - `app/src/features/matches/pages/MatchDetailPage.jsx` — `CalendarToggle` u Schedule formi + "View in Google Calendar" link.
 - `app/src/features/profile/pages/ProfilePage.jsx` — Integrations sekcija.
@@ -297,10 +317,18 @@ app/src/features/scheduling/
 Minimalan generator (nema lib-a):
 
 ```js
-export function generateIcs({ match, scheduledAt, durationMinutes, summary, description, attendees, location }) {
+export function generateIcs({
+  match,
+  scheduledAt,
+  durationMinutes,
+  summary,
+  description,
+  attendees,
+  location,
+}) {
   const start = formatIcsDate(new Date(scheduledAt))
-  const end   = formatIcsDate(new Date(new Date(scheduledAt).getTime() + durationMinutes * 60_000))
-  const uid   = `match-${match.id}@tennis-league`
+  const end = formatIcsDate(new Date(new Date(scheduledAt).getTime() + durationMinutes * 60_000))
+  const uid = `match-${match.id}@tennis-league`
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -315,20 +343,27 @@ export function generateIcs({ match, scheduledAt, durationMinutes, summary, desc
     `SUMMARY:${escapeIcs(summary)}`,
     `DESCRIPTION:${escapeIcs(description)}`,
     location && `LOCATION:${escapeIcs(location)}`,
-    ...attendees.filter(a => a.email).map(a =>
-      `ATTENDEE;CN=${escapeIcs(a.displayName)};RSVP=TRUE:mailto:${a.email}`
-    ),
+    ...attendees
+      .filter((a) => a.email)
+      .map((a) => `ATTENDEE;CN=${escapeIcs(a.displayName)};RSVP=TRUE:mailto:${a.email}`),
     'END:VEVENT',
     'END:VCALENDAR',
-  ].filter(Boolean).join('\r\n')
+  ]
+    .filter(Boolean)
+    .join('\r\n')
   return new Blob([lines], { type: 'text/calendar;charset=utf-8' })
 }
 
 function formatIcsDate(d) {
-  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+  return d
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '')
 }
 function escapeIcs(s = '') {
-  return String(s).replace(/[\\;,]/g, '\\$&').replace(/\n/g, '\\n')
+  return String(s)
+    .replace(/[\\;,]/g, '\\$&')
+    .replace(/\n/g, '\\n')
 }
 ```
 

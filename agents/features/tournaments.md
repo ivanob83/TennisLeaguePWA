@@ -28,6 +28,7 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 ## TournamentsPage — `/tournaments`
 
 **Firestore (real-time):**
+
 - `seasons` — `orderBy('startDate', 'desc')` — za filter dropdown
 - `tournaments` — filtrira po `seasonId` ako izabrana sezona; `orderBy('startDate', 'asc')` sa filterom, `orderBy('startDate', 'desc')` bez filtera
 
@@ -40,14 +41,17 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 **Access:** editor+
 
 **Razlike vs LeagueCreatePage:**
+
 - Dodatna polja: `startDate`, `endDate` (obavezna)
 - Validacija da su datumi turnira unutar opsega izabrane sezone
 - `pointsPerWin`/`pointsPerLoss` za round_robin format
 
 **Firestore:**
+
 - `tournamentsRepository.create(payload)` + `createCompetitionSlots(payload, tournament.id, 'tournaments')`
 
 **Payload:**
+
 ```js
 { seasonId, name, format, numGroups, playersPerGroup, pointsPerWin, pointsPerLoss,
   numPlayers, seededPlayerIds, startDate, endDate, rules, organizerId, status: 'draft' }
@@ -60,6 +64,7 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 ## TournamentDetailPage — `/tournaments/:tournamentId`
 
 **Identično LeagueDetailPage po strukturi.** Razlike:
+
 - Prikazuje `date range` (startDate–endDate) umesto samo statusa
 - Param: `tournamentId` (ne `leagueId`)
 - `deleteCompetition(tournamentId, 'tournaments')`
@@ -67,6 +72,7 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 **Tabovi:** isti kao liga (setup, draw, group_matches, standings, knockout) — dinamički na osnovu formata i role.
 
 **Firestore:**
+
 - `tournaments/{tournamentId}` — real-time doc
 - `seasons` — real-time kolekcija
 
@@ -75,6 +81,7 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 ## TournamentEditPage — `/tournaments/:tournamentId/edit`
 
 **Identično LeagueEditPage.** Razlike:
+
 - Ima `startDate`/`endDate` polja u formi
 - Validacija datuma unutar sezone
 - `uploadCompetitionImage(tournamentId, ...)` za sliku
@@ -89,18 +96,35 @@ CRUD za turnire. Turnir je kratko-format takmičenje unutar sezone sa datumskim 
 
 ## Firestore kolekcije
 
-| Kolekcija | Pristup | Napomena |
-|---|---|---|
-| `tournaments` | read/write | tournamentsRepository |
-| `seasons` | read | za dropdown i validaciju datuma |
-| `tournaments/{id}/enrollments` | read/write | via EnrollmentManager |
-| `tournaments/{id}/rounds` | read/write | via tabovi |
-| `tournaments/{id}/rounds/{rid}/matches` | read/write | via tabovi |
-| `tournaments/{id}/rankings` | read/write | via rankingService |
+| Kolekcija                               | Pristup    | Napomena                        |
+| --------------------------------------- | ---------- | ------------------------------- |
+| `tournaments`                           | read/write | tournamentsRepository           |
+| `seasons`                               | read       | za dropdown i validaciju datuma |
+| `tournaments/{id}/enrollments`          | read/write | via EnrollmentManager           |
+| `tournaments/{id}/rounds`               | read/write | via tabovi                      |
+| `tournaments/{id}/rounds/{rid}/matches` | read/write | via tabovi                      |
+| `tournaments/{id}/rankings`             | read/write | via rankingService              |
 
 **Tournament dokument:**
+
 ```js
-{ seasonId, name, format, numGroups, playersPerGroup, pointsPerWin, pointsPerLoss,
-  numPlayers, seededPlayerIds, startDate, endDate, rules,
-  organizerId, status, imageUrls, createdAt, updatedAt }
+{
+  ;(seasonId,
+    name,
+    format,
+    numGroups,
+    playersPerGroup,
+    pointsPerWin,
+    pointsPerLoss,
+    numPlayers,
+    seededPlayerIds,
+    startDate,
+    endDate,
+    rules,
+    organizerId,
+    status,
+    imageUrls,
+    createdAt,
+    updatedAt)
+}
 ```

@@ -17,7 +17,10 @@ export function useEnrichedEnrollments(competitionType, competitionId) {
       return
     }
 
-    const key = rawEnrollments.map(e => e.playerId).sort().join(',')
+    const key = rawEnrollments
+      .map((e) => e.playerId)
+      .sort()
+      .join(',')
     if (key === processedKeyRef.current) return
     processedKeyRef.current = key
 
@@ -25,16 +28,18 @@ export function useEnrichedEnrollments(competitionType, competitionId) {
     setEnrollments(rawEnrollments)
 
     // Then enrich with user displayName for linked players
-    Promise.all(rawEnrollments.map(e => playersRepository.getById(e.playerId)))
-      .then(playerDocs => enrichPlayersWithUserNames(playerDocs.filter(Boolean)))
-      .then(enriched => {
-        setEnrollments(rawEnrollments.map(en => {
-          const p = enriched[en.playerId]
-          return p ? { ...en, playerName: p.name } : en
-        }))
+    Promise.all(rawEnrollments.map((e) => playersRepository.getById(e.playerId)))
+      .then((playerDocs) => enrichPlayersWithUserNames(playerDocs.filter(Boolean)))
+      .then((enriched) => {
+        setEnrollments(
+          rawEnrollments.map((en) => {
+            const p = enriched[en.playerId]
+            return p ? { ...en, playerName: p.name } : en
+          }),
+        )
       })
       .catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, rawEnrollments.length])
 
   return { data: enrollments, loading }
