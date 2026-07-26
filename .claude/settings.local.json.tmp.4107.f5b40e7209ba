@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(command -v gcloud)",
+      "Read(//usr/bin/**)",
+      "Bash(npm install *)",
+      "Bash(node --check scripts/backup-firestore.js)",
+      "Bash(cp /tmp/inspect.mjs /home/ivan/development/TennisLeaguePWA/_inspect_tmp.mjs)",
+      "Bash(node /home/ivan/development/TennisLeaguePWA/_inspect_tmp.mjs)",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ]
+}

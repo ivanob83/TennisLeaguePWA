@@ -55,6 +55,15 @@ export async function scheduleMatch(competitionType, competitionId, roundId, mat
 }
 
 /**
+ * Clear a match's schedule — editor only.
+ * Transitions: scheduled → not_scheduled (drops scheduledAt).
+ */
+export async function unscheduleMatch(competitionType, competitionId, roundId, matchId) {
+  const repo = matchesRepository(competitionType, competitionId, roundId)
+  await repo.update(matchId, { scheduledAt: null, status: 'not_scheduled' })
+}
+
+/**
  * Submit scores for admin approval — editor or matched player.
  * Saves scores as pending; transitions to 'pending_approval'.
  * Admin must approve before the result is finalised.

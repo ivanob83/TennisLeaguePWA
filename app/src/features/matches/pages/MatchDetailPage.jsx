@@ -26,6 +26,7 @@ import { db } from '../../../infrastructure/firebase.js'
 import {
   validateSets,
   scheduleMatch,
+  unscheduleMatch,
   submitScores,
   approveScores,
   rejectScores,
@@ -327,6 +328,24 @@ export default function MatchDetailPage() {
     }
   }
 
+  async function handleUnschedule() {
+    setScheduling(true)
+    setScheduleError(null)
+    try {
+      await unscheduleMatch(competitionType, competitionId, roundId, matchId)
+      setScheduledAt('')
+      showToast({
+        title: 'Match unscheduled',
+        message: 'Match set back to not scheduled.',
+        variant: 'info',
+      })
+    } catch {
+      setScheduleError('Failed to unschedule match. Please try again.')
+    } finally {
+      setScheduling(false)
+    }
+  }
+
   async function handleScoreSubmit(e) {
     e.preventDefault()
     const { valid, error } = validateSets(sets)
@@ -615,9 +634,22 @@ export default function MatchDetailPage() {
                     value={scheduledAt}
                     onChange={(e) => setScheduledAt(e.target.value)}
                   />
-                  <Button type="submit" size="sm" loading={scheduling} loadingLabel="Saving...">
-                    Save schedule
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button type="submit" size="sm" loading={scheduling} loadingLabel="Saving...">
+                      Save schedule
+                    </Button>
+                    {match.scheduledAt && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={scheduling}
+                        onClick={handleUnschedule}
+                      >
+                        Unschedule
+                      </Button>
+                    )}
+                  </div>
                 </form>
               </Card>
             </div>

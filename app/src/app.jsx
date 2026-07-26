@@ -83,6 +83,9 @@ const SeedPlayLiga2025Ciklus3Page = lazy(
 const SeedPlayLiga2026Ciklus2Page = lazy(
   () => import('./features/admin/pages/SeedPlayLiga2026Ciklus2Page.jsx'),
 )
+const AdminAddFilipCiklus2Page = lazy(
+  () => import('./features/admin/pages/AdminAddFilipCiklus2Page.jsx'),
+)
 const SchedulingPage = lazy(() => import('./features/scheduling/pages/SchedulingPage.jsx'))
 
 // ─── Fallback ────────────────────────────────────────────────────────────────
@@ -360,6 +363,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminFixTieredLeaguePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/migrate/add-filip-ciklus2"
+              element={
+                <ProtectedRoute>
+                  <AdminAddFilipCiklus2Page />
                 </ProtectedRoute>
               }
             />

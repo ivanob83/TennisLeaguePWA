@@ -4,7 +4,7 @@ import { Alert, Button, Card, Input, Loader, MatchCard } from '../../../ui/index
 import { useFirestoreCollectionOnce } from '../../../hooks/useFirestore.js'
 import { useEnrichedEnrollments } from '../../../hooks/useEnrichedEnrollments.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
-import { scheduleMatch } from '../../matches/services/matchService.js'
+import { scheduleMatch, unscheduleMatch } from '../../matches/services/matchService.js'
 
 function toLocalDatetimeValue(val) {
   if (!val) return ''
@@ -178,13 +178,20 @@ function MatchRow({
 }) {
   const [showSchedule, setShowSchedule] = useState(false)
   const [scheduledAt, setScheduledAt] = useState(toLocalDatetimeValue(match.scheduledAt))
+  const [currentScheduledAt, setCurrentScheduledAt] = useState(match.scheduledAt ?? null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
   const isFinished = match.status === 'finished' || match.status === 'walkover' || match.walkover
   const canSchedule = isEditor && !isFinished
   const detailHref = `/${competitionType}/${competitionId}/rounds/${roundId}/matches/${match.id}`
-  const cardMatch = buildCardMatch(match, enrollments, players, groupName, competitionName)
+  const cardMatch = buildCardMatch(
+    { ...match, scheduledAt: currentScheduledAt },
+    enrollments,
+    players,
+    groupName,
+    competitionName,
+  )
 
   async function handleSchedule(e) {
     e.preventDefault()
@@ -196,9 +203,25 @@ function MatchRow({
     setError(null)
     try {
       await scheduleMatch(competitionType, competitionId, roundId, match.id, scheduledAt)
+      setCurrentScheduledAt(scheduledAt)
       setShowSchedule(false)
     } catch {
       setError('Failed to save schedule.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleUnschedule() {
+    setSaving(true)
+    setError(null)
+    try {
+      await unscheduleMatch(competitionType, competitionId, roundId, match.id)
+      setCurrentScheduledAt(null)
+      setScheduledAt('')
+      setShowSchedule(false)
+    } catch {
+      setError('Failed to unschedule.')
     } finally {
       setSaving(false)
     }
@@ -213,7 +236,7 @@ function MatchRow({
           canSchedule
             ? showSchedule
               ? 'Cancel'
-              : match.scheduledAt
+              : currentScheduledAt
                 ? 'Reschedule'
                 : 'Schedule'
             : undefined
@@ -240,6 +263,17 @@ function MatchRow({
           <Button type="submit" size="sm" loading={saving} loadingLabel="Saving...">
             Save
           </Button>
+          {currentScheduledAt && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={saving}
+              onClick={handleUnschedule}
+            >
+              Unschedule
+            </Button>
+          )}
         </form>
       )}
     </div>
@@ -287,8 +321,12 @@ function GroupRoundView({
   if (!matches.length) return <p className="py-2 text-sm text-text-light">No match slots yet.</p>
 
   const playerIds = group?.playerIds ?? []
-  const n =
-    Number.isInteger(playersPerGroup) && playersPerGroup >= 2 ? playersPerGroup : playerIds.length
+  // Schedule size = the group's actual roster (source of truth). `playersPerGroup`
+  // is a league-wide default and can be smaller than a group that got an extra
+  // player added post-draw — take the larger so every position is scheduled
+  // (odd n → circle method spreads the pairings across rounds with a BYE each).
+  const perGroup = Number.isInteger(playersPerGroup) && playersPerGroup >= 2 ? playersPerGroup : 0
+  const n = Math.max(playerIds.length, perGroup)
   const { rounds: displayRounds, byeByRound } = groupIntoRoundsByPositions(matches, n)
 
   return (

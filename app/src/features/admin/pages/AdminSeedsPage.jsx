@@ -129,6 +129,27 @@ export default function AdminSeedsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <Wrench size={15} className="shrink-0 text-text-light" />
+                    <p className="font-heading text-sm font-semibold text-text">
+                      Dodaj Filipa (Ciklus 2)
+                    </p>
+                  </div>
+                  <p className="mt-1 text-xs text-text-light">
+                    One-time migracija: dodaje novog igrača „Filip“ u Grupu 1 lige Play Liga 2026
+                    Ciklus 2. Generiše samo nove mečeve; postojeći žreb i rezultati ostaju.
+                  </p>
+                </div>
+                <Link to="/admin/migrate/add-filip-ciklus2" className="shrink-0">
+                  <Button size="sm" variant="outline">
+                    Run
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+            <Card>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Wrench size={15} className="shrink-0 text-text-light" />
                     <p className="font-heading text-sm font-semibold text-text">Orphan Matches</p>
                   </div>
                   <p className="mt-1 text-xs text-text-light">

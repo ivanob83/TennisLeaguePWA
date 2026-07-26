@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { where } from 'firebase/firestore'
 import AppLayout from '../../../layouts/AppLayout.jsx'
 import {
   SectionTitle,
@@ -12,7 +11,7 @@ import {
   Select,
   Badge,
 } from '../../../ui/index.js'
-import { getUserById, updateUser } from '../../auth/services/userRepository.js'
+import { getUserById, updateUser, getAllUsers } from '../../auth/services/userRepository.js'
 import { playersRepository } from '../../../infrastructure/firestore.js'
 import { useToast } from '../../../context/ToastContext.jsx'
 
@@ -34,7 +33,10 @@ export default function AdminUserEditPage() {
   const [form, setForm] = useState({ displayName: '', email: '', role: 'player' })
 
   const [linkedPlayer, setLinkedPlayer] = useState(null)
-  const [freePlayers, setFreePlayers] = useState([])
+  // All players except the one already linked to THIS user (free + linked to others).
+  const [availablePlayers, setAvailablePlayers] = useState([])
+  // Map authUid -> displayName, to label players already taken by another user.
+  const [ownerNames, setOwnerNames] = useState({})
   const [selectedPlayerId, setSelectedPlayerId] = useState('')
   const [linkSaving, setLinkSaving] = useState(false)
   const [linkError, setLinkError] = useState(null)
@@ -42,10 +44,10 @@ export default function AdminUserEditPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [userData, linked, free] = await Promise.all([
+        const [userData, allPlayers, allUsers] = await Promise.all([
           getUserById(userId),
-          playersRepository.query([where('authUid', '==', userId)]),
-          playersRepository.getAll().then((all) => all.filter((p) => !p.authUid)),
+          playersRepository.getAll(),
+          getAllUsers(),
         ])
 
         if (!userData) {
@@ -59,8 +61,14 @@ export default function AdminUserEditPage() {
           email: userData.email || '',
           role: userData.role || 'player',
         })
-        setLinkedPlayer(linked[0] || null)
-        setFreePlayers(free)
+
+        const names = {}
+        for (const u of allUsers) names[u.id] = u.displayName || u.email || u.id
+        setOwnerNames(names)
+
+        const linked = allPlayers.find((p) => p.authUid === userId) || null
+        setLinkedPlayer(linked)
+        setAvailablePlayers(allPlayers.filter((p) => p.id !== linked?.id))
       } catch {
         setServerError('Failed to load user.')
       } finally {
@@ -105,17 +113,32 @@ export default function AdminUserEditPage() {
 
   async function handleLink() {
     if (!selectedPlayerId) return
+    const player = availablePlayers.find((p) => p.id === selectedPlayerId)
+    if (!player) return
+
+    // Swap: if this player is already linked to another user, that link is
+    // overwritten (single authUid) — the previous owner is unlinked.
+    const prevOwnerUid = player.authUid && player.authUid !== userId ? player.authUid : null
+    if (prevOwnerUid) {
+      const ok = window.confirm(
+        `"${player.name}" je trenutno linkovan na ${ownerNames[prevOwnerUid] || prevOwnerUid}. ` +
+          `Linkovanjem će se prebaciti na ovog usera (stari se odlinkuje). Nastavi?`,
+      )
+      if (!ok) return
+    }
+
     setLinkSaving(true)
     setLinkError(null)
     try {
       await playersRepository.update(selectedPlayerId, { authUid: userId })
-      const player = freePlayers.find((p) => p.id === selectedPlayerId)
       setLinkedPlayer({ ...player, authUid: userId })
-      setFreePlayers((prev) => prev.filter((p) => p.id !== selectedPlayerId))
+      setAvailablePlayers((prev) => prev.filter((p) => p.id !== selectedPlayerId))
       setSelectedPlayerId('')
       showToast({
         title: 'Player linked',
-        message: `${player.name} is now linked to this user.`,
+        message: prevOwnerUid
+          ? `${player.name} je prebačen na ovog usera (${ownerNames[prevOwnerUid] || 'prethodni'} odlinkovan).`
+          : `${player.name} is now linked to this user.`,
         variant: 'success',
       })
     } catch {
@@ -131,7 +154,7 @@ export default function AdminUserEditPage() {
     setLinkError(null)
     try {
       await playersRepository.update(linkedPlayer.id, { authUid: null })
-      setFreePlayers((prev) => [...prev, { ...linkedPlayer, authUid: null }])
+      setAvailablePlayers((prev) => [...prev, { ...linkedPlayer, authUid: null }])
       setLinkedPlayer(null)
       showToast({
         title: 'Player unlinked',
@@ -150,7 +173,15 @@ export default function AdminUserEditPage() {
     setErrors((p) => ({ ...p, [field]: undefined }))
   }
 
-  const freePlayerOptions = freePlayers.map((p) => ({ value: p.id, label: p.name }))
+  const playerOptions = availablePlayers.map((p) => {
+    const takenBy = p.authUid && p.authUid !== userId ? ownerNames[p.authUid] || p.authUid : null
+    return { value: p.id, label: takenBy ? `${p.name} (linkovan: ${takenBy})` : p.name }
+  })
+  const selectedTakenBy = (() => {
+    const p = availablePlayers.find((pl) => pl.id === selectedPlayerId)
+    if (!p?.authUid || p.authUid === userId) return null
+    return ownerNames[p.authUid] || p.authUid
+  })()
 
   return (
     <AppLayout>
@@ -224,7 +255,8 @@ export default function AdminUserEditPage() {
                     Linked Player
                   </p>
                   <p className="mt-0.5 text-xs text-text-light">
-                    Each user can be linked to one player profile.
+                    Svaki user se linkuje na jednog igrača. Ako izabereš igrača koji je već
+                    linkovan na drugog usera, taj se odlinkuje (swap).
                   </p>
                 </div>
 
@@ -246,30 +278,37 @@ export default function AdminUserEditPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Select
-                        value={selectedPlayerId}
-                        onChange={(e) => setSelectedPlayerId(e.target.value)}
-                        options={freePlayerOptions}
-                        placeholder="Select a player..."
-                      />
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Select
+                          value={selectedPlayerId}
+                          onChange={(e) => setSelectedPlayerId(e.target.value)}
+                          options={playerOptions}
+                          placeholder="Select a player..."
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleLink}
+                        disabled={!selectedPlayerId || linkSaving}
+                        loading={linkSaving}
+                        loadingLabel="Linking..."
+                      >
+                        Link
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleLink}
-                      disabled={!selectedPlayerId || linkSaving}
-                      loading={linkSaving}
-                      loadingLabel="Linking..."
-                    >
-                      Link
-                    </Button>
+                    {selectedTakenBy && (
+                      <Alert variant="info" className="text-xs">
+                        Trenutno linkovan na {selectedTakenBy} — biće prebačen na ovog usera.
+                      </Alert>
+                    )}
                   </div>
                 )}
 
-                {!linkedPlayer && freePlayers.length === 0 && (
-                  <p className="text-xs text-text-light">No unlinked players available.</p>
+                {!linkedPlayer && availablePlayers.length === 0 && (
+                  <p className="text-xs text-text-light">No players available.</p>
                 )}
               </div>
             </Card>
