@@ -53,6 +53,14 @@ const SEEDS = [
     path: '/admin/seed/play-liga-2026-ciklus2',
     tags: ['league', 'round_robin', 'tiered'],
   },
+  {
+    id: 'playoff-2026',
+    name: 'Playoff 2026',
+    description:
+      'Knockout, 16 igrača iz Playoff Race 2026 (Ciklus 1 + 2, bez Ivana Obradovica → 17. ulazi). Osmina → četvrt → polu → finale. Žreb najbolji vs najlošiji.',
+    path: '/admin/seed/playoff-2026',
+    tags: ['tournament', 'knockout'],
+  },
 ]
 
 export default function AdminSeedsPage() {

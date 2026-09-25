@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import AppLayout from '../../../layouts/AppLayout.jsx'
 import {
@@ -46,7 +46,17 @@ export default function TournamentDetailPage() {
   const { showToast } = useToast()
   const { data: tournament, loading } = useFirestoreDoc('tournaments', tournamentId)
   const { data: seasons } = useFirestoreCollection('seasons')
-  const [activeTab, setActiveTab] = useState('setup')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'setup'
+  const setActiveTab = (id) =>
+    setSearchParams(
+      (prev) => {
+        const p = new URLSearchParams(prev)
+        p.set('tab', id)
+        return p
+      },
+      { replace: true },
+    )
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [recalculating, setRecalculating] = useState(false)

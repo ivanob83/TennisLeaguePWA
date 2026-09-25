@@ -66,6 +66,9 @@ const AdminFixTieredLeaguePage = lazy(
 const AdminOrphanMatchesPage = lazy(
   () => import('./features/admin/pages/AdminOrphanMatchesPage.jsx'),
 )
+const AdminRepairMatchIdsPage = lazy(
+  () => import('./features/admin/pages/AdminRepairMatchIdsPage.jsx'),
+)
 const AdminPendingApprovalsPage = lazy(
   () => import('./features/admin/pages/AdminPendingApprovalsPage.jsx'),
 )
@@ -83,6 +86,7 @@ const SeedPlayLiga2025Ciklus3Page = lazy(
 const SeedPlayLiga2026Ciklus2Page = lazy(
   () => import('./features/admin/pages/SeedPlayLiga2026Ciklus2Page.jsx'),
 )
+const SeedPlayoff2026Page = lazy(() => import('./features/admin/pages/SeedPlayoff2026Page.jsx'))
 const AdminAddFilipCiklus2Page = lazy(
   () => import('./features/admin/pages/AdminAddFilipCiklus2Page.jsx'),
 )
@@ -351,6 +355,14 @@ function App() {
               }
             />
             <Route
+              path="/admin/seed/playoff-2026"
+              element={
+                <ProtectedRoute>
+                  <SeedPlayoff2026Page />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/dedupe-players"
               element={
                 <ProtectedRoute>
@@ -395,6 +407,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SchedulingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/repair-match-ids"
+              element={
+                <ProtectedRoute>
+                  <AdminRepairMatchIdsPage />
                 </ProtectedRoute>
               }
             />

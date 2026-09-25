@@ -16,6 +16,9 @@ import { db } from '../../../infrastructure/firebase.js'
 import TopPlayerCard from '../components/TopPlayerCard.jsx'
 import { useAllTimeTopPlayer } from '../hooks/useAllTimeTopPlayer.js'
 
+// Leagues aggregated into the "Playoff Race 2026" combined ranking.
+const PLAYOFF_RACE_2026_LEAGUES = ['Play Liga 2026 Ciklus 1', 'Play Liga 2026 Ciklus 2']
+
 function RankingRows({ sorted, playersById }) {
   return sorted.map((entry, idx) => {
     const player = playersById?.[entry.playerId]
@@ -121,7 +124,7 @@ function sortRankings(rankings) {
   })
 }
 
-function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }) {
+function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById, onTopChange }) {
   const [rankings, setRankings] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -182,6 +185,11 @@ function AllTimeRankingTable({ leagues, tournaments, listsLoading, playersById }
     fetchAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leagueIds, tournamentIds, listsLoading])
+
+  useEffect(() => {
+    if (!onTopChange) return
+    onTopChange(sortRankings(mergeRankings(rankings))[0] ?? null)
+  }, [rankings, onTopChange])
 
   if (loading)
     return (
@@ -315,8 +323,13 @@ export default function RankingsPage() {
     enrichPlayersWithUserNames(players).then(setPlayersById)
   }, [players])
 
-  const rankingsPath = view !== 'alltime' && selectedId ? `${view}/${selectedId}/rankings` : ''
+  const isAggregateView = view === 'alltime' || view === 'playoff2026'
+  const rankingsPath = !isAggregateView && selectedId ? `${view}/${selectedId}/rankings` : ''
   const { data: competitionRankings } = useFirestoreCollection(rankingsPath)
+
+  const playoffLeagues = leagues.filter((l) => PLAYOFF_RACE_2026_LEAGUES.includes(l.name))
+  const [playoffTop, setPlayoffTop] = useState(null)
+  const playoffTopPlayer = playoffTop ? (playersById[playoffTop.playerId] ?? null) : null
 
   const competitionTop = rankingsPath
     ? (sortRankings(mergeRankings(competitionRankings))[0] ?? null)
@@ -325,8 +338,14 @@ export default function RankingsPage() {
     ? (playersById[competitionTop.playerId] ?? null)
     : null
 
-  const topEntry = view === 'alltime' ? alltimeTop : competitionTop
-  const topPlayer = view === 'alltime' ? alltimeTopPlayer : competitionTopPlayer
+  const topEntry =
+    view === 'alltime' ? alltimeTop : view === 'playoff2026' ? playoffTop : competitionTop
+  const topPlayer =
+    view === 'alltime'
+      ? alltimeTopPlayer
+      : view === 'playoff2026'
+        ? playoffTopPlayer
+        : competitionTopPlayer
 
   async function handleRecalculate() {
     setRecalculating(true)
@@ -351,6 +370,7 @@ export default function RankingsPage() {
 
   const typeOptions = [
     { value: 'alltime', label: 'All Time' },
+    { value: 'playoff2026', label: 'Playoff Race 2026' },
     { value: 'leagues', label: 'Leagues' },
     { value: 'tournaments', label: 'Tournaments' },
   ]
@@ -361,7 +381,9 @@ export default function RankingsPage() {
   const topLabel =
     view === 'alltime'
       ? 'All-time ranking'
-      : (competitions.find((c) => c.id === selectedId)?.name ?? 'Competition ranking')
+      : view === 'playoff2026'
+        ? 'Playoff Race 2026'
+        : (competitions.find((c) => c.id === selectedId)?.name ?? 'Competition ranking')
 
   function handleViewChange(e) {
     setView(e.target.value)
@@ -379,7 +401,7 @@ export default function RankingsPage() {
           <div className="w-44">
             <Select options={typeOptions} value={view} onChange={handleViewChange} />
           </div>
-          {view !== 'alltime' && (
+          {!isAggregateView && (
             <div className="w-64">
               {competitionsLoading ? (
                 <p className="text-sm text-text-light">Loading...</p>
@@ -393,7 +415,7 @@ export default function RankingsPage() {
               )}
             </div>
           )}
-          {isEditor && view !== 'alltime' && selectedId && (
+          {isEditor && !isAggregateView && selectedId && (
             <Button
               size="sm"
               variant="ghost"
@@ -419,6 +441,14 @@ export default function RankingsPage() {
               tournaments={tournaments}
               listsLoading={listsLoading}
               playersById={playersById}
+            />
+          ) : view === 'playoff2026' ? (
+            <AllTimeRankingTable
+              leagues={playoffLeagues}
+              tournaments={[]}
+              listsLoading={listsLoading}
+              playersById={playersById}
+              onTopChange={setPlayoffTop}
             />
           ) : !selectedId ? (
             <Card>

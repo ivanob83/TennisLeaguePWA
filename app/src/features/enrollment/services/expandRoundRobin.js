@@ -303,7 +303,7 @@ export async function repairRoundRobinMatches(leagueId, options = {}) {
       existing: existingMatches.length,
       missing: missingPairs.length,
       matchesCreated: dryRun ? 0 : missingPairs.length,
-      idsSynced: dryRun ? 0 : idsSynced,
+      idsSynced,
     })
   }
 
