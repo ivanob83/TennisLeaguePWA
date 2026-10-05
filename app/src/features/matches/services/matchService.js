@@ -1,5 +1,6 @@
 import { matchesRepository } from '../../../infrastructure/firestore.js'
 import { recalculateRankings } from '../../rankings/services/rankingService.js'
+import { advanceKnockoutWinners } from './knockoutAdvance.js'
 
 /**
  * Validate that sets are well-formed.
@@ -183,8 +184,12 @@ export async function rejectScores(competitionType, competitionId, roundId, matc
 /**
  * Triggers ranking recalculation after a match is finished.
  */
-function onMatchFinished({ competitionType, competitionId, enrollments }) {
+function onMatchFinished({ competitionType, competitionId, roundId, enrollments }) {
   recalculateRankings(competitionType, competitionId, enrollments).catch((err) =>
     console.error('[Rankings] Recalculation failed:', err),
+  )
+  // Knockout: push the winner into the next round's slot (no-op for non-knockout rounds).
+  advanceKnockoutWinners(competitionType, competitionId, roundId).catch((err) =>
+    console.error('[Knockout] Advancement failed:', err),
   )
 }

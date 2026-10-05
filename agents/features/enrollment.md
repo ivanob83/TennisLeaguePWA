@@ -103,6 +103,14 @@ Feature pokriva: prijavu igrača, žreb (draw), grupne mečeve, knockout bracket
 
 **Firestore operacije:** Identične sa `GroupMatchesTab` ali za knockout rounds.
 
+**Napredovanje pobednika (`matches/services/knockoutAdvance.js`):**
+
+- Mečevi u rundi se sortiraju po broju na kraju `label`-a (R16-1…R16-8, QF1…QF4, SF1, SF2, Final).
+- Meč #i (0-based) runde N puni meč #floor(i/2) sledeće knockout runde: parni i → `player1*`, neparni → `player2*` (`Id`, `Name`, `Position`).
+- Poziva se automatski iz `onMatchFinished` (approveScores / editResult / setWalkover). Ne dira mečeve sledeće runde koji su već završeni; ako se rezultat izmeni i promeni pobednik, slot se ažurira.
+- Prazan slot prikazuje „Pobednik <label>“ (izvorni meč iz prethodne runde) umesto „BYE“.
+- Backfill: kad editor otvori knockout tab, ceo bracket se automatski sinhronizuje (i mečevi završeni pre ove funkcije). Postoji i ručno dugme „Prebaci pobednike u sledeću rundu“.
+
 ---
 
 ## Komponenta: GroupStandingsTab

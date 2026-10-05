@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { where } from 'firebase/firestore'
 import { Alert, Button, Card, Input, Loader, MatchCard } from '../../../ui/index.js'
@@ -6,6 +6,12 @@ import { useFirestoreCollectionOnce } from '../../../hooks/useFirestore.js'
 import { useEnrichedEnrollments } from '../../../hooks/useEnrichedEnrollments.js'
 import { useAuthContext } from '../../auth/context/AuthContext.jsx'
 import { scheduleMatch } from '../../matches/services/matchService.js'
+import {
+  advanceKnockoutWinners,
+  feederLabels,
+  sortBracketMatches,
+} from '../../matches/services/knockoutAdvance.js'
+import { matchesRepository } from '../../../infrastructure/firestore.js'
 
 function toLocalDatetimeValue(val) {
   if (!val) return ''
@@ -26,9 +32,12 @@ function formatScheduledAt(val) {
   return `${weekday} ${day}.${month}.${d.getFullYear()} ${hours}:${minutes}`
 }
 
-function buildCardMatch(match, enrollments) {
-  function playerName(id) {
-    if (!id) return 'BYE'
+function buildCardMatch(match, enrollments, feeders = null) {
+  function playerName(id, slotIndex) {
+    if (!id) {
+      const src = feeders?.[slotIndex]
+      return src ? `Pobednik ${src}` : 'TBD'
+    }
     const en = enrollments.find((e) => e.playerId === id)
     return en?.playerName || en?.playerEmail || id
   }
@@ -49,17 +58,17 @@ function buildCardMatch(match, enrollments) {
       : null,
     entrants: isWalkover
       ? [
-          { name: playerName(match.player1Id), isWinner: p1Won, sets: [p1Won ? 'WO' : '-'] },
-          { name: playerName(match.player2Id), isWinner: p2Won, sets: [p2Won ? 'WO' : '-'] },
+          { name: playerName(match.player1Id, 0), isWinner: p1Won, sets: [p1Won ? 'WO' : '-'] },
+          { name: playerName(match.player2Id, 1), isWinner: p2Won, sets: [p2Won ? 'WO' : '-'] },
         ]
       : [
           {
-            name: playerName(match.player1Id),
+            name: playerName(match.player1Id, 0),
             isWinner: p1Won,
             sets: scores.map((s) => s.player1),
           },
           {
-            name: playerName(match.player2Id),
+            name: playerName(match.player2Id, 1),
             isWinner: p2Won,
             sets: scores.map((s) => s.player2),
           },
@@ -67,7 +76,15 @@ function buildCardMatch(match, enrollments) {
   }
 }
 
-function MatchRow({ match, enrollments, competitionType, competitionId, roundId, isEditor }) {
+function MatchRow({
+  match,
+  enrollments,
+  feeders,
+  competitionType,
+  competitionId,
+  roundId,
+  isEditor,
+}) {
   const [showSchedule, setShowSchedule] = useState(false)
   const [scheduledAt, setScheduledAt] = useState(toLocalDatetimeValue(match.scheduledAt))
   const [saving, setSaving] = useState(false)
@@ -76,7 +93,7 @@ function MatchRow({ match, enrollments, competitionType, competitionId, roundId,
   const isFinished = match.status === 'finished' || match.status === 'walkover' || match.walkover
   const canSchedule = isEditor && !isFinished
   const detailHref = `/${competitionType}/${competitionId}/rounds/${roundId}/matches/${match.id}`
-  const cardMatch = buildCardMatch(match, enrollments)
+  const cardMatch = buildCardMatch(match, enrollments, feeders)
 
   async function handleSchedule(e) {
     e.preventDefault()
@@ -142,18 +159,24 @@ function MatchRow({ match, enrollments, competitionType, competitionId, roundId,
   )
 }
 
-function RoundMatchesList({ competitionType, competitionId, roundId, enrollments, isEditor }) {
-  const matchesPath = `${competitionType}/${competitionId}/rounds/${roundId}/matches`
-  const { data: matches, loading } = useFirestoreCollectionOnce(matchesPath)
-  if (loading) return <p className="py-2 text-sm text-text-light">Loading matches...</p>
+function RoundMatchesList({
+  competitionType,
+  competitionId,
+  roundId,
+  matches,
+  prevMatches,
+  enrollments,
+  isEditor,
+}) {
   if (!matches.length) return <p className="py-2 text-sm text-text-light">No match slots yet.</p>
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {matches.map((match) => (
+      {matches.map((match, idx) => (
         <MatchRow
           key={match.id}
           match={match}
           enrollments={enrollments}
+          feeders={feederLabels(prevMatches, idx)}
           competitionType={competitionType}
           competitionId={competitionId}
           roundId={roundId}
@@ -166,7 +189,9 @@ function RoundMatchesList({ competitionType, competitionId, roundId, enrollments
 
 /**
  * Shows auto-generated knockout bracket rounds and their match slots.
- * Editors can schedule matches inline. All matches link to the detail page.
+ * Empty slots show which match the winner comes from ("Pobednik R16-1").
+ * Winners are pushed forward automatically when a result is finalised;
+ * editors can also re-sync the whole bracket manually.
  */
 export default function KnockoutTab({ competitionType, competitionId }) {
   const { isEditor } = useAuthContext()
@@ -175,8 +200,65 @@ export default function KnockoutTab({ competitionType, competitionId }) {
     where('type', '==', 'knockout'),
   ])
   const { data: enrollments } = useEnrichedEnrollments(competitionType, competitionId)
+  const [matchesByRound, setMatchesByRound] = useState({})
+  const [matchesLoading, setMatchesLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState(null)
 
-  if (roundsLoading) {
+  const sortedRounds = [...rounds].sort((a, b) => (a.roundNumber || 0) - (b.roundNumber || 0))
+  const roundIdsKey = sortedRounds.map((r) => r.id).join(',')
+
+  const loadMatches = useCallback(async () => {
+    const ids = roundIdsKey ? roundIdsKey.split(',') : []
+    const entries = await Promise.all(
+      ids.map(async (rid) => [
+        rid,
+        sortBracketMatches(await matchesRepository(competitionType, competitionId, rid).getAll()),
+      ]),
+    )
+    setMatchesByRound(Object.fromEntries(entries))
+    setMatchesLoading(false)
+  }, [competitionType, competitionId, roundIdsKey])
+
+  useEffect(() => {
+    if (roundsLoading) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        // Editors: backfill the bracket on open, so winners of matches finished
+        // before auto-advancement existed are pushed forward too.
+        if (isEditor && roundIdsKey) {
+          await advanceKnockoutWinners(competitionType, competitionId).catch((err) =>
+            console.error('[Knockout] Auto-sync failed:', err),
+          )
+        }
+        if (!cancelled) await loadMatches()
+      } catch (err) {
+        console.error('[Knockout] Failed to load matches:', err)
+        setMatchesLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [roundsLoading, loadMatches, isEditor, roundIdsKey, competitionType, competitionId])
+
+  async function handleSync() {
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      const n = await advanceKnockoutWinners(competitionType, competitionId)
+      await loadMatches()
+      setSyncMsg(n ? `Ažurirano slotova: ${n}` : 'Bracket je već ažuran.')
+    } catch (err) {
+      console.error(err)
+      setSyncMsg('Sinhronizacija nije uspela.')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  if (roundsLoading || (rounds.length && matchesLoading)) {
     return (
       <div className="flex justify-center py-10">
         <Loader />
@@ -197,20 +279,28 @@ export default function KnockoutTab({ competitionType, competitionId }) {
 
   return (
     <div className="space-y-8">
-      {[...rounds]
-        .sort((a, b) => (a.roundNumber || 0) - (b.roundNumber || 0))
-        .map((round) => (
-          <div key={round.id}>
-            <h4 className="mb-3 font-heading text-sm font-semibold text-text">{round.name}</h4>
-            <RoundMatchesList
-              competitionType={competitionType}
-              competitionId={competitionId}
-              roundId={round.id}
-              enrollments={enrollments}
-              isEditor={isEditor}
-            />
-          </div>
-        ))}
+      {isEditor && (
+        <div className="flex items-center justify-end gap-3">
+          {syncMsg && <span className="text-xs text-text-light">{syncMsg}</span>}
+          <Button size="sm" variant="secondary" onClick={handleSync} loading={syncing}>
+            Prebaci pobednike u sledeću rundu
+          </Button>
+        </div>
+      )}
+      {sortedRounds.map((round, idx) => (
+        <div key={round.id}>
+          <h4 className="mb-3 font-heading text-sm font-semibold text-text">{round.name}</h4>
+          <RoundMatchesList
+            competitionType={competitionType}
+            competitionId={competitionId}
+            roundId={round.id}
+            matches={matchesByRound[round.id] || []}
+            prevMatches={idx > 0 ? matchesByRound[sortedRounds[idx - 1].id] || [] : null}
+            enrollments={enrollments}
+            isEditor={isEditor}
+          />
+        </div>
+      ))}
     </div>
   )
 }
